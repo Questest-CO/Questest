@@ -1,0 +1,39 @@
+﻿@using PPZKwestionariusze.Models
+
+<div style="display:flex;padding:10px">
+
+    <div style="flex:1">
+        <button style="margin-right:30px" class="btn1" @onclick="Remove">Usuń</button>
+
+    </div>
+    <div style="flex:10">
+        <input class="form-control mb-1" placeholder="Odpowiedzi" @bind="Option.Content" />
+
+    </div>
+    <div style="flex:3">
+        <label class="search-checkbox-label">
+            @if(Option.IsCorrect == "T"){
+             <input style="margin-left:330px"  type="checkbox" @onclick="changeCorrect" checked="True" /> 
+            }
+            else{
+                <input style="margin-left:330px" type="checkbox" @onclick="changeCorrect" /> 
+            }
+        </label>
+    </div>
+</div>
+
+@code {
+    [Parameter] public Option Option { get; set; } = new Option{Id=-1};
+    [Parameter] public EventCallback OnRemove { get; set; }
+
+    private void changeCorrect()
+    {
+        if (Option.IsCorrect != "T")
+        {
+            Option.IsCorrect = "T";
+            return;
+        }
+        Option.IsCorrect = "N";
+    }
+    private async Task Remove() => await OnRemove.InvokeAsync();
+}

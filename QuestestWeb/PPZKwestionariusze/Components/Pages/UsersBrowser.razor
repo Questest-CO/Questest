@@ -1,0 +1,167 @@
+﻿﻿@using PPZKwestionariusze.Models
+@using PPZKwestionariusze.StateStore
+
+@page "/users"
+@inject PPZKwestionariusze.Services.UserService UsersService
+@inject SessionStorage sessionStorage
+
+
+<h3>Użytkownicy</h3>
+
+@if (users == null)
+{
+    <div class="preloader"></div>
+}
+else
+{
+ <div class="filters @(showFilters ? "" : "collapsed")">
+
+        <h3 @onclick="ToggleFilters" style="cursor: pointer;">
+            Flitry
+            <span class="toggle-arrow">
+                @(showFilters ? "▲" : "▲")
+            </span>
+        </h3>
+
+        <div class="filters-content">
+            <div class="search1">
+                <div class="search-text">
+                    <label class="search-label">Nazwa użytkownika</label>
+                    <input class="searchbox" placeholder="Wpisz nazwę użytkownika..." @bind="searchUsername" />
+                </div>
+            </div>
+
+            <div class="space-between-buttons">
+                <button class="btn1" @onclick="ApplyFilters">Zastosuj</button>
+            </div>
+
+        </div>
+
+    </div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th style="cursor:pointer" @onclick="() => SortBy(IdStr)">ID @(kolumna == "Id" ? (sortAscending ? "↑" : "↓") : "")</th>
+                <th style="cursor:pointer" @onclick="() => SortBy(UsernameStr)">Nazwa użytkownika @(kolumna == "Username" ? (sortAscending ? "↑" : "↓") : "")</th>
+                <th style="cursor:pointer" @onclick="() => SortBy(QuestionnaireCountStr)">Liczba utworzonych kwestionariuszy @(kolumna == "QuestionnaireCount" ? (sortAscending ? "↑" : "↓") : "")</th>
+                <th style="cursor:pointer" @onclick="() => SortBy(FillCountStr)">Liczba wypełnień kwestionariuszy @(kolumna == "FillCount" ? (sortAscending ? "↑" : "↓") : "")</th>
+                <th style="cursor:pointer" @onclick="() => SortBy(DateCreatedStr)">Data rejestracji @(kolumna == "DateCreated" ? (sortAscending ? "↑" : "↓") : "")</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in PagedUsers)
+            {
+                <tr style="@(user.Id == usm?.Id ? "background-color:aliceblue" : "")">
+                    <td>@user.Id</td>
+                    <td>@user.Username</td>
+                    <td>@user.QuestionnaireCount</td>
+                    <td>@user.FillCount</td>
+                    <td>@user.DateCreated.ToString("yyyy-MM-dd")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <div class="pagination">
+        <button class="btn btn-secondary" @onclick="PrevPage" disabled="@(currentPage == 1)">←</button>
+        <span style="margin-left:20px;margin-right:20px;margin-top:10px;">@currentPage/@totalPages</span>
+        <button class="btn btn-secondary" @onclick="NextPage" disabled="@(currentPage == totalPages)">→</button>
+    </div>
+}
+
+@code {
+    private List<UserViewModel> allUsers;
+    private List<UserViewModel> users;
+
+    private UserStorageModel? usm;
+
+    private List<UserViewModel> PagedUsers =>
+        users.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
+
+    private int currentPage = 1;
+    private int pageSize = 10;
+    private int totalPages => (int)Math.Ceiling((double)users.Count / pageSize);
+    private string currentSortColumn = "";
+    private bool sortAscending = true;
+    private string kolumna = "Id";
+
+    private string IdStr = "Id";
+    private string UsernameStr = "Username";
+    private string QuestionnaireCountStr = "QuestionnaireCount";
+    private string FillCountStr = "FillCount";
+    private string DateCreatedStr = "DateCreated";
+    private bool showFilters = false;
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            usm = await sessionStorage.GetUserAsync();
+
+            StateHasChanged();
+        }
+    }
+
+
+    private string searchUsername = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        allUsers = await UsersService.GetUsersBrowserAsync();
+        allUsers = allUsers.Where(x => x.IsVisible == "T" || x.Id == usm?.Id).ToList();
+        users = allUsers;
+    }
+
+    private void ApplyFilters()
+    {
+        users = allUsers
+            .Where(q =>
+                (string.IsNullOrWhiteSpace(searchUsername) || q.Username.Contains(searchUsername, StringComparison.OrdinalIgnoreCase)))
+        .ToList();
+    }
+
+    private void ClearFilters()
+    {
+        searchUsername = string.Empty;
+        users = allUsers;
+    }
+
+    private void NextPage()
+    {
+        if (currentPage < totalPages) currentPage++;
+    }
+
+    private void PrevPage()
+    {
+        if (currentPage > 1) currentPage--;
+    }
+    private void SortBy(string columnName)
+    {
+        if (kolumna == columnName)
+        {
+            sortAscending = !sortAscending; // kierunek sortowania
+        }
+        else
+        {
+            kolumna = columnName;
+            sortAscending = true;
+        }
+
+        users = columnName switch
+        {
+            "Id" => (sortAscending ? users.OrderBy(u => u.Id) : users.OrderByDescending(u => u.Id)).ToList(),
+            "Username" => (sortAscending ? users.OrderBy(u => u.Username) : users.OrderByDescending(u => u.Username)).ToList(),
+            "QuestionnaireCount" => (sortAscending ? users.OrderBy(u => u.QuestionnaireCount) : users.OrderByDescending(u => u.QuestionnaireCount)).ToList(),
+            "FillCount" => (sortAscending ? users.OrderBy(u => u.FillCount) : users.OrderByDescending(u => u.FillCount)).ToList(),
+            "DateCreated" => (sortAscending ? users.OrderBy(u => u.DateCreated) : users.OrderByDescending(u => u.DateCreated)).ToList(),
+            _ => users
+        };
+    }
+
+    private void ToggleFilters()
+    {
+        showFilters = !showFilters;
+    }
+
+}

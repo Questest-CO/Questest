@@ -1,0 +1,236 @@
+﻿@page "/fill-questionnaire/{QuestionnaireId:int}"
+
+@inject QuestionnaireService QuestionnaireService
+@inject QuestionService QuestionService
+@inject OptionsService OptionsService
+@inject QuestionnaireFilledService QuestionnaireFilledService
+@inject QuestionAnswerService QuestionAnswerService
+@inject NotificationService NotificationService
+
+@inject SessionStorage sessionStorage
+@using PPZKwestionariusze.Services
+@using PPZKwestionariusze.Models
+@using PPZKwestionariusze.StateStore
+@using PPZKwestionariusze.Components
+
+
+@if (isLoading)
+{
+    <div class="preloader"></div>
+}
+else if (usm is null)
+{
+    <div class="info-box">
+        <i class="fa-solid fa-lock"></i> Tylko zalogowany użytkownik może wypełniać kwestionariusze.
+    </div>
+}
+else if (nonexistent)
+{
+    <div class="info-box error">
+        <i class="fa-solid fa-ban"></i> Ten kwestionariusz nie istnieje.
+    </div>
+}
+else if (block)
+{
+    <div class="info-box error">
+        <i class="fa-solid fa-ban"></i> Nie masz uprawnień do wypełniania tego kwestionariusza.
+    </div>
+}
+
+else
+{
+    @if (message != null)
+    {
+        <div class="info-box info">
+            <i class="fa-solid fa-circle-info"></i> @message
+        </div>
+    }
+
+    if (!block)
+    {
+        <div class="questionnaire-form">
+            <h3 class="questionnaire-title">@currentQuestionnaire.Title</h3>
+
+            @foreach (var question in currentQuestionnaire.Questions)
+            {
+                <div class="question-block">
+                    <p class="question-text"><strong>@question.Content</strong></p>
+
+                    @if (question.Options.Count == 0) // pytanie otwarte
+                    {
+                        <textarea class="open-answer"
+                                  @onchange="e => OpenAnswerChanged(question.Id, ((ChangeEventArgs)e).Value.ToString())">
+                                                        </textarea>
+                    }
+
+                    @foreach (var option in question.Options)
+                    {
+                        <div class="custom-checkbox">
+                            <input type="checkbox"
+                                   id="opt-@option.Id"
+                                   checked="@IsOptionChecked(option.Id)"
+                                   @onchange="e => OnOptionToggled(option.Id, ((ChangeEventArgs)e).Value is true)" />
+                            <label for="opt-@option.Id">@option.Content</label>
+                        </div>
+                    }
+                </div>
+            }
+
+            <div class="submit-container">
+                <button type="submit" class="btn1" @onclick="Save">
+                    <i class="fa-solid fa-paper-plane"></i> Prześlij
+                </button>
+            </div>
+        </div>
+    }
+}
+
+@code {
+    [Parameter]
+    public int? QuestionnaireId { get; set; }
+
+    bool block = false;
+    bool nonexistent = false;
+    bool isLoading = true;
+
+    String error_mess = "";
+    UserStorageModel? usm;
+    String message;
+
+    // wypełniany kwestionariusz
+    private Questionnaire currentQuestionnaire = new Questionnaire();
+
+    // wypełnienie - zawiera Answers, odpowiedzi na poszczególne pytania
+    private QuestionnaireFilled questionnaireFilled = new QuestionnaireFilled();
+
+    private async Task Save()
+    {
+        // zapisanie nagłówka
+        int questfilledid = -1;
+        questfilledid = await QuestionnaireFilledService.AddQuestionnaireFilledAsync(questionnaireFilled);
+
+        if (questfilledid == -1)
+        {
+            error_mess = "Wystapił błąd przy zapisywaniu nagłówka odpowiedzi :(";
+            return;
+        }
+
+        // zapisanie odpowiedzi
+        int answerid = -1;
+        foreach(var ans in questionnaireFilled.Answers)
+        {
+            // zapisujemy tylko zaznaczone odpowiedzi
+            //if (ans.IsChosen == "T")
+            if (true)
+            {
+                ans.QuestionnaireFilledId = questfilledid;
+                await QuestionAnswerService.AddAnswerAsync(ans);
+            }
+        }
+
+        // zapisanie odpowiedzi na pytania otwarte
+        foreach(var quest in questionnaireFilled.AnswersOpen){
+            quest.QuestionnaireFilledId = questfilledid;
+            await QuestionAnswerService.AddAnswerOpenAsync(quest);
+        }
+
+        // wysłanie powiadomienia do autora
+        Notification test = new Notification();
+        test.Text = $"Użytkownik {usm.Username} wypełnił twój kwestionariusz: {currentQuestionnaire.Title}.";
+        test.UserId = currentQuestionnaire.CreatedBy;
+        test.DateSent = DateTime.Now;
+        await NotificationService.AddNotificationAsync(test);
+
+        message = "Przesłano odpowiedzi!";
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            usm = await sessionStorage.GetUserAsync();
+
+
+            if (usm != null && QuestionnaireId.HasValue)
+            {
+                questionnaireFilled.QuestionnaireId = QuestionnaireId.Value;
+                questionnaireFilled.FilledBy = usm.Id;
+
+                var existing = await QuestionnaireService.GetQuestionnaireByIDAsync(QuestionnaireId.Value);
+
+                if (existing != null)
+                {
+                    existing.PermittedUsers = await QuestionnaireService.GetPermittedUsers(existing.Id);
+                    if ((existing.CreatedBy != usm?.Id && !existing.PermittedUsers.Contains(usm.Id)) && existing.IsPrivate == "T")
+                    {
+                        block = true;
+                        isLoading = false;
+                        StateHasChanged();
+                        return;
+                    }
+
+                    currentQuestionnaire = existing;
+
+
+                    var questions = await QuestionService.GetQuestionsForQuestionnaire(existing.Id);
+                    foreach (var q in questions)
+                    {
+                        q.Options = await OptionsService.GetOptionsForQuestion(q.Id);
+                        currentQuestionnaire.Questions.Add(q);
+                    }
+                }
+                else
+                {
+                    nonexistent = true;
+                }
+            }
+            isLoading = false;
+            StateHasChanged();
+        }
+
+
+
+    }
+
+    private bool IsOptionChecked(int optionId)
+    {
+        return questionnaireFilled.Answers.Any(a => a.OptionId == optionId && a.IsChosen == "T");
+    }
+
+    private void OpenAnswerChanged(int questionId, string newAnswer)
+    {
+        var existingAnswer = questionnaireFilled.AnswersOpen.FirstOrDefault(a => a.QuestionId == questionId);
+        if (existingAnswer != null)
+        {
+            existingAnswer.Answer = newAnswer;
+        }
+        else
+        {
+            questionnaireFilled.AnswersOpen.Add(new QuestionAnswerOpen
+                {
+                    QuestionId = questionId,
+                    Answer = newAnswer
+                });
+        }
+    }
+
+    private void OnOptionToggled(int optionId, bool isChecked)
+    {
+        var existingAnswer = questionnaireFilled.Answers.FirstOrDefault(a => a.OptionId == optionId);
+        if (existingAnswer != null)
+        {
+            existingAnswer.IsChosen = isChecked ? "T" : "N";
+        }
+        else
+        {
+            questionnaireFilled.Answers.Add(new QuestionAnswer
+                {
+                    OptionId = optionId,
+                    IsChosen = isChecked ? "T" : "N"
+                });
+        }
+    }
+
+
+
+}

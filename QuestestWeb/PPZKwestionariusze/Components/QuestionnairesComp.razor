@@ -1,0 +1,232 @@
+﻿﻿@using PPZKwestionariusze.Models
+@using PPZKwestionariusze.StateStore
+
+@page "/questionnaires"
+@inject PPZKwestionariusze.Services.QuestionnaireService QuestionnaireService
+@inject SessionStorage sessionStorage
+
+
+<h3>Kwestionariusze z bazy</h3>
+
+@if (questionnaires == null)
+{
+    <div class="preloader"></div>
+}
+else
+{
+
+    <div class="filters @(showFilters ? "" : "collapsed")">
+        <h3 @onclick="ToggleFilters" style="cursor: pointer;">
+            Flitry
+            <span class="toggle-arrow">
+                @(showFilters ? "▲" : "▲")
+            </span>
+        </h3>
+
+        <div class="filters-content">
+            <div class="search1">
+                <div class="search-text">
+                    <label class="search-label">Tytuł</label>
+                    <input class="searchbox" placeholder="Wpisz tytuł..." @bind="searchTitle" />
+                </div>
+
+                <div class="search-text">
+                    <label class="search-label">Autor</label>
+                    <input class="searchbox" placeholder="Wpisz autora..." @bind="searchAuthor" />
+                </div>
+            </div>
+
+            <div class="search2">
+                <div class="search-number">
+                    <label class="search-label">Min. liczba pytań</label>
+                    <input type="number" class="searchbox" @bind="minQuestions" />
+                </div>
+
+                <div class="search-number">
+                    <label class="search-label">Maks. liczba pytań</label>
+                    <input type="number" class="searchbox" @bind="maxQuestions" />
+                </div>
+
+                <div class="search-sumbit">
+                    <label class="search-checkbox-label">
+                        <input type="checkbox" class="searchcheckbox" @bind="showMyPrivateQuestionnaires" /> Pokaż moje prywatne kwestionariusze
+                    </label>
+                </div>
+            </div>
+
+            <div class="space-between-buttons">
+                <button class="btn1" @onclick="ApplyFilters">Zastosuj filtry</button>
+                <button class="btn1" @onclick="ClearFilters">Wyczyść filtry</button>
+            </div>
+        </div>
+    </div>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th style="cursor:pointer" @onclick="() => SortBy(IdStr)">ID @(kolumna == "Id" ? (sortAscending ? "↑" : "↓") : "")</th>
+                <th style="cursor:pointer" @onclick="() => SortBy(TitleStr)">Tytuł @(kolumna == "Title" ? (sortAscending ? "↑" : "↓") : "")</th>
+                <th style="cursor:pointer" @onclick="() => SortBy(CreatedByStr)">Autor @(kolumna == "CreatedBy" ? (sortAscending ? "↑" : "↓") : "")</th>
+                <th style="cursor:pointer" @onclick="() => SortBy(QuestionCountStr)">Liczba pytań @(kolumna == "QuestionCount" ? (sortAscending ? "↑" : "↓") : "")</th>
+                <th style="cursor:pointer" @onclick="() => SortBy(FillCountStr)">Liczba wypełnień @(kolumna == "FillCount" ? (sortAscending ? "↑" : "↓") : "")</th>
+                <th style="cursor:pointer" @onclick="() => SortBy(DateCreatedStr)">Utworzono @(kolumna == "DateCreated" ? (sortAscending ? "↑" : "↓") : "")</th>
+                <th>Edycja</th>
+                <th>Wypełnij</th>
+                <th>Historia wypełnień</th>
+                <th>Udostępnianie</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var questionnaire in PagedQuestionnaires)
+            {
+                <tr style="@((questionnaire.CreatedBy == usm?.Id) ? "background-color:aliceblue" :  (questionnaire.PermittedUsers.Contains((usm == null ? -1: usm.Id))) ? "background-color:peachpuff" : "")">
+                    <td>@questionnaire.Id</td>
+                    <td>@questionnaire.Title</td>
+                    <td>@questionnaire.CreatedByUsername</td>
+                    <td>@questionnaire.QuestionCount</td>
+                    <td>@questionnaire.FillCount</td>
+                    <td>@questionnaire.DateCreated.ToString("yyyy-MM-dd")</td>
+                    <td>
+                        @if (questionnaire.CreatedBy == usm?.Id)
+                        {
+                            <a href='/add-questionnaire/@questionnaire.Id'>Edytuj</a>
+                        }
+                    </td>
+                    <td>
+                        <a href='/fill-questionnaire/@questionnaire.Id'>Wypełnij</a>
+                    </td>
+                    <td>
+                        @if (questionnaire.CreatedBy == usm?.Id)
+                        {
+                            <a href="/questionnaire-fill-history/@questionnaire.Id">Historia wypełnień</a>
+                        }
+                    </td>
+                    <td>
+                        @if (questionnaire.CreatedBy == usm?.Id)
+                        {
+                            <a href="/share/@questionnaire.Id">Udostępnij</a>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+    <div class="pagination">
+        <button class="btn btn-secondary" @onclick="PrevPage" disabled="@(currentPage == 1)">←</button>
+        <span style="margin-left:20px;margin-right:20px;margin-top:10px;">@currentPage/@totalPages</span>
+        <button class="btn btn-secondary" @onclick="NextPage" disabled="@(currentPage == totalPages)">→</button>
+    </div>
+}
+
+@code {
+    private List<QuestionnaireViewModel> questionnaires; // filtrowane
+    private List<QuestionnaireViewModel> allQuestionnaires;
+    private List<QuestionnaireViewModel> PagedQuestionnaires =>
+        questionnaires.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();
+
+
+    private string searchTitle = string.Empty;
+    private string searchAuthor = string.Empty;
+    private int? minQuestions = null;
+    private int? maxQuestions = null;
+    private bool showMyPrivateQuestionnaires = false;
+
+    private int currentPage = 1;
+    private int pageSize = 10;
+    private int totalPages => (int)Math.Ceiling((double)questionnaires.Count / pageSize);
+
+    private string kolumna = "Id";
+    private bool sortAscending = false;
+    private string IdStr = "Id";
+    private string TitleStr = "Title";
+    private string CreatedByStr = "CreatedBy";
+    private string QuestionCountStr = "QuestionCount";
+    private string FillCountStr = "FillCount";
+    private string DateCreatedStr = "DateCreated";
+
+    private bool showFilters = false;
+
+    private UserStorageModel? usm;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            usm = await sessionStorage.GetUserAsync();
+
+            StateHasChanged();
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        allQuestionnaires = await QuestionnaireService.GetQuestionnairesBrowserAsync();
+        foreach (var quest in allQuestionnaires)
+        {
+            quest.PermittedUsers = await QuestionnaireService.GetPermittedUsers(quest.Id); // dodanie listy użytkowników, którym został udosstępniony
+        }
+        questionnaires = allQuestionnaires.Where(q => q.IsPrivate == "N" || q.CreatedBy == usm?.Id || q.PermittedUsers.Contains(usm == null ? -1 : usm.Id)).ToList();
+    }
+
+    private void ApplyFilters()
+    {
+        questionnaires = allQuestionnaires
+            .Where(q =>
+                (showMyPrivateQuestionnaires ? q.IsPrivate == "N" || q.CreatedBy == usm?.Id || q.PermittedUsers.Contains(usm == null ? -1 : usm.Id) : (q.IsPrivate == "N" || q.PermittedUsers.Contains(usm == null ? -1 : usm.Id))) &&
+                (string.IsNullOrWhiteSpace(searchTitle) || q.Title.Contains(searchTitle, StringComparison.OrdinalIgnoreCase)) &&
+                (string.IsNullOrWhiteSpace(searchAuthor) || q.CreatedByUsername.Contains(searchAuthor, StringComparison.OrdinalIgnoreCase)) &&
+                (!minQuestions.HasValue || q.QuestionCount >= minQuestions.Value) &&
+                (!maxQuestions.HasValue || q.QuestionCount <= maxQuestions.Value))
+            .ToList();
+    }
+
+    private void ClearFilters()
+    {
+        searchTitle = string.Empty;
+        minQuestions = null;
+        maxQuestions = null;
+        showMyPrivateQuestionnaires = false;
+        questionnaires = allQuestionnaires.Where(q => q.IsPrivate == "N").ToList();
+    }
+
+    private void NextPage()
+    {
+        if (currentPage < totalPages) currentPage++;
+    }
+
+    private void PrevPage()
+    {
+        if (currentPage > 1) currentPage--;
+    }
+
+    private void SortBy(string columnName)
+    {
+        if (kolumna == columnName)
+        {
+            sortAscending = !sortAscending; // kierunek sortowania
+        }
+        else
+        {
+            kolumna = columnName;
+            sortAscending = true;
+        }
+
+        questionnaires = columnName switch
+        {
+            "Id" => (sortAscending ? questionnaires.OrderBy(u => u.Id) : questionnaires.OrderByDescending(u => u.Id)).ToList(),
+            "Title" => (sortAscending ? questionnaires.OrderBy(u => u.Title) : questionnaires.OrderByDescending(u => u.Title)).ToList(),
+            "CreatedBy" => (sortAscending ? questionnaires.OrderBy(u => u.CreatedByUsername) : questionnaires.OrderByDescending(u => u.CreatedByUsername)).ToList(),
+            "QuestionCount" => (sortAscending ? questionnaires.OrderBy(u => u.QuestionCount) : questionnaires.OrderByDescending(u => u.QuestionCount)).ToList(),
+            "FillCount" => (sortAscending ? questionnaires.OrderBy(u => u.FillCount) : questionnaires.OrderByDescending(u => u.FillCount)).ToList(),
+            "DateCreated" => (sortAscending ? questionnaires.OrderBy(u => u.DateCreated) : questionnaires.OrderByDescending(u => u.DateCreated)).ToList(),
+            _ => questionnaires
+        };
+
+
+    }
+
+    private void ToggleFilters()
+    {
+        showFilters = !showFilters;
+    }
+}

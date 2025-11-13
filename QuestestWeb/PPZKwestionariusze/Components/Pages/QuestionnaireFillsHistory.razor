@@ -1,0 +1,123 @@
+﻿@page "/questionnaire-fill-history/{QuestionnaireId:int}"
+
+@inject QuestionnaireService QuestionnaireService
+@inject QuestionService QuestionService
+@inject OptionsService OptionsService
+@inject QuestionnaireFilledService QuestionnaireFilledService
+@inject QuestionAnswerService QuestionAnswerService
+
+
+@inject SessionStorage sessionStorage
+@using PPZKwestionariusze.Services
+@using PPZKwestionariusze.Models
+@using PPZKwestionariusze.StateStore
+@using PPZKwestionariusze.Components
+
+
+
+
+@if (isLoading)
+{
+    <div class="preloader"></div>
+}
+else if (nonexistent)
+{
+<div class="info-box warning">
+    <i class="fa-solid fa-triangle-exclamation"></i> Ten kwestionariusz nie istnieje.
+</div>
+}
+else if (block)
+{
+<div class="info-box error">
+    <i class="fa-solid fa-ban"></i> Tylko właściciel kwestionariusza może wyświetlić historię wypełnień.
+</div>
+}
+
+else
+{
+    @if (fills == null)
+    {
+        <div class="preloader"></div>
+    }
+    else if (fills.Count == 0)
+    {
+        <h3>Wypełnienia kwestionariusza: @questionnaire.Title</h3>
+        <div class="info-box">
+            <i class="fa-solid fa-lock"></i> Ten kwestionariusz nie został jeszcze wypełniony.
+        </div>
+    }
+    else
+    {
+        <div class="questionnaire-fill-container">
+            <h3 class="section-heading">Wypełnienia kwestionariusza: @questionnaire.Title</h3>
+            <ul class="fill-list">
+                @foreach (var fill in fills)
+                {
+                    <li class="fill-item">
+                        <a class="fill-link" href="/questionnaire-fill/@fill.Id">
+                            <span class="fill-user">@fill.FilledByUsername</span>
+                            <span class="fill-date">@fill.DateFilled.ToString("yyyy-MM-dd HH:mm")</span>
+                            <span class="fill-id">(@fill.Id)</span>
+                        </a>
+                    </li>
+                }
+            </ul>
+        </div>
+
+    }
+}
+
+@code {
+    [Parameter]
+    public int? QuestionnaireId { get; set; }
+
+    private List<QuestionnaireFilled> fills = null;
+
+    private Questionnaire questionnaire = new Questionnaire();
+
+    String error_mess = "";
+    UserStorageModel? usm;
+    String message;
+    bool nonexistent = false;
+    bool block = false;
+    bool isLoading = true;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+
+        if (firstRender)
+        {
+            usm = await sessionStorage.GetUserAsync();
+
+
+            if (usm != null && QuestionnaireId.HasValue)
+            {
+                questionnaire = await QuestionnaireService.GetQuestionnaireByIDAsync(QuestionnaireId.Value);
+
+                if (questionnaire != null)
+                {
+                    if (questionnaire.CreatedBy != usm?.Id)
+                    {
+                        block = true;
+                        isLoading = false;
+                        StateHasChanged();
+                        return;
+                    }
+
+                    fills = await QuestionnaireFilledService.GetFillsForQuestionnaire(QuestionnaireId.Value);
+                }
+                else
+                {
+                    nonexistent = true;
+                }
+            }
+            usm = await sessionStorage.GetUserAsync();
+            isLoading = false;
+            StateHasChanged();
+        }
+
+
+
+    }
+
+    }

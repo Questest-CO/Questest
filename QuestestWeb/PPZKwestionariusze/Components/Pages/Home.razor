@@ -1,0 +1,43 @@
+﻿@page "/"
+
+@using PPZKwestionariusze.Models;
+@using PPZKwestionariusze.StateStore;
+@inject SessionStorage sessionStorage
+@inject NavigationManager nav;
+
+<PageTitle>Home</PageTitle>
+
+<div class="homepage-container">
+    @if (usm is null)
+    {
+        <h2 class="homepage-heading">Witaj na naszej stronie!</h2>
+        <p class="homepage-subtext">Zaloguj się, aby przeglądać i tworzyć kwestionariusze.</p>
+    }
+    else
+    {
+        <h2 class="homepage-heading">Witaj, @usm.Username!</h2>
+        <p class="homepage-subtext">Miło Cię znowu widzieć! Co chcesz dzisiaj zrobić?</p>
+    }
+</div>
+
+<br />
+
+
+
+
+@code {
+
+    private UserStorageModel? usm;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            usm = await sessionStorage.GetUserAsync();
+
+            StateHasChanged();
+        }
+    }
+
+
+}

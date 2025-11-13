@@ -1,0 +1,88 @@
+﻿@using PPZKwestionariusze.Services;
+@using PPZKwestionariusze.Models;
+@using PPZKwestionariusze.StateStore;
+
+@page "/inbox"
+@inject UserService UserService
+@inject NotificationService NotificationService
+@inject SessionStorage sessionStorage
+
+@if(isLoading){
+    <div class="preloader"></div>
+}
+else if (usm == null)
+{
+    <div class="info-box">
+        <i class="fa-solid fa-lock"></i> Tylko zalogowany użytkownik może przeglądać skrzynkę.
+    </div>
+}
+else
+{
+    <div class="notifications-container">
+        <button class="btn1 send-btn" @onclick="sendTestNotification">Wyślij testowe</button>
+
+        @if (notifications.Count == 0)
+        {
+            <p class="no-notifications">Nie masz żadnych powiadomień!</p>
+        }
+        else
+        {
+            <br />
+            @foreach (var notification in notifications)
+            {
+
+                <div class="notification-item @(notification.DateRead is null ? "unread" : "read")">
+                    <p class="notification-text">
+                        @notification.Text – wysłano @notification.DateSent.ToString("g")
+                        @if (notification.DateRead != null)
+                        {
+                            <span class="read-info"> | Odczytano @notification.DateRead.Value.ToString("g")</span>
+                        }
+                    </p>
+                    <button class="btn2 delete-btn" @onclick="() => DeleteNotification(notification)">Usuń</button>
+                </div>
+            }
+        }
+    </div>
+}
+
+
+@code {
+    private string message = "";
+    private UserStorageModel? usm;
+    private List<Notification> notifications = new List<Notification>();
+    private bool isLoading = true;
+
+    private async Task DeleteNotification(Notification notif)
+    {
+        notifications.Remove(notif);
+        await NotificationService.DeleteNotification(notif.Id);
+    }
+
+    private async Task sendTestNotification()
+    {
+        Notification test = new Notification();
+        test.Text = "Test!";
+        test.UserId = usm.Id;
+        test.DateSent = DateTime.Now;
+        notifications.Add(test);
+        await NotificationService.AddNotificationAsync(test);
+        await NotificationService.SetAllAsRead(usm.Id);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender || usm is null)
+        {
+            usm = await sessionStorage.GetUserAsync();
+
+            if (usm != null)
+            {
+                notifications = await NotificationService.GetUserNotifications(usm.Id);
+                await NotificationService.SetAllAsRead(usm.Id);
+            }
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+}

@@ -1,0 +1,214 @@
+﻿@page "/share/{QuestionnaireId:int}"
+@inject NavigationManager Navigation
+@inject UserService UserService
+@inject SessionStorage SessionStorage
+@inject QuestionnaireService QuestionnaireService
+@inject NotificationService NotificationService
+
+
+
+@using PPZKwestionariusze.Services
+@using PPZKwestionariusze.Models;
+@using PPZKwestionariusze.StateStore;
+
+<h3>Przypisz kwestionariusz</h3>
+
+@if(message != null)
+{
+    <p style="color:blue">@message</p>
+}
+
+@if (isLoading)
+{
+    <div class="preloader"></div>
+}
+else
+{
+    if(nonexistent)
+{
+    <i>Taki kwestionariusz nie istnieje.</i>
+}
+else if (block)
+{
+    <i>Tylko właściciel kwestionariusza może udostępniać go innym użytkownikom.</i>
+}
+else if(error_message != "")
+{
+    <p style="color:red">@error_message</p>
+}
+else if (users?.Count > 0)
+{
+    <div class="mb-3">
+        <label for="userSelect">Wybierz użytkownika, któremu chcesz udostępnić kwestionariusz:</label>
+            <select id="userSelect" class="form-select" @bind="selectedUserDto.Id">
+            <option disabled selected value="">-- wybierz użytkownika --</option>
+            @foreach (var user in users)
+            {
+                <option value="@user.Id">@user.Id - @user.Username</option>
+            }
+        </select>
+    </div>
+
+        <button class="btn btn-primary" @onclick="ShareWithUser" disabled="@(selectedUserDto==null)">Udostępnij</button>
+}
+else
+{
+    <p>Brak użytkowników do wyświetlenia.</p>
+}
+
+    <hr />
+    <h5>Użytkownicy z dostępem do tego kwestionariusza:</h5>
+
+    @if (isLoadingPermissions)
+    {
+        <i>Ładowanie listy użytkowników z dostępem...</i>
+    }
+    else if (permittedUsers?.Count == 0)
+    {
+        <p>Ten kwestionariusz nie został jeszcze nikomu udostępniony.</p>
+    }
+    else
+    {
+        <p style="color:red">@revokeError</p>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nazwa</th>
+                    <th>Odbierz dostęp</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var u in permittedUsers)
+                {
+                    <tr>
+                        <td>@u.Id</td>
+                        <td>@u.Username</td>
+                        <td>
+                            <button class="btn btn-danger btn-sm" @onclick="() => RevokeAccess(u.Id)">Odbierz dostęp</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+}
+
+
+@code {
+    [Parameter]
+    public int QuestionnaireId { get; set; }
+
+    private List<UserComboDto> users;
+    private UserComboDto? selectedUserDto = new UserComboDto { Id = -1, Username = "" };
+    private bool isLoading = true;
+    private string error_message = "";
+    private UserStorageModel usm = null;
+    private bool block = false;
+    private bool nonexistent = false;
+    private string message = "";
+    private List<UserComboDto> permittedUsers = new();
+    private bool isLoadingPermissions = true;
+    private string revokeError = "";
+
+    private Questionnaire questionnaire = null;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+
+            questionnaire = await QuestionnaireService.GetQuestionnaireByIDAsync(QuestionnaireId);
+            permittedUsers = await QuestionnaireService.GetPermittedUserDtos(QuestionnaireId);
+            if (questionnaire == null)
+            {
+                nonexistent = true;
+                isLoading = false;
+                StateHasChanged();
+                return;
+            }
+            usm = await SessionStorage.GetUserAsync();
+            if (usm == null)
+            {
+                block = true;
+                isLoading = false;
+                Console.Write(block);
+                StateHasChanged();
+                return;
+            }
+            else
+            {
+                if (usm.Id != questionnaire.CreatedBy)
+                {
+                    block = true;
+                    isLoading = false;
+                    StateHasChanged();
+                    return;
+                }
+            }
+            isLoadingPermissions = false;
+
+            StateHasChanged();
+
+        }
+        try
+        {
+            users = await UserService.GetUsersForComboAsync();
+            error_message = "";
+        }
+        catch (Exception ex)
+        {
+            error_message = "Błąd podczas pobierania listy użytkowników.";
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+
+
+    }
+
+    private async Task ShareWithUser()
+    {
+        if (selectedUserDto == null)
+        {
+            error_message = "Nie wybrano użytkownika";
+            return;
+        }
+        try
+        {
+            selectedUserDto.Username = users.Where(x => x.Id == selectedUserDto.Id).FirstOrDefault().Username;
+            await QuestionnaireService.ShareWithUser(questionnaire.Id, selectedUserDto.Id);
+
+            permittedUsers.Add(new UserComboDto { Id = selectedUserDto.Id, Username = selectedUserDto.Username });
+            message = $"Udostępniono!";
+            await NotificationService.AddNotificationAsync(new Notification
+                {
+                    UserId = selectedUserDto.Id,
+                    Text = $"Użytkownik {usm.Username} udostępnił Ci swój kwestionariusz: {questionnaire.Title}"
+                });
+        }
+        catch (Exception ex)
+        {
+            error_message = "Nie udało się udostępnić.";
+        }
+    }
+
+    private async Task RevokeAccess(int userId)
+    {
+        try
+        {
+            await QuestionnaireService.RevokeAccessFromUser(QuestionnaireId, userId);
+            permittedUsers.RemoveAll(u => u.Id == userId);
+            revokeError = "";
+        }
+        catch (Exception)
+        {
+            revokeError = $"Nie udało się odebrać dostępu.";
+        }
+    }
+
+
+
+}

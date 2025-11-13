@@ -1,0 +1,121 @@
+﻿@using PPZKwestionariusze.Services;
+@using PPZKwestionariusze.StateStore;
+@using PPZKwestionariusze.Models;
+@using PPZKwestionariusze.Components.Layout;
+
+@page "/login"
+
+@inject SessionStorage sessionStorage
+@layout LogRegLayout
+
+
+<body>
+    <section>
+
+        <img src="../images/rl-bg2.png" class="bg">
+
+        <div class="login">
+
+            @if (usm is null)
+            {
+                <h2>Logowanie</h2>
+
+                @if (error_message == "")
+                {
+                    <p style="color:blue">@success_message</p>
+                }
+                else if (success_message != "")
+                {
+                    <p style="color:red">@error_message</p>
+                }
+
+                <EditForm Model="@loginModel" OnValidSubmit="HandleLogin">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
+
+                    <div class="form-group">
+                        <InputText type="text" id="username" placeholder="Nazwa użytkownika" @bind-Value="loginModel.Username" />
+                    </div>
+
+                    <div class="form-group">
+                        <InputText type="password" id="password" placeholder="Hasło" class="form-control" @bind-Value="loginModel.Password" />
+                    </div>
+                    <button type="submit" class="log-button" id="login_button">Zaloguj się</button>
+                </EditForm>
+
+                <div class="group">
+                    <a href="/">Strona główna</a>
+                    <a href="/register">Zarejestruj się</a>
+                </div>
+
+            }
+            else
+            {
+                <h2 style="font-size: 30px;">Jesteś zalogowany jako:</h2>
+                <h2 style="font-size: 35px; margin-bottom: 20px; margin-top: -20px;">✨ @usm.Username ✨</h2>
+                <button type="submit" class="log-button" id="login_btn" @onclick="logout">Wyloguj się</button>
+                <div class="group2">
+                    <a href="/" style="justify-content: center;">Strona główna</a>
+                </div>
+            }
+        </div>
+    </section>
+</body>
+
+@code {
+    private LoginModel loginModel = new LoginModel();
+    private UserStorageModel? usm;
+    private string error_message = "";
+    private string success_message = "";
+
+    private async Task HandleLogin()
+    {
+        var result = await userService.LoginUser(loginModel.Username, loginModel.Password);
+
+        Console.Write(result);
+        if (result)
+        {
+            UserStorageModel usm = await userService.GetUserByUsernameAsync(loginModel.Username);
+            if (usm.Id != -1)
+            {
+                await sessionStorage.SetUserAsync(usm); // oczywiście nie 1
+                success_message = $"Zalogowano jako {usm.Username}!";
+                 NavigationManager.NavigateTo("/"); // po udanym zalogowaniu przekierowanie
+            }
+            else
+            {
+                error_message = "Nie udało się zalogować...";
+            }
+        }
+        else
+        {
+            error_message = "Nie udało się zalogować...";
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            usm = await sessionStorage.GetUserAsync();
+
+            // Gdy dane są już dostępne, odśwież komponent
+            StateHasChanged();
+        }
+    }
+
+    private async Task logout()
+    {
+        await sessionStorage.SetUserAsync(null);
+        usm = null;
+    }
+
+    public class LoginModel
+    {
+        public string Username { get; set; }
+        public string Password { get; set; }
+    }
+
+    [Inject] private UserService userService { get; set; }
+    [Inject] private NavigationManager NavigationManager { get; set; }
+}

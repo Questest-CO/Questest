@@ -1,0 +1,94 @@
+﻿@using PPZKwestionariusze.Services;
+@using PPZKwestionariusze.StateStore;
+@using PPZKwestionariusze.Components.Layout;
+
+@page "/register"
+
+@inject SessionStorage sessionStorage
+@layout LogRegLayout
+
+
+<body>
+    <section>
+
+        <img src="../images/rl-bg2.png" class="bg">
+
+        <div class="register">
+            <h2>Rejestracja</h2>
+            @if (error_message == "")
+            {
+                <p style="color:blue">@success_message</p>
+            }
+            else if (success_message != "")
+            {
+                <p style="color:red">@error_message</p>
+            }
+            <EditForm Model="@userModel" @onclick="ClearMessages" OnValidSubmit="HandleRegistration">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+
+                <div class="form-group">
+                    <InputText type="text" id="username" placeholder="Nazwa użytkownika" @bind-Value="userModel.Username" />
+                </div>
+
+                <div class="form-group">
+                    <InputText type="password" id="password" placeholder="Hasło" @bind-Value="userModel.Password" />
+                </div>
+
+                <button type="submit" class="reg-button" id="register_button">
+                    <span class="reg-text">Utwórz konto</span>
+                </button>
+
+            </EditForm>
+
+            <div class="group">
+                <a href="/">Strona główna</a>
+                <a href="/login">Zaloguj się</a>
+            </div>
+
+        </div>
+    </section>
+</body>
+
+
+
+@code {
+    private string error_message = "";
+    private string success_message = "";
+    private UserModel userModel = new UserModel();
+
+    private void ClearMessages()
+    {
+        error_message = "";
+        success_message = "";
+    }
+
+    private async Task HandleRegistration()
+    {
+        var tmp = await userService.GetUserByUsernameAsync(userModel.Username);
+        if (tmp is not null)
+        {
+            error_message = "Użytkownik o takiej nazwie już istnieje";
+            return;
+        }
+        var result = await userService.RegisterUser(userModel.Username, userModel.Password);
+        if (result)
+        {
+            error_message = "";
+            success_message = "Utworzono użytkownika! Możesz się zalogować.";
+        }
+        else
+        {
+            error_message = "Nie udało się utworzyć użytkownika :(";
+        }
+    }
+
+    public class UserModel
+    {
+        public string Username { get; set; }
+        public string Password { get; set; }
+    }
+
+    [Inject] private UserService userService { get; set; }
+    [Inject] private NavigationManager NavigationManager { get; set; }
+}

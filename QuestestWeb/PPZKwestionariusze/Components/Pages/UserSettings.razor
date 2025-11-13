@@ -1,0 +1,162 @@
+﻿@using PPZKwestionariusze.Services;
+@using PPZKwestionariusze.Models;
+@using PPZKwestionariusze.StateStore;
+
+@page "/usersettings"
+@inject UserService UserService
+@inject SessionStorage sessionStorage
+
+
+
+@if (isLoading)
+{
+    <div class="preloader"></div>
+}
+else if (usm == null)
+{
+<div class="info-box">
+    <i class="fa-solid fa-lock"></i> Tylko zalogowany użytkownik ma dostęp do tej strony.
+</div>
+}
+else
+{
+<h3 style="margin-top: 20px; margin-bottom: 20px; margin-left: 3px;">Edytuj swoje dane</h3>
+
+<EditForm Model="editModel" OnValidSubmit="HandleValidSubmit">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="filters">
+
+        <h3>Nazwa użytkownika</h3>
+
+        <div class="filters-content">
+
+            <div class="search1">
+
+                <div class="search-text">
+                    <InputText class="searchbox" placeholder="Wpisz nową nazwę użytkownika..." @bind-Value="editModel.Username" />
+                </div>
+
+            </div>
+
+            <div class="search1">
+                <div class="search-checkbox-row">
+                    <input type="checkbox" class="searchcheckbox" @bind="NewIsVisible" />
+                    <label style="font-size: 14px; margin-top: 10px;"> Widoczny dla innych </label>
+                </div>
+            </div>
+
+            <div class="space-between-buttons">
+                <button type="submit" class="btn1">Zapisz zmiany</button>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="filters">
+
+        <h3>Hasło</h3>
+
+        <div class="filters-content">
+
+            <div class="search1">
+                <div class="search-text">
+                    <label class="search-label">Obecne hasło:</label>
+                    <InputText class="searchbox" type="password" @bind-Value="editModel.CurrentPassword" />
+                </div>
+            </div>
+
+            <div class="search1">
+                <div class="search-text">
+                    <label class="search-label">Nowe hasło:</label>
+                    <InputText class="searchbox" type="password" @bind-Value="editModel.NewPassword" />
+                </div>
+            </div>
+
+            <div class="search1">
+                <div class="search-text">
+                    <label class="search-label">Powtórz nowe hasło:</label>
+                    <InputText class="searchbox" type="password" @bind-Value="editModel.ConfirmNewPassword" />
+                </div>
+
+            </div>
+
+            <div class="space-between-buttons">
+                <button type="submit" class="btn1">Zapisz zmiany</button>
+            </div>
+
+            @if (!string.IsNullOrEmpty(message))
+            {
+                <div class="alert alert-info">@message</div>
+            }
+        </div>
+    </div>
+</EditForm>
+}
+
+
+@code{
+    private UserEditModel editModel = new();
+    private string message = "";
+    private UserStorageModel? usm;
+    private bool NewIsVisible = false;
+    private bool isLoading = true;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            usm = await sessionStorage.GetUserAsync();
+
+            if(usm!=null){
+                NewIsVisible = usm.IsVisible == "T" ? true : false;
+                editModel = new UserEditModel
+                    {
+                        Username = usm.Username,
+                        IsVisible = usm.IsVisible
+                    };
+            }
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        // Jeśli próbuje zmienić hasło – waliduj
+        if (!string.IsNullOrWhiteSpace(editModel.NewPassword))
+        {
+            if (editModel.NewPassword != editModel.ConfirmNewPassword)
+            {
+                message = "Nowe hasła się nie zgadzają.";
+                return;
+            }
+
+            var loginSuccess = await UserService.LoginUser(usm.Username, editModel.CurrentPassword);
+            if (!loginSuccess)
+            {
+                message = "Błędne obecne hasło.";
+                return;
+            }
+        }
+
+        // Wywołaj aktualizację
+        var success = await UserService.UpdateUser(new UpdateUserRequest
+            {
+                Id = usm.Id,
+                NewUsername = editModel.Username,
+                IsVisible = NewIsVisible ? "T" : "N",
+                NewPassword = editModel.NewPassword
+            });
+
+        message = success ? "Zapisano zmiany." : "Wystąpił błąd przy zapisie.";
+
+        if (success)
+        {
+            usm.Username = editModel.Username;
+            usm.IsVisible = editModel.IsVisible;
+            sessionStorage.SetUserAsync(usm);
+        }
+    }
+}

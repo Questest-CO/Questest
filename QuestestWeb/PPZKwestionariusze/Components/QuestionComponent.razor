@@ -1,0 +1,33 @@
+﻿@using PPZKwestionariusze.Models;
+
+<div class="question-box p-2 border rounded mb-3">
+    <label class="search-label">Treść pytania:</label>
+    <input class="searchbox" @bind="Question.Content" />
+
+    <label class="search-label">Odpowiedzi:</label>
+    <br />
+    @foreach (var option in Question.Options)
+    {
+        <OptionsComponent Option="option" OnRemove="() => RemoveOption(option)" />
+    }
+
+    <div class="space-between-buttons">
+        <button class="btn1" @onclick="AddOption">Dodaj odpowiedź</button>
+        <button class="btn2" @onclick="OnRemove">Usuń pytanie</button>
+    </div>
+</div>
+
+@code {
+    [Parameter] public Question Question { get; set; } = new Question { Id = -1 };
+    [Parameter] public EventCallback OnRemove { get; set; }
+
+    private void AddOption()
+    {
+        Question.Options.Add(new Option{Id=-1});
+    }
+
+    private void RemoveOption(Option option)
+    {
+        Question.Options.Remove(option);
+    }
+}

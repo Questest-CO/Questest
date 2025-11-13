@@ -1,0 +1,235 @@
+﻿@page "/add-questionnaire"
+@page "/add-questionnaire/{QuestionnaireId:int?}"
+@inject NavigationManager NavigationManager 
+
+@inject QuestionnaireService QuestionnaireService
+@inject QuestionService QuestionService
+@inject OptionsService OptionsService
+@inject QuestionnaireFilledService QuestionnaireFilledService
+
+
+@inject SessionStorage sessionStorage
+@using PPZKwestionariusze.Services
+@using PPZKwestionariusze.Models
+@using PPZKwestionariusze.StateStore
+@using PPZKwestionariusze.Components
+
+@if (isLoading)
+{
+    <div class="preloader"></div>
+}
+else if (usm is null)
+{
+    <div class="info-box">
+        <i class="fa-solid fa-lock"></i> Tylko zalogowany użytkownik może dodawać i edytować kwestionariusze.
+    </div>
+}
+else if (nonexistent)
+{
+    <div class="info-box warning">
+        <i class="fa-solid fa-triangle-exclamation"></i> Ten kwestionariusz nie istnieje.
+    </div>
+}
+else if (block)
+{
+    <div class="info-box error">
+        <i class="fa-solid fa-ban"></i> Nie masz uprawnień do edycji tego kwestionariusza.
+    </div>
+}
+
+
+else{
+
+    @if (message != null)
+    {
+        <div class="alert alert-info">@message</div>
+    }
+
+    @if (QuestionnaireId.HasValue)
+    {
+        <button type="submit" class="btn2" style="margin:20px; margin-left: 0px;" @onclick="DeleteQuestionnaire">Usuń kwestionariusz</button>
+    }
+
+    if (!block)
+    {
+
+        <EditForm Model="newQuestionnaire" OnValidSubmit="HandleValidSubmit">
+            <DataAnnotationsValidator />
+            <ValidationSummary />
+
+            <div style="margin-top: 20px;"></div>
+
+            <div class="filters">
+
+                <div class="search1">
+
+                    <div class="search-text">
+
+                        <label class="search-label">Nazwa kwestionariusza:</label>
+                        <InputText id="Title" class="searchbox" @bind-Value="newQuestionnaire.Title" />
+
+                        <label class="search-label" style="margin-top:10px;">Prywatny</label>
+                        <input type="checkbox" style="margin-top:10px;" class="searchcheckbox" @bind=isQuestionnairePrivate />
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </EditForm>
+
+        <h4>Pytania:</h4>
+
+
+        @foreach (var question in newQuestionnaire.Questions)
+        {
+            <QuestionComponent Question="question" OnRemove="() => RemoveQuestion(question)" />
+        }
+
+        <div class="space-between-buttons">
+
+            <button type="submit" class="btn1" @onclick="AddQuestion">Dodaj pytanie</button>
+            <button type="submit" class="btn1" @onclick="Save">Zapisz!</button>
+
+        </div>
+    }
+}
+
+@code {
+    [Parameter]
+    public int? QuestionnaireId { get; set; }
+
+    bool block = false;
+    bool nonexistent = false;
+    bool isLoading = true;
+
+    String error_mess = "";
+    UserStorageModel? usm;
+    private Questionnaire newQuestionnaire = new Questionnaire();
+    private Questionnaire existingQuestionnaire = new Questionnaire();
+    String message;
+    bool isQuestionnairePrivate = false;
+
+    private void AddQuestion() => newQuestionnaire.Questions.Add(new Question{Id=-1});
+
+    private void RemoveQuestion(Question q) => newQuestionnaire.Questions.Remove(q);
+
+    private async Task DeleteQuestionnaire()
+    {
+        await QuestionnaireService.DeleteQuestionnaire(QuestionnaireId ?? -1);
+        message = "Usunięto kwestionariusz!";
+        newQuestionnaire = new Questionnaire();
+    }
+
+    private async Task Save()
+    {
+        Boolean error_flag = false;
+
+        newQuestionnaire.Id = QuestionnaireId ?? -1;
+
+        // 1. dodanie kwestionariusza
+        newQuestionnaire.CreatedBy = usm.Id;
+        newQuestionnaire.IsPrivate = isQuestionnairePrivate ? "T" : "N";
+
+        int questID = -1; // id, które później będzie użyte do przypisania pytaniom
+
+        // dodanie lub update - w zależności od ID (obsługa tych opcji już w serwisie)
+        questID = await QuestionnaireService.AddQuestionnaireAsync(newQuestionnaire);
+
+        if (questID == -1)
+        {
+            error_mess = "Coś poszło nie tak podczas dodawania kwestionariusza :(";
+            return;
+        }
+
+
+        // 2. dodanie pytań
+        int questionID = -1;
+        foreach (Question question in newQuestionnaire.Questions)
+        {
+            question.QuestionnaireId = questID;
+
+            questionID = await QuestionService.AddQuestionAsync(question);
+
+            if (questID == -1)
+            {
+                error_mess = "Coś poszło nie tak podczas dodawania pytań :(";
+                return;
+            }
+
+            // 3. dodanie odpowiedzi
+            foreach (Option option in question.Options)
+            {
+                option.QuestionId = questionID;
+                await OptionsService.AddOptionAsync(option);
+            }
+        }
+
+
+        message = "Zapisano kwestionariusz!";
+        if (QuestionnaireId == null)
+        {
+            NavigationManager.NavigateTo($"/add-questionnaire/{newQuestionnaire.Id}");
+        }
+        // resetowanie formularza po dodaniu
+        // newQuestionnaire = new Questionnaire();
+    }
+
+    private async Task HandleValidSubmit()
+    {
+
+
+
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            usm = await sessionStorage.GetUserAsync();
+
+            if (QuestionnaireId.HasValue && usm!=null)
+            {
+                // 1. Pobranie kwestionariusza
+                existingQuestionnaire = await QuestionnaireService.GetQuestionnaireByIDAsync(QuestionnaireId.Value);
+                var existing = existingQuestionnaire;
+
+                if (existing != null)
+                {
+                    if(existing.CreatedBy != usm.Id)
+                    {
+                        block = true;
+                        isLoading = false;
+                        StateHasChanged();
+                        return;
+                    }
+                    // jeśli edycja - skopiowanie do nowego obiektu istniejącego
+                    newQuestionnaire = existing;
+
+                    isQuestionnairePrivate = existing.IsPrivate == "T";
+
+                    // 2. Pobranie pytań
+                    var questions = await QuestionService.GetQuestionsForQuestionnaire(QuestionnaireId.Value);
+                    foreach (var q in questions)
+                    {
+                        // 3. Pobranie opcji dla każdego pytania
+                        q.Options = await OptionsService.GetOptionsForQuestion(q.Id);
+                        newQuestionnaire.Questions.Add(q);
+
+                    }
+                }
+                else
+                {
+                    nonexistent = true;
+                }
+            }
+            isLoading = false;
+            StateHasChanged();
+        }
+
+       
+    }
+
+
+}

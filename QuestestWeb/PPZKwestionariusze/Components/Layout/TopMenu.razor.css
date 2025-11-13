@@ -1,0 +1,13 @@
+﻿.top-menu {
+    background-color: #E4D5B4;
+    text-align: center;
+    width: 100%;
+    height: 100px;
+    margin: 0;
+    padding: 0;
+    text-transform: uppercase;
+}
+
+    .top-menu ul {
+        color: red;
+    }
