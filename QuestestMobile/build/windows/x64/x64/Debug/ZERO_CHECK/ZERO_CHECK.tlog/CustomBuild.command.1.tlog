@@ -1,0 +1,10 @@
+^C:\USERS\IGOR\PPZ\QUESTEST\BUILD\WINDOWS\X64\CMAKEFILES\FBC7BE7C16813C8DD35EF4B65E43F544\GENERATE.STAMP.RULE
+setlocal
+"C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\CommonExtensions\Microsoft\CMake\CMake\bin\cmake.exe" -SC:/Users/Igor/PPZ/Questest/windows -BC:/Users/Igor/PPZ/Questest/build/windows/x64 --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file C:/Users/Igor/PPZ/Questest/build/windows/x64/qester.sln
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
