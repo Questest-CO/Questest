@@ -1,0 +1,127 @@
+{
+  "quizzes": [
+    {
+      "id": "1",
+      "title": "Sonic the Hedgehog Trivia",
+      "subtitle": "Eggman",
+      "thumbnailUrl": "https://images.unsplash.com/photo-1511512578047-dfb367046420?w=800",
+      "questionCount": 15,
+      "participantsCount": 12450,
+      "description": "Test your knowledge about the fastest hedgehog in gaming history! From Green Hill Zone to modern adventures.",
+      "timeLimit": 300,
+      "difficulty": "medium"
+    },
+    {
+      "id": "2",
+      "title": "World Geography Challenge",
+      "subtitle": "GeoMaster",
+      "thumbnailUrl": "https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?w=800",
+      "questionCount": 20,
+      "participantsCount": 8920,
+      "description": "How well do you know our planet? Test your knowledge of countries, capitals, and landmarks around the world.",
+      "timeLimit": 600,
+      "difficulty": "hard"
+    },
+    {
+      "id": "3",
+      "title": "Movie Quotes Quiz",
+      "subtitle": "CinemaLover",
+      "thumbnailUrl": "https://images.unsplash.com/photo-1440404653325-ab127d49abc1?w=800",
+      "questionCount": 10,
+      "participantsCount": 23100,
+      "description": "Can you identify these iconic movie quotes? From classics to modern blockbusters.",
+      "timeLimit": 180,
+      "difficulty": "easy"
+    },
+    {
+      "id": "4",
+      "title": "Science & Technology",
+      "subtitle": "TechGuru",
+      "thumbnailUrl": "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800",
+      "questionCount": 25,
+      "participantsCount": 5670,
+      "description": "Explore the fascinating world of science and technology. From physics to computer science.",
+      "timeLimit": 900,
+      "difficulty": "hard"
+    }
+  ],
+  "users": [
+    {
+      "id": "1",
+      "email": "john.doe@example.com",
+      "name": "John Doe",
+      "avatarUrl": "https://i.pravatar.cc/150?img=1",
+      "totalQuizzesTaken": 24,
+      "totalPoints": 1250,
+      "bio": "Quiz enthusiast and lifelong learner",
+      "createdAt": "2024-01-15T10:30:00Z"
+    },
+    {
+      "id": "2",
+      "email": "jane.smith@example.com",
+      "name": "Jane Smith",
+      "avatarUrl": "https://i.pravatar.cc/150?img=2",
+      "totalQuizzesTaken": 48,
+      "totalPoints": 3420,
+      "bio": "Competitive quiz player",
+      "createdAt": "2023-11-20T14:45:00Z"
+    }
+  ],
+  "auth": {
+    "login": {
+      "email": "john.doe@example.com",
+      "password": "password123"
+    }
+  },
+  "quizResults": [
+    {
+      "id": "1",
+      "userId": "1",
+      "quizId": "1",
+      "score": 85,
+      "totalQuestions": 15,
+      "correctAnswers": 13,
+      "timeSpent": 240,
+      "completedAt": "2024-11-10T15:30:00Z"
+    },
+    {
+      "id": "2",
+      "userId": "1",
+      "quizId": "3",
+      "score": 90,
+      "totalQuestions": 10,
+      "correctAnswers": 9,
+      "timeSpent": 150,
+      "completedAt": "2024-11-12T10:20:00Z"
+    }
+  ],
+  "questions": [
+    {
+      "id": "1",
+      "quizId": "1",
+      "questionText": "What is Sonic's signature color?",
+      "options": [
+        "Red",
+        "Blue",
+        "Green",
+        "Yellow"
+      ],
+      "correctAnswer": 1,
+      "points": 10
+    },
+    {
+      "id": "2",
+      "quizId": "1",
+      "questionText": "Who is Sonic's sidekick?",
+      "options": [
+        "Knuckles",
+        "Amy",
+        "Tails",
+        "Shadow"
+      ],
+      "correctAnswer": 2,
+      "points": 10
+    }
+  ]
+}
+
