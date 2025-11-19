@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("PPZKwestionariusze")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+45eebca2df65e43a73e19be994550907d6020629")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+eb85d9f65aaf48c88e2a3ca5ecc1582b4d5f0091")]
 [assembly: System.Reflection.AssemblyProductAttribute("PPZKwestionariusze")]
 [assembly: System.Reflection.AssemblyTitleAttribute("PPZKwestionariusze")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "w/2l0RMgdlU=",
+  "dgSpecHash": "XCx6dTn8f08=",
   "success": true,
-  "projectFilePath": "C:\\Users\\olokw\\source\\repos\\PPZKwestionariusze\\PPZKwestionariusze\\PPZKwestionariusze.csproj",
+  "projectFilePath": "C:\\Users\\olokw\\source\\repos\\Questest\\QuestestWeb\\PPZKwestionariusze\\PPZKwestionariusze.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\olokw\\.nuget\\packages\\bcrypt.net-next\\4.0.3\\bcrypt.net-next.4.0.3.nupkg.sha512",
     "C:\\Users\\olokw\\.nuget\\packages\\blazored.localstorage\\2.1.6\\blazored.localstorage.2.1.6.nupkg.sha512",

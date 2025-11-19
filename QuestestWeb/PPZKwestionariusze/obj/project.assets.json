@@ -1116,11 +1116,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\olokw\\source\\repos\\PPZKwestionariusze\\PPZKwestionariusze\\PPZKwestionariusze.csproj",
+      "projectUniqueName": "C:\\Users\\olokw\\source\\repos\\Questest\\QuestestWeb\\PPZKwestionariusze\\PPZKwestionariusze.csproj",
       "projectName": "PPZKwestionariusze",
-      "projectPath": "C:\\Users\\olokw\\source\\repos\\PPZKwestionariusze\\PPZKwestionariusze\\PPZKwestionariusze.csproj",
+      "projectPath": "C:\\Users\\olokw\\source\\repos\\Questest\\QuestestWeb\\PPZKwestionariusze\\PPZKwestionariusze.csproj",
       "packagesPath": "C:\\Users\\olokw\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\olokw\\source\\repos\\PPZKwestionariusze\\PPZKwestionariusze\\obj\\",
+      "outputPath": "C:\\Users\\olokw\\source\\repos\\Questest\\QuestestWeb\\PPZKwestionariusze\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\olokw\\AppData\\Roaming\\NuGet\\NuGet.Config",
