@@ -14,6 +14,7 @@ class QuizModel {
   final String? description;
   final int? timeLimit; // in seconds
   final String? difficulty; // easy, medium, hard
+  final String? category; // quiz, exam
 
   const QuizModel({
     required this.id,
@@ -25,6 +26,7 @@ class QuizModel {
     this.description,
     this.timeLimit,
     this.difficulty,
+    this.category,
   });
 
   factory QuizModel.fromJson(Map<String, dynamic> json) =>
@@ -42,6 +44,7 @@ class QuizModel {
     String? description,
     int? timeLimit,
     String? difficulty,
+    String? category,
   }) {
     return QuizModel(
       id: id ?? this.id,
@@ -53,6 +56,7 @@ class QuizModel {
       description: description ?? this.description,
       timeLimit: timeLimit ?? this.timeLimit,
       difficulty: difficulty ?? this.difficulty,
+      category: category ?? this.category,
     );
   }
 }
