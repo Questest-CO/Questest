@@ -1,151 +1,178 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../auth/presentation/providers/auth_providers.dart';
+
 /// Profile page displaying user information
 class ProfilePage extends ConsumerWidget {
   const ProfilePage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // TODO: Implement user profile with provider
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Profile'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: () {
-              // TODO: Navigate to settings
-            },
+    final userAsync = ref.watch(authStateChangesProvider);
+
+    return userAsync.when(
+      data: (user) {
+        return Scaffold(
+          appBar: AppBar(
+            title: const Text('Profile'),
+            actions: [
+              IconButton(
+                icon: const Icon(Icons.settings),
+                onPressed: () {
+                  // TODO: Navigate to settings
+                },
+              ),
+            ],
           ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            // Profile Avatar
-            const CircleAvatar(
-              radius: 50,
-              backgroundColor: Color(0xFF6C5CE7),
-              child: Icon(
-                Icons.person,
-                size: 50,
-                color: Colors.white,
-              ),
-            ),
-            const SizedBox(height: 16),
-            
-            // User Name
-            Text(
-              'John Doe',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'john.doe@example.com',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Colors.grey[600],
-              ),
-            ),
-            const SizedBox(height: 32),
-            
-            // Stats Cards
-            Row(
+          body: SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
               children: [
-                Expanded(
-                  child: _StatCard(
-                    icon: Icons.quiz,
-                    title: 'Quizzes',
-                    value: '24',
+                const CircleAvatar(
+                  radius: 50,
+                  backgroundColor: Color(0xFF6C5CE7),
+                  child: Icon(
+                    Icons.person,
+                    size: 50,
+                    color: Colors.white,
                   ),
                 ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: _StatCard(
-                    icon: Icons.star,
-                    title: 'Points',
-                    value: '1,250',
-                  ),
+                const SizedBox(height: 16),
+                Text(
+                  user?.displayName ?? 'Questest User',
+                  style: Theme.of(context).textTheme.headlineMedium,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  user?.email ?? 'Brak adresu e-mail',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Colors.grey[600],
+                      ),
+                ),
+                const SizedBox(height: 32),
+                Row(
+                  children: const [
+                    Expanded(
+                      child: _StatCard(
+                        icon: Icons.quiz,
+                        title: 'Quizzes',
+                        value: '24',
+                      ),
+                    ),
+                    SizedBox(width: 16),
+                    Expanded(
+                      child: _StatCard(
+                        icon: Icons.star,
+                        title: 'Points',
+                        value: '1,250',
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 32),
+                _buildAchievementsSection(context),
+                const SizedBox(height: 32),
+                _ProfileMenuItem(
+                  icon: Icons.history,
+                  title: 'Quiz History',
+                  onTap: () {
+                    // TODO: Navigate to history
+                  },
+                ),
+                _ProfileMenuItem(
+                  icon: Icons.bar_chart,
+                  title: 'Statistics',
+                  onTap: () {
+                    // TODO: Navigate to statistics
+                  },
+                ),
+                _ProfileMenuItem(
+                  icon: Icons.favorite,
+                  title: 'Favorites',
+                  onTap: () {
+                    // TODO: Navigate to favorites
+                  },
+                ),
+                _ProfileMenuItem(
+                  icon: Icons.notifications,
+                  title: 'Notifications',
+                  onTap: () {
+                    // TODO: Navigate to notifications
+                  },
+                ),
+                _ProfileMenuItem(
+                  icon: Icons.help,
+                  title: 'Help & Support',
+                  onTap: () {
+                    // TODO: Navigate to help
+                  },
+                ),
+                const SizedBox(height: 16),
+                _ProfileMenuItem(
+                  icon: Icons.logout,
+                  title: 'Wyloguj się',
+                  textColor: Colors.red,
+                  onTap: () => _confirmLogout(context, ref),
                 ),
               ],
             ),
-            const SizedBox(height: 32),
-            
-            // Achievements Section
-            _buildAchievementsSection(context),
-            const SizedBox(height: 32),
-            
-            // Menu Items
-            _ProfileMenuItem(
-              icon: Icons.history,
-              title: 'Quiz History',
-              onTap: () {
-                // TODO: Navigate to history
-              },
+          ),
+        );
+      },
+      loading: () => const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      ),
+      error: (error, _) => Scaffold(
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.error_outline, size: 48, color: Colors.red),
+                const SizedBox(height: 12),
+                Text(
+                  'Nie udało się pobrać profilu.',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const SizedBox(height: 8),
+                Text('$error'),
+                const SizedBox(height: 12),
+                ElevatedButton(
+                  onPressed: () => ref.invalidate(authStateChangesProvider),
+                  child: const Text('Spróbuj ponownie'),
+                ),
+              ],
             ),
-            _ProfileMenuItem(
-              icon: Icons.bar_chart,
-              title: 'Statistics',
-              onTap: () {
-                // TODO: Navigate to statistics
-              },
-            ),
-            _ProfileMenuItem(
-              icon: Icons.favorite,
-              title: 'Favorites',
-              onTap: () {
-                // TODO: Navigate to favorites
-              },
-            ),
-            _ProfileMenuItem(
-              icon: Icons.notifications,
-              title: 'Notifications',
-              onTap: () {
-                // TODO: Navigate to notifications
-              },
-            ),
-            _ProfileMenuItem(
-              icon: Icons.help,
-              title: 'Help & Support',
-              onTap: () {
-                // TODO: Navigate to help
-              },
-            ),
-            const SizedBox(height: 16),
-            _ProfileMenuItem(
-              icon: Icons.logout,
-              title: 'Logout',
-              textColor: Colors.red,
-              onTap: () {
-                // TODO: Implement logout
-                showDialog(
-                  context: context,
-                  builder: (context) => AlertDialog(
-                    title: const Text('Logout'),
-                    content: const Text('Are you sure you want to logout?'),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(context),
-                        child: const Text('Cancel'),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                          // TODO: Implement logout logic
-                        },
-                        child: const Text(
-                          'Logout',
-                          style: TextStyle(color: Colors.red),
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
-          ],
+          ),
         ),
+      ),
+    );
+  }
+
+  void _confirmLogout(BuildContext context, WidgetRef ref) {
+    showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Wylogować się?'),
+        content: const Text('Po wylogowaniu wrócisz do ekranu logowania.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Anuluj'),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              await ref.read(firebaseAuthProvider).signOut();
+            },
+            child: const Text(
+              'Wyloguj',
+              style: TextStyle(color: Colors.red),
+            ),
+          ),
+        ],
       ),
     );
   }

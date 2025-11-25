@@ -1,11 +1,14 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/theme/app_theme.dart';
-import 'features/main_screen.dart';
+import 'features/auth/presentation/pages/auth_gate.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+
   runApp(
-    // ProviderScope is required for Riverpod
     const ProviderScope(
       child: QuestestApp(),
     ),
@@ -28,7 +31,7 @@ class QuestestApp extends StatelessWidget {
       themeMode: ThemeMode.light,
       
       // Home Screen
-      home: const MainScreen(),
+      home: const AuthGate(),
     );
   }
 }
