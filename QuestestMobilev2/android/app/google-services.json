@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "892054851320",
+    "project_id": "questest-co",
+    "storage_bucket": "questest-co.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:892054851320:android:1ff09b26a7ab0744d0f50d",
+        "android_client_info": {
+          "package_name": "com.company.questest"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "892054851320-g97m61hmfoovfkf0d4o5bgr1g91ll0bg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBlQO4oRSMrw0PeAX3lSe6rKWNYU2gNEdY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "892054851320-g97m61hmfoovfkf0d4o5bgr1g91ll0bg.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
