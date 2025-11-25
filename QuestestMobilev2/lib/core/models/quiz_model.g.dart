@@ -16,6 +16,7 @@ QuizModel _$QuizModelFromJson(Map<String, dynamic> json) => QuizModel(
       description: json['description'] as String?,
       timeLimit: (json['timeLimit'] as num?)?.toInt(),
       difficulty: json['difficulty'] as String?,
+      category: json['category'] as String?,
     );
 
 Map<String, dynamic> _$QuizModelToJson(QuizModel instance) => <String, dynamic>{
@@ -28,4 +29,5 @@ Map<String, dynamic> _$QuizModelToJson(QuizModel instance) => <String, dynamic>{
       'description': instance.description,
       'timeLimit': instance.timeLimit,
       'difficulty': instance.difficulty,
+      'category': instance.category,
     };

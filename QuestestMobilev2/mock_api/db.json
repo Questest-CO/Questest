@@ -2,14 +2,15 @@
   "quizzes": [
     {
       "id": "1",
-      "title": "Sonic the Hedgehog Trivia",
+      "title": "Mój Super Test",
       "subtitle": "Eggman",
       "thumbnailUrl": "https://images.unsplash.com/photo-1511512578047-dfb367046420?w=800",
       "questionCount": 15,
       "participantsCount": 12450,
       "description": "Test your knowledge about the fastest hedgehog in gaming history! From Green Hill Zone to modern adventures.",
       "timeLimit": 300,
-      "difficulty": "medium"
+      "difficulty": "medium",
+      "category": "quiz"
     },
     {
       "id": "2",
@@ -20,7 +21,8 @@
       "participantsCount": 8920,
       "description": "How well do you know our planet? Test your knowledge of countries, capitals, and landmarks around the world.",
       "timeLimit": 600,
-      "difficulty": "hard"
+      "difficulty": "hard",
+      "category": "exam"
     },
     {
       "id": "3",
@@ -31,7 +33,8 @@
       "participantsCount": 23100,
       "description": "Can you identify these iconic movie quotes? From classics to modern blockbusters.",
       "timeLimit": 180,
-      "difficulty": "easy"
+      "difficulty": "easy",
+      "category": "quiz"
     },
     {
       "id": "4",
@@ -42,7 +45,8 @@
       "participantsCount": 5670,
       "description": "Explore the fascinating world of science and technology. From physics to computer science.",
       "timeLimit": 900,
-      "difficulty": "hard"
+      "difficulty": "hard",
+      "category": "exam"
     }
   ],
   "users": [
@@ -124,4 +128,3 @@
     }
   ]
 }
-

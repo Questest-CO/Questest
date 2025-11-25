@@ -1,24 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../shared_ui/widgets/q_quiz_card.dart';
+import '../../providers/home_providers.dart';
 import '../../providers/quiz_provider.dart';
+import '../widgets/home_header.dart';
+import '../widgets/category_filters.dart';
 
-/// Home page displaying list of available quizzes
+/// Home page displaying list of available quizzes with search and filters
 class HomePage extends ConsumerWidget {
   const HomePage({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final quizzesAsync = ref.watch(quizzesProvider);
+    final filteredQuizzesAsync = ref.watch(filteredQuizzesProvider);
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Start'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.search),
+            icon: const Icon(Icons.notifications_outlined),
             onPressed: () {
-              // TODO: Implement search
+              // TODO: Implement notifications
             },
           ),
         ],
@@ -27,77 +30,131 @@ class HomePage extends ConsumerWidget {
         onRefresh: () async {
           ref.invalidate(quizzesProvider);
         },
-        child: quizzesAsync.when(
-          data: (quizzes) {
-            if (quizzes.isEmpty) {
-              return const Center(
-                child: Text('No quizzes available'),
-              );
-            }
+        child: CustomScrollView(
+          slivers: [
+            // Header with greeting and search
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: const HomeHeader(),
+              ),
+            ),
 
-            return ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: quizzes.length,
-              itemBuilder: (context, index) {
-                final quiz = quizzes[index];
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 16),
-                  child: QQuizCard(
-                    title: quiz.title,
-                    subtitle: quiz.subtitle,
-                    thumbnailUrl: quiz.thumbnailUrl,
-                    questionCount: quiz.questionCount,
-                    participantsCount: quiz.participantsCount,
-                    onTap: () {
-                      // TODO: Navigate to quiz details
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('Opening ${quiz.title}...'),
-                          duration: const Duration(seconds: 1),
-                        ),
-                      );
-                    },
+            // Category filters
+            const SliverToBoxAdapter(
+              child: CategoryFilters(),
+            ),
+
+            const SliverToBoxAdapter(
+              child: SizedBox(height: 16),
+            ),
+
+            // Quiz list
+            filteredQuizzesAsync.when(
+              data: (quizzes) {
+                if (quizzes.isEmpty) {
+                  return SliverFillRemaining(
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.search_off,
+                            size: 64,
+                            color: Colors.grey[400],
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'Nie znaleziono quizów',
+                            style: Theme.of(context).textTheme.titleMedium,
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Spróbuj zmienić filtry lub wyszukiwanie',
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }
+
+                return SliverPadding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  sliver: SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) {
+                        final quiz = quizzes[index];
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 16),
+                          child: QQuizCard(
+                            title: quiz.title,
+                            subtitle: quiz.subtitle,
+                            thumbnailUrl: quiz.thumbnailUrl,
+                            questionCount: quiz.questionCount,
+                            participantsCount: quiz.participantsCount,
+                            difficulty: quiz.difficulty,
+                            onTap: () {
+                              // TODO: Navigate to quiz details
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Opening ${quiz.title}...'),
+                                  duration: const Duration(seconds: 1),
+                                ),
+                              );
+                            },
+                          ),
+                        );
+                      },
+                      childCount: quizzes.length,
+                    ),
                   ),
                 );
               },
-            );
-          },
-          loading: () => const Center(
-            child: CircularProgressIndicator(),
-          ),
-          error: (error, stack) => Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(
-                  Icons.error_outline,
-                  size: 48,
-                  color: Colors.red,
+              loading: () => const SliverFillRemaining(
+                child: Center(
+                  child: CircularProgressIndicator(),
                 ),
-                const SizedBox(height: 16),
-                Text(
-                  'Error loading quizzes',
-                  style: Theme.of(context).textTheme.titleMedium,
+              ),
+              error: (error, stack) => SliverFillRemaining(
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(
+                        Icons.error_outline,
+                        size: 48,
+                        color: Colors.red,
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Błąd ładowania quizów',
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      const SizedBox(height: 8),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 32),
+                        child: Text(
+                          error.toString(),
+                          style: Theme.of(context).textTheme.bodySmall,
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      ElevatedButton(
+                        onPressed: () {
+                          ref.invalidate(quizzesProvider);
+                        },
+                        child: const Text('Spróbuj ponownie'),
+                      ),
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  error.toString(),
-                  style: Theme.of(context).textTheme.bodySmall,
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: () {
-                    ref.invalidate(quizzesProvider);
-                  },
-                  child: const Text('Retry'),
-                ),
-              ],
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );
   }
 }
-
