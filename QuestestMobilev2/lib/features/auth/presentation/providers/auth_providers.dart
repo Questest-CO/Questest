@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 /// Exposes a singleton instance of [FirebaseAuth].
 final firebaseAuthProvider = Provider<FirebaseAuth>((ref) {
@@ -10,6 +11,13 @@ final firebaseAuthProvider = Provider<FirebaseAuth>((ref) {
 final authStateChangesProvider = StreamProvider<User?>((ref) {
   final firebaseAuth = ref.watch(firebaseAuthProvider);
   return firebaseAuth.authStateChanges();
+});
+
+/// Provides configured GoogleSignIn instance for OAuth login.
+final googleSignInProvider = Provider<GoogleSignIn>((ref) {
+  return GoogleSignIn(
+    scopes: const ['email'],
+  );
 });
 
 

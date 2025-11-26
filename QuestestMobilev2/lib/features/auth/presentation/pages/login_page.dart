@@ -188,6 +188,39 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             isLoading: loginState.isLoading,
             onPressed: loginState.isLoading ? null : _submit,
           ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: Divider(
+                  color: AppTheme.textSecondaryColor.withValues(alpha: 0.3),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: Text(
+                  'lub',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: AppTheme.textSecondaryColor,
+                      ),
+                ),
+              ),
+              Expanded(
+                child: Divider(
+                  color: AppTheme.textSecondaryColor.withValues(alpha: 0.3),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          QSecondaryButton(
+            text: 'Kontynuuj z Google',
+            icon: Icons.g_mobiledata_rounded,
+            isLoading: loginState.isLoading,
+            onPressed: loginState.isLoading
+                ? null
+                : () => controller.signInWithGoogle(),
+          ),
           const SizedBox(height: 8),
           TextButton(
             onPressed: loginState.isLoading

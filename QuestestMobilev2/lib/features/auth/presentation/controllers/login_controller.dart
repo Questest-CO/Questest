@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 import '../providers/auth_providers.dart';
 
@@ -32,9 +33,10 @@ class LoginState {
 
 /// State notifier that coordinates Firebase email/password sign-in.
 class LoginController extends StateNotifier<LoginState> {
-  LoginController(this._firebaseAuth) : super(const LoginState());
+  LoginController(this._firebaseAuth, this._googleSignIn) : super(const LoginState());
 
   final FirebaseAuth _firebaseAuth;
+  final GoogleSignIn _googleSignIn;
 
   /// Attempts to sign the user in with the provided credentials.
   Future<void> signIn({
@@ -91,6 +93,41 @@ class LoginController extends StateNotifier<LoginState> {
     }
   }
 
+  Future<void> signInWithGoogle() async {
+    state = state.copyWith(isLoading: true, errorMessage: null);
+
+    try {
+      if (kIsWeb) {
+        final googleProvider = GoogleAuthProvider();
+        googleProvider.setCustomParameters({'prompt': 'select_account'});
+        await _firebaseAuth.signInWithPopup(googleProvider);
+      } else {
+        final googleUser = await _googleSignIn.signIn();
+        if (googleUser == null) {
+          state = state.copyWith(isLoading: false);
+          return;
+        }
+        final googleAuth = await googleUser.authentication;
+        final credential = GoogleAuthProvider.credential(
+          accessToken: googleAuth.accessToken,
+          idToken: googleAuth.idToken,
+        );
+        await _firebaseAuth.signInWithCredential(credential);
+      }
+      state = state.copyWith(isLoading: false, errorMessage: null);
+    } on FirebaseAuthException catch (e) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: _mapFirebaseAuthException(e),
+      );
+    } catch (_) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: 'Nie udało się zalogować przez Google. Spróbuj ponownie.',
+      );
+    }
+  }
+
   void togglePasswordVisibility() {
     state = state.copyWith(
       isPasswordVisible: !state.isPasswordVisible,
@@ -129,7 +166,8 @@ class LoginController extends StateNotifier<LoginState> {
 final loginControllerProvider =
     StateNotifierProvider<LoginController, LoginState>((ref) {
   final firebaseAuth = ref.watch(firebaseAuthProvider);
-  return LoginController(firebaseAuth);
+  final googleSignIn = ref.watch(googleSignInProvider);
+  return LoginController(firebaseAuth, googleSignIn);
 });
 
 
