@@ -5,6 +5,7 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../shared_ui/widgets/q_primary_button.dart';
 import '../controllers/login_controller.dart';
+import 'register_page.dart';
 
 /// Firebase email/password login screen.
 class LoginPage extends ConsumerStatefulWidget {
@@ -72,17 +73,12 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Container(
-          width: 64,
-          height: 64,
-          decoration: const BoxDecoration(
-            shape: BoxShape.circle,
-            gradient: AppTheme.primaryGradient,
-          ),
-          child: const Icon(
-            Icons.quiz_outlined,
-            color: Colors.white,
-            size: 32,
+        SizedBox(
+          height: 96,
+          width: 96,
+          child: Image.asset(
+            'assets/images/Qester_LOGO.png',
+            fit: BoxFit.contain,
           ),
         ),
         const SizedBox(height: 24),
@@ -191,6 +187,52 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             text: 'Zaloguj się',
             isLoading: loginState.isLoading,
             onPressed: loginState.isLoading ? null : _submit,
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: Divider(
+                  color: AppTheme.textSecondaryColor.withValues(alpha: 0.3),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: Text(
+                  'lub',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: AppTheme.textSecondaryColor,
+                      ),
+                ),
+              ),
+              Expanded(
+                child: Divider(
+                  color: AppTheme.textSecondaryColor.withValues(alpha: 0.3),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          QSecondaryButton(
+            text: 'Kontynuuj z Google',
+            icon: Icons.g_mobiledata_rounded,
+            isLoading: loginState.isLoading,
+            onPressed: loginState.isLoading
+                ? null
+                : () => controller.signInWithGoogle(),
+          ),
+          const SizedBox(height: 8),
+          TextButton(
+            onPressed: loginState.isLoading
+                ? null
+                : () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) => const RegisterPage(),
+                      ),
+                    );
+                  },
+            child: const Text('Nie masz konta? Utwórz je'),
           ),
         ],
       ),

@@ -16,6 +16,18 @@ class HomePage extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
+        leadingWidth: 72,
+        leading: Padding(
+          padding: const EdgeInsets.only(left: 12),
+          child: Center(
+            child: Image.asset(
+              'assets/images/Qester_LOGO.png',
+              height: 52,
+              width: 52,
+              fit: BoxFit.contain,
+            ),
+          ),
+        ),
         title: const Text('Start'),
         actions: [
           IconButton(

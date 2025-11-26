@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../auth/presentation/providers/auth_providers.dart';
@@ -18,7 +19,7 @@ class HomeHeader extends ConsumerWidget {
         // Greeting
         authState.when(
           data: (user) {
-            final displayName = user?.displayName ?? 'Użytkowniku';
+            final displayName = _resolveDisplayName(user);
             return Text(
               'Cześć, $displayName!',
               style: theme.textTheme.displaySmall,
@@ -63,4 +64,33 @@ class HomeHeader extends ConsumerWidget {
       ],
     );
   }
+}
+
+String _resolveDisplayName(User? user) {
+  final displayName = user?.displayName?.trim();
+  if (displayName != null && displayName.isNotEmpty) {
+    return _capitalize(displayName);
+  }
+
+  final email = user?.email?.trim();
+  if (email == null || email.isEmpty) {
+    return 'Użytkowniku';
+  }
+
+  final localPart = email.split('@').first.trim();
+  if (localPart.isEmpty) {
+    return 'Użytkowniku';
+  }
+
+  return _capitalize(localPart);
+}
+
+String _capitalize(String value) {
+  if (value.isEmpty) {
+    return value;
+  }
+  if (value.length == 1) {
+    return value.toUpperCase();
+  }
+  return value[0].toUpperCase() + value.substring(1);
 }
