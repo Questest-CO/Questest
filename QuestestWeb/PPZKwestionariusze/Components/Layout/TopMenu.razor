@@ -1,89 +1,66 @@
-﻿@using PPZKwestionariusze.Models;
-@using PPZKwestionariusze.StateStore;
+﻿@using PPZKwestionariusze.Models
+@using PPZKwestionariusze.StateStore
 @inject SessionStorage sessionStorage
-@inject NavigationManager nav;
+@inject NavigationManager nav
 
-<nav>
-	<div class="menu-logo">
-		<img src="../images/logo.png" />
-	</div>
+<nav class="nav">
+    <div class="nav-left">
+        <img src="images/logo.png" class="nav-logo" />
+    </div>
 
-	<div class="menu-items">
-		<button class="menu-button">
-			<span class="menu-text">
-				<NavLink href="/" Match="NavLinkMatch.All">Strona Główna</NavLink>
-			</span>
-		</button>
+    <input type="checkbox" id="nav-toggle" class="nav-toggle" />
 
-		<button class="menu-button">
-			<span class="menu-text">
-				<NavLink Match="NavLinkMatch.All">Kwestionariusze</NavLink>
-				<div class="menu-dropdown">
-					<NavLink href="/add-questionnaire" Match="NavLinkMatch.All">Twórz</NavLink>
-					<NavLink href="/questionnaires" Match="NavLinkMatch.All">Przeglądaj</NavLink>
-				</div>
-			</span>
-		</button>
+    <label for="nav-toggle" class="nav-toggle-btn">
+        <span></span>
+        <span></span>
+        <span></span>
+    </label>
 
-		<button class="menu-button">
-			<span class="menu-text">
-				<NavLink href="/users" Match="NavLinkMatch.All">Użytkownicy</NavLink>
-			</span>
-		</button>
+    <div class="nav-menu">
+        <NavLink href="/" Match="NavLinkMatch.All" class="nav-item">
+            <i class="icon bi-house"></i> Strona Główna
+        </NavLink>
 
-		<div class="menu-user">
-			@if (usm is null)
-			{
-				<button class="menu-button">
-					<span class="menu-text">
-						<NavLink href="/login" Match="NavLinkMatch.All">Zaloguj się</NavLink>
-					</span>
-				</button>
+        <div class="nav-dropdown">
+            <button class="nav-item">
+                <i class="icon bi-list"></i> Kwestionariusze
+            </button>
 
-				<button class="menu-button">
-					<span class="menu-text">
-						<NavLink href="/register" Match="NavLinkMatch.All">Zarejestruj się</NavLink>
-					</span>
-				</button>
-			}
-			else
-			{
-				<button class="menu-button-img">
-					<span class="menu-user-settings">
-						<NavLink href="/usersettings" Match="NavLinkMatch.All"><img src="../images/sett.png" class="img-sett"></NavLink>
-					</span>
-				</button>
+            <div class="nav-dropdown-menu">
+                <NavLink href="/add-questionnaire" class="dropdown-link">Twórz</NavLink>
+                <NavLink href="/questionnaires" class="dropdown-link">Przeglądaj</NavLink>
+            </div>
+        </div>
 
-				<button class="menu-button-img">
-					<span class="menu-user-img">
-						<NavLink href="/inbox" Match="NavLinkMatch.All"><img src="../images/noti.png" class="img-noti"></NavLink>
-					</span>
-				</button>
+        <NavLink href="/users" class="nav-item">
+            <i class="icon bi-people"></i> Użytkownicy
+        </NavLink>
 
-				<button class="menu-button-img">
-					<span class="menu-user-img">
-						<NavLink href="/login" Match="NavLinkMatch.All"><img src="../images/user.png" class="img-user"></NavLink>
-					</span>
-				</button>
-			}
-		</div>
-	</div>
+        <div class="nav-right">
+            @if (usm is null)
+            {
+                <NavLink href="/login" class="nav-item small-btn">Logowanie</NavLink>
+                <NavLink href="/register" class="nav-item small-btn">Rejestracja</NavLink>
+            }
+            else
+            {
+                <NavLink href="/usersettings" class="icon-btn"><img src="images/sett.png" /></NavLink>
+                <NavLink href="/inbox" class="icon-btn"><img src="images/noti.png" /></NavLink>
+                <NavLink href="/profile" class="icon-btn"><img src="images/user.png" /></NavLink>
+            }
+        </div>
+    </div>
 </nav>
 
-
 @code {
+    private UserStorageModel? usm;
 
-	private UserStorageModel? usm;
-
-	protected override async Task OnAfterRenderAsync(bool firstRender)
-	{
-		if (firstRender)
-		{
-			usm = await sessionStorage.GetUserAsync();
-
-			StateHasChanged();
-		}
-	}
-
-
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            usm = await sessionStorage.GetUserAsync();
+            StateHasChanged();
+        }
+    }
 }
