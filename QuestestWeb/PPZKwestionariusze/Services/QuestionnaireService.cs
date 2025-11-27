@@ -8,40 +8,44 @@ using PPZKwestionariusze.Models;
 
 namespace PPZKwestionariusze.Services
 {
-	public class QuestionnaireService
-	{
-		private readonly string _connectionString;
+    public class QuestionnaireService
+    {
+        private readonly string _connectionString;
 
-		public QuestionnaireService(IConfiguration configuration)
-		{
-			_connectionString = configuration.GetConnectionString("DefaultConnection");
-		}
+        public QuestionnaireService(IConfiguration configuration)
+        {
+            _connectionString = configuration.GetConnectionString("DefaultConnection");
+        }
 
-		public async Task<List<Questionnaire>> GetQuestionnairesAsync()
-		{
-			var questionnaires = new List<Questionnaire>();
+        public async Task<List<Questionnaire>> GetQuestionnairesAsync()
+        {
+            var questionnaires = new List<Questionnaire>();
 
-			using (var connection = new OracleConnection(_connectionString))
-			{
-				await connection.OpenAsync();
-				var command = new OracleCommand("SELECT ID, TITLE, CREATED_BY, DATE_CREATED, PRIVATE FROM QUESTIONNAIRES ORDER BY ID", connection);
+            using (var connection = new OracleConnection(_connectionString))
+            {
+                await connection.OpenAsync();
+                var command = new OracleCommand(
+                    "SELECT ID, TITLE, CREATED_BY, DATE_CREATED, PRIVATE, CATEGORY_ID " +
+                    "FROM QUESTIONNAIRES ORDER BY ID",
+                    connection);
 
-				var reader = await command.ExecuteReaderAsync();
-				while (await reader.ReadAsync())
-				{
-					questionnaires.Add(new Questionnaire
-					{
-						Id = reader.GetInt32(0),
-						Title = reader.GetString(1),
-						CreatedBy = reader.GetInt32(2),
-						DateCreated = reader.GetDateTime(3),
-                        IsPrivate = reader.GetString(4)
+                var reader = await command.ExecuteReaderAsync();
+                while (await reader.ReadAsync())
+                {
+                    questionnaires.Add(new Questionnaire
+                    {
+                        Id = reader.GetInt32(0),
+                        Title = reader.GetString(1),
+                        CreatedBy = reader.GetInt32(2),
+                        DateCreated = reader.GetDateTime(3),
+                        IsPrivate = reader.GetString(4),
+                        CategoryId = reader.IsDBNull(5) ? -1 : reader.GetInt32(5)
                     });
-				}
-			}
+                }
+            }
 
-			return questionnaires;
-		}
+            return questionnaires;
+        }
 
         // dodawanie - może być podane ID w przypadku aktualizacji/wstawiania na nowo
         public async Task<int> AddQuestionnaireAsync(Questionnaire questionnaire)
@@ -52,40 +56,44 @@ namespace PPZKwestionariusze.Services
 
                 if (questionnaire.Id != -1)
                 {
-                     var deleteCommand = new OracleCommand("DELETE FROM QUESTIONNAIRES WHERE ID = :Id", connection);
-                     deleteCommand.Parameters.Add(new OracleParameter(":Id", questionnaire.Id));
+                    var deleteCommand = new OracleCommand("DELETE FROM QUESTIONNAIRES WHERE ID = :Id", connection);
+                    deleteCommand.Parameters.Add(new OracleParameter(":Id", questionnaire.Id));
+                    await deleteCommand.ExecuteNonQueryAsync();
 
-                     await deleteCommand.ExecuteNonQueryAsync();
-
-                    var command = new OracleCommand("INSERT INTO QUESTIONNAIRES (ID, TITLE, CREATED_BY, PRIVATE) " +
-                                                "VALUES (:id, :Title, :CreatedBy, :Private) ", connection);
+                    var command = new OracleCommand(
+                        "INSERT INTO QUESTIONNAIRES (ID, TITLE, CREATED_BY, PRIVATE, CATEGORY_ID) " +
+                        "VALUES (:Id, :Title, :CreatedBy, :Private, :CategoryId)",
+                        connection);
 
                     command.Parameters.Add(new OracleParameter(":Id", questionnaire.Id));
                     command.Parameters.Add(new OracleParameter(":Title", questionnaire.Title));
                     command.Parameters.Add(new OracleParameter(":CreatedBy", questionnaire.CreatedBy));
                     command.Parameters.Add(new OracleParameter(":Private", questionnaire.IsPrivate));
+                    command.Parameters.Add(new OracleParameter(":CategoryId",
+                        (object?)questionnaire.CategoryId ?? DBNull.Value));
 
                     await command.ExecuteNonQueryAsync();
                     return questionnaire.Id;
                 }
                 else
                 {
-                    var command = new OracleCommand("INSERT INTO QUESTIONNAIRES (TITLE, CREATED_BY, PRIVATE) " +
-                                                "VALUES (:Title, :CreatedBy, :Private) " +
-                                                "RETURNING ID INTO :NewId", connection);
+                    var command = new OracleCommand(
+                        "INSERT INTO QUESTIONNAIRES (TITLE, CREATED_BY, PRIVATE, CATEGORY_ID) " +
+                        "VALUES (:Title, :CreatedBy, :Private, :CategoryId) " +
+                        "RETURNING ID INTO :NewId",
+                        connection);
 
                     command.Parameters.Add(new OracleParameter(":Title", questionnaire.Title));
                     command.Parameters.Add(new OracleParameter(":CreatedBy", questionnaire.CreatedBy));
                     command.Parameters.Add(new OracleParameter(":Private", questionnaire.IsPrivate));
-
-
+                    command.Parameters.Add(new OracleParameter(":CategoryId",
+                        (object?)questionnaire.Id ?? DBNull.Value));
 
                     var idParam = new OracleParameter(":NewId", OracleDbType.Int32)
                     {
                         Direction = ParameterDirection.Output,
                         Size = 100
                     };
-                    idParam.Direction = ParameterDirection.Output;
                     command.Parameters.Add(idParam);
 
                     await command.ExecuteNonQueryAsync();
@@ -101,7 +109,11 @@ namespace PPZKwestionariusze.Services
             using (var connection = new OracleConnection(_connectionString))
             {
                 await connection.OpenAsync();
-                var command = new OracleCommand("SELECT ID, TITLE, CREATED_BY, DATE_CREATED, PRIVATE FROM QUESTIONNAIRES WHERE ID = :Id", connection);
+                var command = new OracleCommand(
+                    "SELECT ID, TITLE, CREATED_BY, DATE_CREATED, PRIVATE, CATEGORY_ID " +
+                    "FROM QUESTIONNAIRES WHERE ID = :Id",
+                    connection);
+
                 command.Parameters.Add(new OracleParameter(":Id", ID));
 
                 var reader = await command.ExecuteReaderAsync();
@@ -113,15 +125,13 @@ namespace PPZKwestionariusze.Services
                         Title = reader.GetString(1),
                         CreatedBy = reader.GetInt32(2),
                         DateCreated = reader.GetDateTime(3),
-                        IsPrivate = reader.GetString(4)
+                        IsPrivate = reader.GetString(4),
+                        CategoryId = reader.IsDBNull(5) ? -1 : reader.GetInt32(5)
                     };
                 }
             }
             return null;
-
         }
-
-        
 
         // dla przeglądarki
         public async Task<List<QuestionnaireViewModel>> GetQuestionnairesBrowserAsync()
@@ -131,7 +141,13 @@ namespace PPZKwestionariusze.Services
             using (var connection = new OracleConnection(_connectionString))
             {
                 await connection.OpenAsync();
-                var command = new OracleCommand("SELECT Q.ID, Q.TITLE, U.ID IDU, U.USERNAME, Q.DATE_CREATED, Q.PRIVATE, (SELECT COUNT(1) FROM QUESTIONS QQ WHERE QQ.QUESTIONNAIREID = Q.ID) TMP, (SELECT COUNT(1) FROM QUESTIONNAIREFILLED QF WHERE QF.QUESTIONNAIREID = Q.ID) TMP1 FROM QUESTIONNAIRES Q, USERS U WHERE Q.CREATED_BY = U.ID ORDER BY Q.ID", connection);
+                var command = new OracleCommand(
+                    "SELECT Q.ID, Q.TITLE, U.ID AS IDU, U.USERNAME, Q.DATE_CREATED, Q.PRIVATE, " +
+                    "(SELECT COUNT(1) FROM QUESTIONS QQ WHERE QQ.QUESTIONNAIREID = Q.ID) TMP, " +
+                    "(SELECT COUNT(1) FROM QUESTIONNAIREFILLED QF WHERE QF.QUESTIONNAIREID = Q.ID) TMP1, " +
+                    "Q.CATEGORY_ID " +
+                    "FROM QUESTIONNAIRES Q, USERS U WHERE Q.CREATED_BY = U.ID ORDER BY Q.ID",
+                    connection);
 
                 var reader = await command.ExecuteReaderAsync();
                 while (await reader.ReadAsync())
@@ -145,13 +161,15 @@ namespace PPZKwestionariusze.Services
                         DateCreated = reader.GetDateTime(4),
                         IsPrivate = reader.GetString(5),
                         QuestionCount = reader.GetInt32(6),
-                        FillCount = reader.GetInt32(7)
+                        FillCount = reader.GetInt32(7),
+                        CategoryId = reader.IsDBNull(8) ? -1 : reader.GetInt32(8)
                     });
                 }
             }
 
             return questionnaires;
         }
+
         public async Task DeleteQuestionnaire(int ID)
         {
             using (var connection = new OracleConnection(_connectionString))
@@ -160,9 +178,8 @@ namespace PPZKwestionariusze.Services
                 var command = new OracleCommand("DELETE FROM QUESTIONNAIRES WHERE ID = :Id", connection);
                 command.Parameters.Add(new OracleParameter(":Id", ID));
 
-                var reader = await command.ExecuteNonQueryAsync();
+                await command.ExecuteNonQueryAsync();
             }
-
         }
 
         public async Task<List<int>> GetPermittedUsers(int ID)
@@ -172,7 +189,10 @@ namespace PPZKwestionariusze.Services
             using (var connection = new OracleConnection(_connectionString))
             {
                 await connection.OpenAsync();
-                var command = new OracleCommand("SELECT USER_ID FROM QUESTIONNAIRES_SHARED WHERE QUESTIONNAIRE_ID = :QuestId", connection);
+                var command = new OracleCommand(
+                    "SELECT USER_ID FROM QUESTIONNAIRES_SHARED WHERE QUESTIONNAIRE_ID = :QuestId",
+                    connection);
+
                 command.Parameters.Add(new OracleParameter(":QuestId", ID));
 
                 var reader = await command.ExecuteReaderAsync();
@@ -192,13 +212,18 @@ namespace PPZKwestionariusze.Services
             using (var connection = new OracleConnection(_connectionString))
             {
                 await connection.OpenAsync();
-                var command = new OracleCommand("SELECT U.ID, U.USERNAME FROM QUESTIONNAIRES_SHARED QS JOIN USERS U ON U.ID = QS.USER_ID WHERE QS.QUESTIONNAIRE_ID = :QuestId", connection);
+                var command = new OracleCommand(
+                    "SELECT U.ID, U.USERNAME FROM QUESTIONNAIRES_SHARED QS " +
+                    "JOIN USERS U ON U.ID = QS.USER_ID WHERE QS.QUESTIONNAIRE_ID = :QuestId",
+                    connection);
+
                 command.Parameters.Add(new OracleParameter(":QuestId", ID));
 
                 var reader = await command.ExecuteReaderAsync();
                 while (await reader.ReadAsync())
                 {
-                    users.Add(new UserComboDto {
+                    users.Add(new UserComboDto
+                    {
                         Id = reader.GetInt32(0),
                         Username = reader.GetString(1)
                     });
@@ -213,11 +238,14 @@ namespace PPZKwestionariusze.Services
             using (var connection = new OracleConnection(_connectionString))
             {
                 await connection.OpenAsync();
-                var command = new OracleCommand("DELETE FROM QUESTIONNAIRES_SHARED WHERE QUESTIONNAIRE_ID = :QuestId AND USER_ID = :UserId", connection);
+                var command = new OracleCommand(
+                    "DELETE FROM QUESTIONNAIRES_SHARED WHERE QUESTIONNAIRE_ID = :QuestId AND USER_ID = :UserId",
+                    connection);
+
                 command.Parameters.Add(new OracleParameter(":QuestId", QID));
                 command.Parameters.Add(new OracleParameter(":UserId", UID));
 
-                var reader = await command.ExecuteNonQueryAsync();
+                await command.ExecuteNonQueryAsync();
             }
         }
 
@@ -226,16 +254,15 @@ namespace PPZKwestionariusze.Services
             using (var connection = new OracleConnection(_connectionString))
             {
                 await connection.OpenAsync();
-                var command = new OracleCommand("INSERT INTO QUESTIONNAIRES_SHARED VALUES (:QuestId, :UserId)", connection);
+                var command = new OracleCommand(
+                    "INSERT INTO QUESTIONNAIRES_SHARED VALUES (:QuestId, :UserId)",
+                    connection);
+
                 command.Parameters.Add(new OracleParameter(":QuestId", QID));
                 command.Parameters.Add(new OracleParameter(":UserId", UID));
 
                 await command.ExecuteNonQueryAsync();
             }
         }
-
     }
-
-
-
 }

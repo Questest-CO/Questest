@@ -12,6 +12,7 @@
         public int QuestionCount { get; set; }
         public int FillCount { get; set; }
         public List<int> PermittedUsers { get; set; } = new();
+        public int? CategoryId { get; set; }
     }
 
 }
