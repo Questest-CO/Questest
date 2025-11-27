@@ -54,32 +54,35 @@ class _MainScreenState extends State<MainScreen> {
         child: const Icon(Icons.add, size: 28),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      bottomNavigationBar: BottomAppBar(
-        shape: const CircularNotchedRectangle(),
-        notchMargin: 8,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            // Start tab
-            Expanded(
-              child: InkWell(
-                onTap: () => _onTabTapped(0),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
+      bottomNavigationBar: SafeArea(
+        child: BottomAppBar(
+          height: 70,
+          shape: const CircularNotchedRectangle(),
+          notchMargin: 8,
+          padding: EdgeInsets.zero,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              // Start tab
+              Expanded(
+                child: InkWell(
+                  onTap: () => _onTabTapped(0),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(
                         Icons.home,
+                        size: 24,
                         color: _currentIndex == 0
                             ? AppTheme.primaryColor
                             : AppTheme.textSecondaryColor,
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 2),
                       Text(
                         'Start',
                         style: TextStyle(
-                          fontSize: 12,
+                          fontSize: 11,
                           fontWeight: _currentIndex == 0
                               ? FontWeight.w600
                               : FontWeight.normal,
@@ -92,29 +95,28 @@ class _MainScreenState extends State<MainScreen> {
                   ),
                 ),
               ),
-            ),
-            // Spacer for FAB
-            const SizedBox(width: 80),
-            // Profile tab
-            Expanded(
-              child: InkWell(
-                onTap: () => _onTabTapped(1),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
+              // Spacer for FAB
+              const SizedBox(width: 80),
+              // Profile tab
+              Expanded(
+                child: InkWell(
+                  onTap: () => _onTabTapped(1),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(
                         Icons.person,
+                        size: 24,
                         color: _currentIndex == 1
                             ? AppTheme.primaryColor
                             : AppTheme.textSecondaryColor,
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 2),
                       Text(
                         'Profil',
                         style: TextStyle(
-                          fontSize: 12,
+                          fontSize: 11,
                           fontWeight: _currentIndex == 1
                               ? FontWeight.w600
                               : FontWeight.normal,
@@ -127,8 +129,8 @@ class _MainScreenState extends State<MainScreen> {
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
