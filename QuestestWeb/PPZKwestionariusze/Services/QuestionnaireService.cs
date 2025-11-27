@@ -70,7 +70,7 @@ namespace PPZKwestionariusze.Services
                     command.Parameters.Add(new OracleParameter(":CreatedBy", questionnaire.CreatedBy));
                     command.Parameters.Add(new OracleParameter(":Private", questionnaire.IsPrivate));
                     command.Parameters.Add(new OracleParameter(":CategoryId",
-                        (object?)questionnaire.Id ?? DBNull.Value));
+                        (object?)questionnaire.CategoryId ?? DBNull.Value));
 
                     await command.ExecuteNonQueryAsync();
                     return questionnaire.Id;
