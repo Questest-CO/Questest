@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../domain/quiz_session_state.dart';
 import '../../models/quiz_question.dart';
+import '../../providers/quiz_controller.dart';
 import '../widgets/question_card.dart';
 import '../widgets/quiz_progress_header.dart';
 import '../widgets/single_choice_answer.dart';
@@ -9,56 +12,194 @@ import '../widgets/open_text_answer.dart';
 
 /// Main quiz solving screen
 /// Displays questions and handles user answers
-class QuizSolvingPage extends StatefulWidget {
+/// Uses Riverpod for state management
+class QuizSolvingPage extends ConsumerStatefulWidget {
   const QuizSolvingPage({super.key});
 
   @override
-  State<QuizSolvingPage> createState() => _QuizSolvingPageState();
+  ConsumerState<QuizSolvingPage> createState() => _QuizSolvingPageState();
 }
 
-class _QuizSolvingPageState extends State<QuizSolvingPage> {
-  // Current question index
-  int _currentQuestionIndex = 0;
-
-  // Answers storage
-  final Map<int, int?> _singleChoiceAnswers = {};
-  final Map<int, Set<int>> _multipleChoiceAnswers = {};
-  final Map<int, String> _openTextAnswers = {};
-
-  // Get current question
-  QuizQuestion get _currentQuestion =>
-      MockQuizData.questions[_currentQuestionIndex];
-
-  // Check if we're on the last question
-  bool get _isLastQuestion =>
-      _currentQuestionIndex >= MockQuizData.questions.length - 1;
-
-  // Check if current question has an answer
-  bool get _hasAnswer {
-    switch (_currentQuestion.type) {
-      case QuestionType.singleChoice:
-        return _singleChoiceAnswers[_currentQuestion.id] != null;
-      case QuestionType.multipleChoice:
-        final answers = _multipleChoiceAnswers[_currentQuestion.id];
-        return answers != null && answers.isNotEmpty;
-      case QuestionType.openText:
-        final answer = _openTextAnswers[_currentQuestion.id];
-        return answer != null && answer.trim().isNotEmpty;
-    }
+class _QuizSolvingPageState extends ConsumerState<QuizSolvingPage> {
+  @override
+  void initState() {
+    super.initState();
+    // Start quiz after first frame to ensure provider is ready
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(quizControllerProvider.notifier).startQuiz();
+    });
   }
 
-  void _handleNextQuestion() {
-    if (_isLastQuestion) {
-      // Show completion dialog
-      _showCompletionDialog();
-    } else {
-      setState(() {
-        _currentQuestionIndex++;
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final quizState = ref.watch(quizControllerProvider);
+
+    // Handle completed state
+    if (quizState.status == QuizStatus.completed) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _showCompletionDialog(quizState);
       });
     }
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(MockQuizData.quizTitle),
+        leading: IconButton(
+          icon: const Icon(Icons.close),
+          onPressed: () => _showExitConfirmation(context),
+        ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 16),
+            child: QuizTimer(
+              timerText: quizState.formattedTime,
+              isWarning: quizState.isTimeWarning,
+            ),
+          ),
+        ],
+      ),
+      body: SafeArea(
+        child: Column(
+          children: [
+            // Progress header
+            QuizProgressHeader(
+              currentQuestion: quizState.currentQuestionNumber,
+              totalQuestions: quizState.totalQuestions,
+            ),
+
+            // Scrollable content
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // Question card
+                    QuestionCard(
+                      question: quizState.currentQuestion,
+                      questionNumber: quizState.currentQuestionNumber,
+                      totalQuestions: quizState.totalQuestions,
+                    ),
+                    const SizedBox(height: 24),
+
+                    // Answer section title
+                    Text(
+                      'Twoja odpowiedź',
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    // Answer widget based on question type
+                    _buildAnswerWidget(quizState),
+                  ],
+                ),
+              ),
+            ),
+
+            // Bottom action bar
+            _buildBottomBar(theme, quizState),
+          ],
+        ),
+      ),
+    );
   }
 
-  void _showCompletionDialog() {
+  Widget _buildAnswerWidget(QuizSessionState quizState) {
+    final question = quizState.currentQuestion;
+    final controller = ref.read(quizControllerProvider.notifier);
+
+    switch (question.type) {
+      case QuestionType.singleChoice:
+        return SingleChoiceAnswer(
+          options: question.options!,
+          selectedOptionId: quizState.getSingleChoiceAnswer(question.id),
+          onOptionSelected: (optionId) {
+            controller.selectAnswer(question.id, optionId);
+          },
+        );
+
+      case QuestionType.multipleChoice:
+        return MultipleChoiceAnswer(
+          options: question.options!,
+          selectedOptionIds: quizState.getMultipleChoiceAnswers(question.id),
+          onOptionToggled: (optionId) {
+            controller.toggleAnswer(question.id, optionId);
+          },
+        );
+
+      case QuestionType.openText:
+        return OpenTextAnswer(
+          value: quizState.getOpenTextAnswer(question.id),
+          onChanged: (text) {
+            controller.submitOpenAnswer(question.id, text);
+          },
+          hint: question.hint,
+        );
+    }
+  }
+
+  Widget _buildBottomBar(ThemeData theme, QuizSessionState quizState) {
+    final controller = ref.read(quizControllerProvider.notifier);
+    final hasAnswer = quizState.hasCurrentAnswer;
+    final isLastQuestion = quizState.isLastQuestion;
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, -5),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          // Skip button (shown when no answer)
+          if (!hasAnswer)
+            TextButton(
+              onPressed: () => controller.nextQuestion(),
+              child: const Text('Pomiń'),
+            ),
+
+          // Previous button (shown when not on first question)
+          if (quizState.currentQuestionIndex > 0 && hasAnswer)
+            TextButton.icon(
+              onPressed: () => controller.previousQuestion(),
+              icon: const Icon(Icons.arrow_back, size: 18),
+              label: const Text('Poprzednie'),
+            ),
+
+          const Spacer(),
+
+          // Next/Finish button
+          FilledButton.icon(
+            onPressed: () => controller.nextQuestion(),
+            icon: Icon(isLastQuestion ? Icons.check : Icons.arrow_forward),
+            label: Text(isLastQuestion ? 'Zakończ' : 'Następne'),
+            style: FilledButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+              backgroundColor: hasAnswer
+                  ? theme.colorScheme.primary
+                  : theme.colorScheme.primary.withValues(alpha: 0.7),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  bool _dialogShown = false;
+
+  void _showCompletionDialog(QuizSessionState quizState) {
+    if (_dialogShown) return;
+    _dialogShown = true;
+
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -93,9 +234,14 @@ class _QuizSolvingPageState extends State<QuizSolvingPage> {
               ),
               child: Column(
                 children: [
-                  _buildSummaryRow('Pytania', '${MockQuizData.questions.length}'),
+                  _buildSummaryRow(
+                      'Pytania', '${quizState.totalQuestions}'),
                   const SizedBox(height: 8),
-                  _buildSummaryRow('Odpowiedzi', '${_countAnswers()}'),
+                  _buildSummaryRow(
+                      'Odpowiedzi', '${quizState.answeredCount}'),
+                  const SizedBox(height: 8),
+                  _buildSummaryRow(
+                      'Pozostały czas', quizState.formattedTime),
                 ],
               ),
             ),
@@ -127,178 +273,15 @@ class _QuizSolvingPageState extends State<QuizSolvingPage> {
     );
   }
 
-  int _countAnswers() {
-    int count = 0;
-    count += _singleChoiceAnswers.values.where((v) => v != null).length;
-    count += _multipleChoiceAnswers.values.where((v) => v.isNotEmpty).length;
-    count += _openTextAnswers.values.where((v) => v.trim().isNotEmpty).length;
-    return count;
-  }
-
-  void _handleSingleChoiceSelection(int optionId) {
-    setState(() {
-      _singleChoiceAnswers[_currentQuestion.id] = optionId;
-    });
-  }
-
-  void _handleMultipleChoiceToggle(int optionId) {
-    setState(() {
-      final currentAnswers =
-          _multipleChoiceAnswers[_currentQuestion.id] ?? <int>{};
-
-      if (currentAnswers.contains(optionId)) {
-        currentAnswers.remove(optionId);
-      } else {
-        currentAnswers.add(optionId);
-      }
-
-      _multipleChoiceAnswers[_currentQuestion.id] = currentAnswers;
-    });
-  }
-
-  void _handleOpenTextChange(String value) {
-    setState(() {
-      _openTextAnswers[_currentQuestion.id] = value;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(MockQuizData.quizTitle),
-        leading: IconButton(
-          icon: const Icon(Icons.close),
-          onPressed: () => _showExitConfirmation(context),
-        ),
-        actions: const [
-          Padding(
-            padding: EdgeInsets.only(right: 16),
-            child: QuizTimer(timerText: '14:59'),
-          ),
-        ],
-      ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Progress header
-            QuizProgressHeader(
-              currentQuestion: _currentQuestionIndex + 1,
-              totalQuestions: MockQuizData.questions.length,
-            ),
-
-            // Scrollable content
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    // Question card
-                    QuestionCard(
-                      question: _currentQuestion,
-                      questionNumber: _currentQuestionIndex + 1,
-                      totalQuestions: MockQuizData.questions.length,
-                    ),
-                    const SizedBox(height: 24),
-
-                    // Answer section title
-                    Text(
-                      'Twoja odpowiedź',
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Answer widget based on question type
-                    _buildAnswerWidget(),
-                  ],
-                ),
-              ),
-            ),
-
-            // Bottom action bar
-            _buildBottomBar(theme),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildAnswerWidget() {
-    switch (_currentQuestion.type) {
-      case QuestionType.singleChoice:
-        return SingleChoiceAnswer(
-          options: _currentQuestion.options!,
-          selectedOptionId: _singleChoiceAnswers[_currentQuestion.id],
-          onOptionSelected: _handleSingleChoiceSelection,
-        );
-
-      case QuestionType.multipleChoice:
-        return MultipleChoiceAnswer(
-          options: _currentQuestion.options!,
-          selectedOptionIds:
-              _multipleChoiceAnswers[_currentQuestion.id] ?? <int>{},
-          onOptionToggled: _handleMultipleChoiceToggle,
-        );
-
-      case QuestionType.openText:
-        return OpenTextAnswer(
-          value: _openTextAnswers[_currentQuestion.id] ?? '',
-          onChanged: _handleOpenTextChange,
-          hint: _currentQuestion.hint,
-        );
-    }
-  }
-
-  Widget _buildBottomBar(ThemeData theme) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, -5),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          // Skip button (optional)
-          if (!_hasAnswer)
-            TextButton(
-              onPressed: _handleNextQuestion,
-              child: const Text('Pomiń'),
-            ),
-
-          const Spacer(),
-
-          // Next/Finish button
-          FilledButton.icon(
-            onPressed: _handleNextQuestion,
-            icon: Icon(_isLastQuestion ? Icons.check : Icons.arrow_forward),
-            label: Text(_isLastQuestion ? 'Zakończ' : 'Następne'),
-            style: FilledButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-              backgroundColor: _hasAnswer
-                  ? theme.colorScheme.primary
-                  : theme.colorScheme.primary.withValues(alpha: 0.7),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   void _showExitConfirmation(BuildContext context) {
+    final controller = ref.read(quizControllerProvider.notifier);
+
+    // Pause quiz while showing dialog
+    controller.pauseQuiz();
+
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (dialogContext) => AlertDialog(
         icon: const Icon(Icons.warning_amber_rounded, size: 48),
         title: const Text('Wyjść z quizu?'),
         content: const Text(
@@ -307,12 +290,15 @@ class _QuizSolvingPageState extends State<QuizSolvingPage> {
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () {
+              Navigator.of(dialogContext).pop();
+              controller.resumeQuiz(); // Resume timer
+            },
             child: const Text('Kontynuuj'),
           ),
           FilledButton(
             onPressed: () {
-              Navigator.of(context).pop(); // Close dialog
+              Navigator.of(dialogContext).pop(); // Close dialog
               Navigator.of(context).pop(); // Go back
             },
             style: FilledButton.styleFrom(
@@ -325,4 +311,3 @@ class _QuizSolvingPageState extends State<QuizSolvingPage> {
     );
   }
 }
-
