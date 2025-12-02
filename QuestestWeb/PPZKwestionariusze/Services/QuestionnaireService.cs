@@ -25,7 +25,7 @@ namespace PPZKwestionariusze.Services
             {
                 await connection.OpenAsync();
                 var command = new OracleCommand(
-                    "SELECT ID, TITLE, CREATED_BY, DATE_CREATED, PRIVATE, CATEGORY_ID " +
+                    "SELECT ID, TITLE, CREATED_BY, DATE_CREATED, PRIVATE, CATEGORY " +
                     "FROM QUESTIONNAIRES ORDER BY ID",
                     connection);
 
@@ -61,7 +61,7 @@ namespace PPZKwestionariusze.Services
                     await deleteCommand.ExecuteNonQueryAsync();
 
                     var command = new OracleCommand(
-                        "INSERT INTO QUESTIONNAIRES (ID, TITLE, CREATED_BY, PRIVATE, CATEGORY_ID) " +
+                        "INSERT INTO QUESTIONNAIRES (ID, TITLE, CREATED_BY, PRIVATE, CATEGORY) " +
                         "VALUES (:Id, :Title, :CreatedBy, :Private, :CategoryId)",
                         connection);
 
@@ -78,7 +78,7 @@ namespace PPZKwestionariusze.Services
                 else
                 {
                     var command = new OracleCommand(
-                        "INSERT INTO QUESTIONNAIRES (TITLE, CREATED_BY, PRIVATE, CATEGORY_ID) " +
+                        "INSERT INTO QUESTIONNAIRES (TITLE, CREATED_BY, PRIVATE, CATEGORY) " +
                         "VALUES (:Title, :CreatedBy, :Private, :CategoryId) " +
                         "RETURNING ID INTO :NewId",
                         connection);
@@ -110,7 +110,7 @@ namespace PPZKwestionariusze.Services
             {
                 await connection.OpenAsync();
                 var command = new OracleCommand(
-                    "SELECT ID, TITLE, CREATED_BY, DATE_CREATED, PRIVATE, CATEGORY_ID " +
+                    "SELECT ID, TITLE, CREATED_BY, DATE_CREATED, PRIVATE, CATEGORY " +
                     "FROM QUESTIONNAIRES WHERE ID = :Id",
                     connection);
 
@@ -145,7 +145,7 @@ namespace PPZKwestionariusze.Services
                     "SELECT Q.ID, Q.TITLE, U.ID AS IDU, U.USERNAME, Q.DATE_CREATED, Q.PRIVATE, " +
                     "(SELECT COUNT(1) FROM QUESTIONS QQ WHERE QQ.QUESTIONNAIREID = Q.ID) TMP, " +
                     "(SELECT COUNT(1) FROM QUESTIONNAIREFILLED QF WHERE QF.QUESTIONNAIREID = Q.ID) TMP1, " +
-                    "Q.CATEGORY_ID " +
+                    "Q.CATEGORY " +
                     "FROM QUESTIONNAIRES Q, USERS U WHERE Q.CREATED_BY = U.ID ORDER BY Q.ID",
                     connection);
 

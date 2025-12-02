@@ -18,6 +18,9 @@ builder.Services.AddScoped<QuestionnaireFilledService>();
 builder.Services.AddScoped<QuestionAnswerService>();
 builder.Services.AddScoped<NotificationService>();
 
+builder.Services.AddScoped<QuestionnaireAnalysisService>();
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

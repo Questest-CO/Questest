@@ -1,0 +1,185 @@
+﻿@page "/questionnaire-analysis/{QuestId:int}"
+
+
+@inject QuestionnaireService QuestionnaireService
+@inject QuestionService QuestionService
+@inject OptionsService OptionsService
+@inject QuestionnaireAnalysisService QuestionnaireAnalysisService
+
+
+@inject SessionStorage sessionStorage
+@using PPZKwestionariusze.Services
+@using PPZKwestionariusze.Models
+@using PPZKwestionariusze.StateStore
+@using PPZKwestionariusze.Components
+
+<div class="homepage-container">
+    @if (isLoading)
+    {
+        <div class="preloader"></div>
+    }
+    else if (nonexistent)
+    {
+        <div class="info-box error">
+            <i class="fa-solid fa-ban"></i> Ten kwestionariusz nie istnieje.
+        </div>
+    }
+    else if (block)
+    {
+        <div class="info-box">
+            <i class="fa-solid fa-ban"></i> Tylko właściciel kwestionariusza może przeglądać statystyki.
+        </div>
+    }
+    else
+    {
+        <h3 class="homepage-heading">Analiza odpowiedzi</h3>
+
+        @if (questionnaire == null)
+        {
+            <div class="preloader"></div>
+        }
+        else
+        {
+            <div class="filled-details">
+                <p><strong>Kwestionariusz:</strong> @questionnaire.Title</p>
+                <p><strong>Kategoria:</strong> @questionnaire.CategoryId (chwilowo tylko Id :p)</p>
+                <p><strong>Liczba wypełnień:</strong> @questionnaireAnalysis.NumsFilled</p>
+            </div>
+
+            @if (questionnaire.Questions.Count > 0)
+            {
+                <div class="questions-container">
+                    @foreach (var q in questionnaireAnalysis.Questions)
+                    {
+                        <div class="question-block">
+                            <p class="question-content"><strong>@q.QuestionContent</strong></p>
+
+                            @if (q.QuestionIsOpen)
+                            {
+                                <p class="open-answer"><em>Pytanie otwarte</em></p>
+                            }
+                            else
+                            {
+                                <ul class="options-list">
+                                    @foreach (var opt in @q.Options)
+                                    {
+                                        <li class="option-item">
+                                            @opt.OptionContent @(opt.OptionIsCorrect == "T" ? "(Poprawna)" : ""): @opt.Count
+                                        </li>
+                                    }
+                                </ul>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <p>Brak pytań.</p>
+            }
+        }
+    }
+</div>
+
+@code {
+    [Parameter]
+    public int? QuestId { get; set; }
+
+    private Questionnaire questionnaire;
+    private QuestionnaireAnalysis questionnaireAnalysis;
+
+    private List<Question> questions = new();
+    private List<QuestionAnswer> answersClosed = new();
+
+    String error_mess = "";
+    UserStorageModel? usm;
+    String message;
+    bool nonexistent = false;
+    bool block = false;
+    bool isLoading = true;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+
+        if (firstRender)
+        {
+            usm = await sessionStorage.GetUserAsync();
+
+            if (usm == null)
+            {
+                block = true;
+                isLoading = false;
+                StateHasChanged();
+                return;
+            }
+            else
+            {
+                if (questionnaire != null)
+                {
+                    if (questionnaire.CreatedBy != usm.Id)
+                    {
+                        block = true;
+                        isLoading = false;
+                        StateHasChanged();
+                        return;
+                    }
+                }
+                block = false;
+            }
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (true)
+        {
+            questionnaire = await QuestionnaireService.GetQuestionnaireByIDAsync(QuestId.Value);
+            questionnaire.Questions = await QuestionService.GetQuestionsForQuestionnaire(QuestId.Value);
+            foreach (Question question in questionnaire.Questions)
+            {
+                question.Options = await OptionsService.GetOptionsForQuestion(question.Id);
+            }
+
+            if (questionnaire == null)
+            {
+                nonexistent = true;
+                return;
+            }
+
+            if (usm != null)
+            {
+                if (questionnaire.CreatedBy != usm.Id)
+                {
+                    block = true;
+                    return;
+                }
+            }
+
+            questionnaireAnalysis = new QuestionnaireAnalysis();
+            questionnaireAnalysis.QuestionnaireId = QuestId.Value;
+            questionnaireAnalysis.NumsFilled = await QuestionnaireAnalysisService.GetNumFills(QuestId.Value);
+
+            foreach(var question in questionnaire.Questions)
+            {
+                QuestionAnalysis questionAnalysis = new QuestionAnalysis();
+                questionAnalysis.QuestionId = question.Id;
+                questionAnalysis.QuestionContent = question.Content;
+                questionAnalysis.QuestionIsOpen = question.Options.Count == 0;
+
+                foreach(var option in question.Options)
+                {
+                    OptionAnalysis optionAnalysis = await QuestionnaireAnalysisService.GetOptionAnalysis(option.Id);
+                    optionAnalysis.OptionContent = option.Content;
+                    optionAnalysis.OptionIsCorrect = option.IsCorrect;
+                    questionAnalysis.Options.Add(optionAnalysis);
+                }
+
+                questionnaireAnalysis.Questions.Add(questionAnalysis);
+            }
+
+        }
+    }
+
+}
