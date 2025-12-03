@@ -1,3 +1,4 @@
+
 using Microsoft.AspNetCore.Authentication.Cookies;
 using PPZKwestionariusze.Components;
 using PPZKwestionariusze.Services;
@@ -18,10 +19,15 @@ builder.Services.AddScoped<QuestionnaireFilledService>();
 builder.Services.AddScoped<QuestionAnswerService>();
 builder.Services.AddScoped<NotificationService>();
 
+
+
 builder.Services.AddScoped<QuestionnaireAnalysisService>();
 
+builder.Services.AddRazorPages();
+builder.Services.AddServerSideBlazor();
 
 var app = builder.Build();
+
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -37,5 +43,6 @@ app.UseAntiforgery();
 
 app.MapRazorComponents<App>()
 	.AddInteractiveServerRenderMode();
+
 
 app.Run();

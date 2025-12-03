@@ -50,6 +50,18 @@
               "target": "Package",
               "version": "[4.0.3, )"
             },
+            "Blazorise.Bootstrap5": {
+              "target": "Package",
+              "version": "[1.8.7, )"
+            },
+            "Blazorise.Charts": {
+              "target": "Package",
+              "version": "[1.8.7, )"
+            },
+            "Blazorise.Icons.FontAwesome": {
+              "target": "Package",
+              "version": "[1.8.7, )"
+            },
             "Oracle.ManagedDataAccess.Core": {
               "target": "Package",
               "version": "[23.7.0, )"

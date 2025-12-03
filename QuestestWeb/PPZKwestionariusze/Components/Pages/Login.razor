@@ -31,7 +31,7 @@
 
                 <EditForm Model="@loginModel" OnValidSubmit="HandleLogin">
                     <DataAnnotationsValidator />
-                    <ValidationSummary />
+                    <Microsoft.AspNetCore.Components.Forms.ValidationSummary />
 
                     <div class="form-group">
                         <InputText type="text" id="username" placeholder="Nazwa użytkownika" @bind-Value="loginModel.Username" />
