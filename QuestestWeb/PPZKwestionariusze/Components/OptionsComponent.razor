@@ -11,19 +11,25 @@
 
     </div>
     <div style="flex:3">
-        <label class="search-checkbox-label">
-            @if(Option.IsCorrect == "T"){
-             <input style="margin-left:330px"  type="checkbox" @onclick="changeCorrect" checked="True" /> 
-            }
-            else{
-                <input style="margin-left:330px" type="checkbox" @onclick="changeCorrect" /> 
-            }
-        </label>
+        @if (CategoryId == 1)
+        {
+            <label class="search-checkbox-label">
+                @if (Option.IsCorrect == "T")
+                {
+                    <input style="margin-left:330px"  type="checkbox" @onclick="changeCorrect" checked="True" />
+                }
+                else
+                {
+                    <input style="margin-left:330px" type="checkbox" @onclick="changeCorrect" />
+                }
+            </label>
+        }
     </div>
 </div>
 
 @code {
     [Parameter] public Option Option { get; set; } = new Option{Id=-1};
+    [Parameter] public int CategoryId { get; set; }
     [Parameter] public EventCallback OnRemove { get; set; }
 
     private void changeCorrect()

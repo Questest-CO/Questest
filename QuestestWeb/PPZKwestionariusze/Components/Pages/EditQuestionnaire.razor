@@ -6,6 +6,7 @@
 @inject QuestionService QuestionService
 @inject OptionsService OptionsService
 @inject QuestionnaireFilledService QuestionnaireFilledService
+@inject CategoryService CategoryService
 
 
 @inject SessionStorage sessionStorage
@@ -57,6 +58,8 @@ else{
             <DataAnnotationsValidator />
             <ValidationSummary />
 
+             @foreach(var cat in categories)
+                     @cat.Name
             <div style="margin-top: 20px;"></div>
 
             <div class="filters">
@@ -71,6 +74,15 @@ else{
                         <label class="search-label" style="margin-top:10px;">Prywatny</label>
                         <input type="checkbox" style="margin-top:10px;" class="searchcheckbox" @bind=isQuestionnairePrivate />
 
+                        <br />
+
+                        <select class="searchbox" @bind="newQuestionnaire.CategoryId" style="width:200px;margin-top:20px">
+                            @foreach(var cat in categories)
+                            {
+                              <option value="@cat.Id">@cat.Name</option>
+                            }
+                        </select>
+
                     </div>
 
                 </div>
@@ -84,7 +96,7 @@ else{
 
         @foreach (var question in newQuestionnaire.Questions)
         {
-            <QuestionComponent Question="question" OnRemove="() => RemoveQuestion(question)" />
+            <QuestionComponent Category="@newQuestionnaire.CategoryId" Question="question" OnRemove="() => RemoveQuestion(question)" />
         }
 
         <div class="space-between-buttons">
@@ -111,6 +123,8 @@ else{
     String message;
     bool isQuestionnairePrivate = false;
 
+    private List<Category> categories = new List<Category>();
+
     private void AddQuestion() => newQuestionnaire.Questions.Add(new Question{Id=-1});
 
     private void RemoveQuestion(Question q) => newQuestionnaire.Questions.Remove(q);
@@ -127,6 +141,7 @@ else{
         Boolean error_flag = false;
 
         newQuestionnaire.Id = QuestionnaireId ?? -1;
+
 
         // 1. dodanie kwestionariusza
         newQuestionnaire.CreatedBy = usm.Id;
@@ -188,9 +203,12 @@ else{
         if (firstRender)
         {
             usm = await sessionStorage.GetUserAsync();
+            categories = await CategoryService.GetCategoriesAsync();
 
             if (QuestionnaireId.HasValue && usm!=null)
             {
+
+
                 // 1. Pobranie kwestionariusza
                 existingQuestionnaire = await QuestionnaireService.GetQuestionnaireByIDAsync(QuestionnaireId.Value);
                 var existing = existingQuestionnaire;

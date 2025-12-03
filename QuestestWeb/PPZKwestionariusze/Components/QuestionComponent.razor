@@ -8,7 +8,7 @@
     <br />
     @foreach (var option in Question.Options)
     {
-        <OptionsComponent Option="option" OnRemove="() => RemoveOption(option)" />
+        <OptionsComponent CategoryId="CategoryId" Option="option" OnRemove="() => RemoveOption(option)" />
     }
 
     <div class="space-between-buttons">
@@ -19,6 +19,7 @@
 
 @code {
     [Parameter] public Question Question { get; set; } = new Question { Id = -1 };
+    [Parameter] public int CategoryId { get; set; }
     [Parameter] public EventCallback OnRemove { get; set; }
 
     private void AddOption()

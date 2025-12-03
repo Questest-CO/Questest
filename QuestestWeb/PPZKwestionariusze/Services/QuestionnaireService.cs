@@ -145,8 +145,8 @@ namespace PPZKwestionariusze.Services
                     "SELECT Q.ID, Q.TITLE, U.ID AS IDU, U.USERNAME, Q.DATE_CREATED, Q.PRIVATE, " +
                     "(SELECT COUNT(1) FROM QUESTIONS QQ WHERE QQ.QUESTIONNAIREID = Q.ID) TMP, " +
                     "(SELECT COUNT(1) FROM QUESTIONNAIREFILLED QF WHERE QF.QUESTIONNAIREID = Q.ID) TMP1, " +
-                    "Q.CATEGORY " +
-                    "FROM QUESTIONNAIRES Q, USERS U WHERE Q.CREATED_BY = U.ID ORDER BY Q.ID",
+                    "Q.CATEGORY, C.NAME " +
+                    "FROM QUESTIONNAIRES Q, USERS U, CATEGORIES C WHERE Q.CREATED_BY = U.ID AND Q.CATEGORY = C.ID ORDER BY Q.ID",
                     connection);
 
                 var reader = await command.ExecuteReaderAsync();
@@ -162,7 +162,8 @@ namespace PPZKwestionariusze.Services
                         IsPrivate = reader.GetString(5),
                         QuestionCount = reader.GetInt32(6),
                         FillCount = reader.GetInt32(7),
-                        CategoryId = reader.IsDBNull(8) ? -1 : reader.GetInt32(8)
+                        CategoryId = reader.GetInt32(8),
+                        Category = reader.GetString(9)
                     });
                 }
             }

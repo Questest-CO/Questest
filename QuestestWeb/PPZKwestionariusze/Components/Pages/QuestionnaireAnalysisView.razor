@@ -61,10 +61,16 @@
                             else
                             {
                                 <ul class="options-list">
-                                    @foreach (var opt in @q.Options)
+                                    @foreach (var opt in q.Options)
                                     {
                                         <li class="option-item">
-                                            @opt.OptionContent @(opt.OptionIsCorrect == "T" ? "(Poprawna)" : ""): @opt.Count
+                                            <span class="option-text">
+                                                @opt.OptionContent @(opt.OptionIsCorrect == "T" ? "(Poprawna)" : "")
+                                            </span>
+
+                                            <span class="option-count">
+                                                @opt.Count
+                                            </span>
                                         </li>
                                     }
                                 </ul>
