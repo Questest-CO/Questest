@@ -54,16 +54,6 @@
                         <div class="stat-value">@questionnaire.Questions.Count</div>
                         <div class="stat-label">Pytania</div>
                     </div>
-
-                    <div class="stat-card">
-                        <div class="stat-value">
-                            @{
-                                var avg = questionnaire.Questions.Count > 0 ? Math.Round((double)questionnaireAnalysis.NumsFilled / questionnaire.Questions.Count, 2) : 0;
-                            }
-                            @avg
-                        </div>
-                        <div class="stat-label">Średnio wypełnień / pyt.</div>
-                    </div>
                 </div>
             </header>
 

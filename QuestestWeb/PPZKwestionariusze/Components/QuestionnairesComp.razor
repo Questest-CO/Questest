@@ -69,27 +69,11 @@ else
              (q.PermittedUsers.Contains(usm == null ? -1 : usm.Id) ? "shared" : ""))">
 
                 <div class="card-header">
-                    <div class="card-icon">
-                        <i class="fa-regular fa-file-lines"></i>
-                    </div>
 
                     <div class="card-title-block">
                         <h3 class="card-title">@q.Title</h3>
                         <p class="card-author">@q.CreatedByUsername</p>
                     </div>
-
-                    @if (q.QuestionCount < 10)
-                    {
-                        <span class="tag easy">EASY</span>
-                    }
-                    else if (q.QuestionCount < 20)
-                    {
-                        <span class="tag medium">MEDIUM</span>
-                    }
-                    else
-                    {
-                        <span class="tag hard">HARD</span>
-                    }
                 </div>
 
                 <div class="card-info">
