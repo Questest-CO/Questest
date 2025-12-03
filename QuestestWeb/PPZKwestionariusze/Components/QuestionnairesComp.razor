@@ -114,6 +114,7 @@ else
                     {
                         <a class="card-btn" href='/add-questionnaire/@q.Id'>Edytuj</a>
                         <a class="card-btn" href='/questionnaire-fill-history/@q.Id'>Historia</a>
+                        <a class="card-btn" href='/questionnaire-analysis/@q.Id'>Analiza</a>
                         <a class="card-btn" href='/share/@q.Id'>Udostępnij</a>
                     }
 
@@ -175,7 +176,7 @@ else
         allQuestionnaires = await QuestionnaireService.GetQuestionnairesBrowserAsync();
         foreach (var quest in allQuestionnaires)
         {
-            quest.PermittedUsers = await QuestionnaireService.GetPermittedUsers(quest.Id); // dodanie listy użytkowników, którym został udosstępniony
+            quest.PermittedUsers = await QuestionnaireService.GetPermittedUsers(quest.Id);
         }
         questionnaires = allQuestionnaires.Where(q => q.IsPrivate == "N" || q.CreatedBy == usm?.Id || q.PermittedUsers.Contains(usm == null ? -1 : usm.Id)).ToList();
     }

@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "0hThtEdIW4rgV3HVgt+J18uCxLH+PSJJpKosMKwyb4Q=",
+  "Hash": "FzJOWdNd9ry6fl1BNbSwk7DnI1RW856HiA4kyySM+UE=",
   "Source": "PPZKwestionariusze",
   "BasePath": "_content/PPZKwestionariusze",
   "Mode": "Default",
@@ -409,8 +409,8 @@
       "RelatedAsset": "",
       "AssetTraitName": "",
       "AssetTraitValue": "",
-      "Fingerprint": "k8gxljvnzc",
-      "Integrity": "jB42vZtn1q23JW9S7jJR5lyhtAC7JchcfFjBTq6Ykf4=",
+      "Fingerprint": "adjo4izcdx",
+      "Integrity": "8kutAlyJM+qV6FmPj5Fa7gAw66QU+seKJMoHZZzvUBI=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\tailwind.css"
@@ -1894,6 +1894,51 @@
       ]
     },
     {
+      "Route": "tailwind.adjo4izcdx.css",
+      "AssetFile": "C:\\Users\\Gabcia\\Desktop\\ppz\\Questest\\QuestestWeb\\PPZKwestionariusze\\wwwroot\\tailwind.css",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "48240"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/css"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"8kutAlyJM+qV6FmPj5Fa7gAw66QU+seKJMoHZZzvUBI=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Wed, 03 Dec 2025 17:47:36 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "adjo4izcdx"
+        },
+        {
+          "Name": "label",
+          "Value": "tailwind.css"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-8kutAlyJM+qV6FmPj5Fa7gAw66QU+seKJMoHZZzvUBI="
+        }
+      ]
+    },
+    {
       "Route": "tailwind.css",
       "AssetFile": "C:\\Users\\Gabcia\\Desktop\\ppz\\Questest\\QuestestWeb\\PPZKwestionariusze\\wwwroot\\tailwind.css",
       "Selectors": [],
@@ -1904,7 +1949,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "48145"
+          "Value": "48240"
         },
         {
           "Name": "Content-Type",
@@ -1912,11 +1957,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"jB42vZtn1q23JW9S7jJR5lyhtAC7JchcfFjBTq6Ykf4=\""
+          "Value": "\"8kutAlyJM+qV6FmPj5Fa7gAw66QU+seKJMoHZZzvUBI=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Wed, 03 Dec 2025 17:20:33 GMT"
+          "Value": "Wed, 03 Dec 2025 17:47:36 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -1926,52 +1971,7 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-jB42vZtn1q23JW9S7jJR5lyhtAC7JchcfFjBTq6Ykf4="
-        }
-      ]
-    },
-    {
-      "Route": "tailwind.k8gxljvnzc.css",
-      "AssetFile": "C:\\Users\\Gabcia\\Desktop\\ppz\\Questest\\QuestestWeb\\PPZKwestionariusze\\wwwroot\\tailwind.css",
-      "Selectors": [],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "48145"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "text/css"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"jB42vZtn1q23JW9S7jJR5lyhtAC7JchcfFjBTq6Ykf4=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Wed, 03 Dec 2025 17:20:33 GMT"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "max-age=31536000, immutable"
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "fingerprint",
-          "Value": "k8gxljvnzc"
-        },
-        {
-          "Name": "label",
-          "Value": "tailwind.css"
-        },
-        {
-          "Name": "integrity",
-          "Value": "sha256-jB42vZtn1q23JW9S7jJR5lyhtAC7JchcfFjBTq6Ykf4="
+          "Value": "sha256-8kutAlyJM+qV6FmPj5Fa7gAw66QU+seKJMoHZZzvUBI="
         }
       ]
     }
