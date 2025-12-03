@@ -65,7 +65,7 @@ namespace PPZKwestionariusze.Services
                     + " qa.questionnairefilledid from questionsanswers qa, options o"
                     + " where o.id = qa.optionid and o.is_correct = 'T' and qa.is_chosen = 'T'"
                     + " group by qa.questionnairefilledid)x ,questionnairefilled qa where "
-                    + " x.questionnairefilledid(+) = qa.id and qa.questionnaireid = 61) y "
+                    + " x.questionnairefilledid(+) = qa.id and qa.questionnaireid = :ID) y "
                     + " group by y.wynik order by y.wynik",
                     connection);
 
