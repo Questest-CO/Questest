@@ -18,7 +18,7 @@ builder.Services.AddScoped<QuestionService>();
 builder.Services.AddScoped<QuestionnaireFilledService>();
 builder.Services.AddScoped<QuestionAnswerService>();
 builder.Services.AddScoped<NotificationService>();
-
+builder.Services.AddScoped<CategoryService>();
 
 
 builder.Services.AddScoped<QuestionnaireAnalysisService>();

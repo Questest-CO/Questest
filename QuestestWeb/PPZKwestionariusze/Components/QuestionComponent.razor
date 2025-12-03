@@ -1,4 +1,4 @@
-﻿@using PPZKwestionariusze.Models;
+﻿﻿@using PPZKwestionariusze.Models;
 
 <div class="question-box p-2 border rounded mb-3">
     <label class="search-label">Treść pytania:</label>
@@ -6,9 +6,9 @@
 
     <label class="search-label">Odpowiedzi:</label>
     <br />
-    @foreach (var option in Question.Options)
+    @foreach (Option option in Question.Options)
     {
-        <OptionsComponent Option="option" OnRemove="() => RemoveOption(option)" />
+        <OptionsComponent CategoryId="CategoryId" Option="option" OnRemove="() => RemoveOption(option)" />
     }
 
     <div class="space-between-buttons">
@@ -19,11 +19,12 @@
 
 @code {
     [Parameter] public Question Question { get; set; } = new Question { Id = -1 };
+    [Parameter] public int CategoryId { get; set; }
     [Parameter] public EventCallback OnRemove { get; set; }
 
     private void AddOption()
     {
-        Question.Options.Add(new Option{Id=-1});
+        Question.Options.Add(new Option { Id = -1 });
     }
 
     private void RemoveOption(Option option)

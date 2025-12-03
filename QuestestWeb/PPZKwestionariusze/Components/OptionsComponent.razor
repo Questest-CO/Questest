@@ -1,29 +1,37 @@
-﻿@using PPZKwestionariusze.Models
-
-<div style="display:flex;padding:10px">
-
-    <div style="flex:1">
-        <button style="margin-right:30px" class="btn1" @onclick="Remove">Usuń</button>
-
-    </div>
+﻿﻿@using PPZKwestionariusze.Models
+<div style="display:flex;padding:10px;padding-left:0px">
     <div style="flex:10">
-        <input class="form-control mb-1" placeholder="Odpowiedzi" @bind="Option.Content" />
+
+        <div style="display:flex; align-items:center; gap:10px;">
+            @if (CategoryId == 1)
+            {
+                <input type="checkbox"
+                       style="width:40px; height:20px;"
+                       @onclick="changeCorrect"
+                       checked="@(Option.IsCorrect == "T")" />
+            }
+
+
+            <input class="form-control mb-1"
+                   style="width:100%;"
+                   placeholder="Odpowiedź..."
+                   @bind="Option.Content" />
+        </div>
 
     </div>
+
     <div style="flex:3">
-        <label class="search-checkbox-label">
-            @if(Option.IsCorrect == "T"){
-             <input style="margin-left:330px"  type="checkbox" @onclick="changeCorrect" checked="True" /> 
-            }
-            else{
-                <input style="margin-left:330px" type="checkbox" @onclick="changeCorrect" /> 
-            }
-        </label>
+        <button style="margin-right:30px;margin-left:30px"
+                class="btn1"
+                @onclick="Remove">
+            Usuń
+        </button>
     </div>
 </div>
 
 @code {
-    [Parameter] public Option Option { get; set; } = new Option{Id=-1};
+    [Parameter] public Option Option { get; set; } = new Option { Id = -1 };
+    [Parameter] public int CategoryId { get; set; }
     [Parameter] public EventCallback OnRemove { get; set; }
 
     private void changeCorrect()

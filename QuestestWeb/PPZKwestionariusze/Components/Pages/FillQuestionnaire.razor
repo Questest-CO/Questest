@@ -39,12 +39,7 @@ else if (block)
 
 else
 {
-    @if (message != null)
-    {
-        <div class="info-box info">
-            <i class="fa-solid fa-circle-info"></i> @message
-        </div>
-    }
+    
 
     if (!block)
     {
@@ -83,6 +78,22 @@ else
             </div>
         </div>
     }
+
+    @if (message != null)
+    {
+        <div class="info-box info">
+            <i class="fa-solid fa-circle-info"></i> @message
+        </div>
+    }
+
+    @if (showResult)
+    {
+        <div class="info-box info">
+            <i class="fa-solid fa-chart-simple"></i>
+            Twój wynik: <strong>@userScore / @maxScore</strong>
+        </div>
+    }
+
 }
 
 @code {
@@ -96,6 +107,9 @@ else
     String error_mess = "";
     UserStorageModel? usm;
     String message;
+    private bool showResult = false;
+    private int userScore = 0;
+    private int maxScore = 0;
 
     // wypełniany kwestionariusz
     private Questionnaire currentQuestionnaire = new Questionnaire();
@@ -142,6 +156,13 @@ else
         await NotificationService.AddNotificationAsync(test);
 
         message = "Przesłano odpowiedzi!";
+
+        if (currentQuestionnaire.CategoryId == 1)
+        {
+            showResult = true;
+            maxScore = await QuestionnaireService.GetMaxScore(currentQuestionnaire.Id);
+            userScore = await QuestionnaireFilledService.GetUserScore(questfilledid);
+        }
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
