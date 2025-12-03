@@ -126,6 +126,27 @@ namespace PPZKwestionariusze.Services
 
         }
 
+        public async Task<int> GetUserScore(int ID)
+        {
+            using (var connection = new OracleConnection(_connectionString))
+            {
+                await connection.OpenAsync();
+                var command = new OracleCommand(
+                    "select count(1) from questionsanswers qa, options o where o.id = qa.optionid and o.is_correct = 'T' and qa.is_chosen = 'T' and qa.questionnairefilledid = :ID",
+                    connection);
+
+                command.Parameters.Add(new OracleParameter(":ID", ID));
+
+                var reader = await command.ExecuteReaderAsync();
+                while (await reader.ReadAsync())
+                {
+                    return (int)reader.GetInt32(0);
+                }
+            }
+
+            return 0;
+        }
+
     }
 
 }

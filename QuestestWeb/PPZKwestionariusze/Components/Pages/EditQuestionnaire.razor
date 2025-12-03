@@ -93,11 +93,14 @@ else{
 
         <h4>Pytania:</h4>
 
-
-        @foreach (var question in newQuestionnaire.Questions)
+        @if (newQuestionnaire is not null)
         {
-            <QuestionComponent Category="@newQuestionnaire.CategoryId" Question="question" OnRemove="() => RemoveQuestion(question)" />
+            @foreach (var question in newQuestionnaire.Questions)
+            {
+                <QuestionComponent CategoryId="@(newQuestionnaire?.CategoryId ?? -2)" Question="question" OnRemove="() => RemoveQuestion(question)" />
+            }
         }
+      
 
         <div class="space-between-buttons">
 

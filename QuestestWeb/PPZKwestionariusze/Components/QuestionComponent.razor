@@ -6,7 +6,7 @@
 
     <label class="search-label">Odpowiedzi:</label>
     <br />
-    @foreach (var option in Question.Options)
+    @foreach (Option option in Question.Options)
     {
         <OptionsComponent CategoryId="CategoryId" Option="option" OnRemove="() => RemoveOption(option)" />
     }
