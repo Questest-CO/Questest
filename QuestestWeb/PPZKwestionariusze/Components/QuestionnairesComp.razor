@@ -1,4 +1,4 @@
-﻿﻿@using PPZKwestionariusze.Models
+﻿@using PPZKwestionariusze.Models
 @using PPZKwestionariusze.StateStore
 
 @page "/questionnaires"
@@ -61,56 +61,68 @@ else
         </div>
     </div>
 
-    <table class="table">
-        <thead>
-            <tr>
-                <th style="cursor:pointer" @onclick="() => SortBy(IdStr)">ID @(kolumna == "Id" ? (sortAscending ? "↑" : "↓") : "")</th>
-                <th style="cursor:pointer" @onclick="() => SortBy(TitleStr)">Tytuł @(kolumna == "Title" ? (sortAscending ? "↑" : "↓") : "")</th>
-                <th style="cursor:pointer" @onclick="() => SortBy(CreatedByStr)">Autor @(kolumna == "CreatedBy" ? (sortAscending ? "↑" : "↓") : "")</th>
-                <th style="cursor:pointer" @onclick="() => SortBy(QuestionCountStr)">Liczba pytań @(kolumna == "QuestionCount" ? (sortAscending ? "↑" : "↓") : "")</th>
-                <th style="cursor:pointer" @onclick="() => SortBy(FillCountStr)">Liczba wypełnień @(kolumna == "FillCount" ? (sortAscending ? "↑" : "↓") : "")</th>
-                <th style="cursor:pointer" @onclick="() => SortBy(DateCreatedStr)">Utworzono @(kolumna == "DateCreated" ? (sortAscending ? "↑" : "↓") : "")</th>
-                <th>Edycja</th>
-                <th>Wypełnij</th>
-                <th>Historia wypełnień</th>
-                <th>Udostępnianie</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var questionnaire in PagedQuestionnaires)
-            {
-                <tr style="@((questionnaire.CreatedBy == usm?.Id) ? "background-color:aliceblue" :  (questionnaire.PermittedUsers.Contains((usm == null ? -1: usm.Id))) ? "background-color:peachpuff" : "")">
-                    <td>@questionnaire.Id</td>
-                    <td>@questionnaire.Title</td>
-                    <td>@questionnaire.CreatedByUsername</td>
-                    <td>@questionnaire.QuestionCount</td>
-                    <td>@questionnaire.FillCount</td>
-                    <td>@questionnaire.DateCreated.ToString("yyyy-MM-dd")</td>
-                    <td>
-                        @if (questionnaire.CreatedBy == usm?.Id)
-                        {
-                            <a href='/add-questionnaire/@questionnaire.Id'>Edytuj</a>
-                        }
-                    </td>
-                    <td>
-                        <a href='/fill-questionnaire/@questionnaire.Id'>Wypełnij</a>
-                    </td>
-                    <td>
-                        @if (questionnaire.CreatedBy == usm?.Id)
-                        {
-                            <a href="/questionnaire-fill-history/@questionnaire.Id">Historia wypełnień</a>
-                        }
-                    </td>
-                    <td>
-                        @if (questionnaire.CreatedBy == usm?.Id)
-                        {
-                            <a href="/share/@questionnaire.Id">Udostępnij</a>
-                        }
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    <div class="questionnaire-list">
+        @foreach (var q in PagedQuestionnaires)
+        {
+            <div class="questionnaire-card
+            @(q.CreatedBy == usm?.Id ? "owned" :
+             (q.PermittedUsers.Contains(usm == null ? -1 : usm.Id) ? "shared" : ""))">
+
+                <div class="card-header">
+                    <div class="card-icon">
+                        <i class="fa-regular fa-file-lines"></i>
+                    </div>
+
+                    <div class="card-title-block">
+                        <h3 class="card-title">@q.Title</h3>
+                        <p class="card-author">@q.CreatedByUsername</p>
+                    </div>
+
+                    @if (q.QuestionCount < 10)
+                    {
+                        <span class="tag easy">EASY</span>
+                    }
+                    else if (q.QuestionCount < 20)
+                    {
+                        <span class="tag medium">MEDIUM</span>
+                    }
+                    else
+                    {
+                        <span class="tag hard">HARD</span>
+                    }
+                </div>
+
+                <div class="card-info">
+                    <div class="info-item">
+                        <i class="fa-regular fa-circle-question"></i>
+                        <span>@q.QuestionCount pytań</span>
+                    </div>
+
+                    <div class="info-item">
+                        <i class="fa-regular fa-user"></i>
+                        <span>@q.FillCount wypełnień</span>
+                    </div>
+
+                    <div class="info-item">
+                        <i class="fa-regular fa-calendar"></i>
+                        <span>@q.DateCreated.ToString("yyyy-MM-dd")</span>
+                    </div>
+                </div>
+
+                <div class="card-buttons">
+                    @if (q.CreatedBy == usm?.Id)
+                    {
+                        <a class="card-btn" href='/add-questionnaire/@q.Id'>Edytuj</a>
+                        <a class="card-btn" href='/questionnaire-fill-history/@q.Id'>Historia</a>
+                        <a class="card-btn" href='/share/@q.Id'>Udostępnij</a>
+                    }
+
+                    <a class="card-btn primary" href='/fill-questionnaire/@q.Id'>Wypełnij</a>
+                </div>
+            </div>
+        }
+    </div>
+
     <div class="pagination">
         <button class="btn btn-secondary" @onclick="PrevPage" disabled="@(currentPage == 1)">←</button>
         <span style="margin-left:20px;margin-right:20px;margin-top:10px;">@currentPage/@totalPages</span>

@@ -3,9 +3,9 @@
 @inject SessionStorage sessionStorage
 @inject NavigationManager nav;
 
-<nav>
+<nav class="top-nav">
 	<div class="menu-logo">
-		<img src="../images/logo.png" />
+		<img src="../images/logo.png" alt="logo" />
 	</div>
 
 	<div class="menu-items">
@@ -50,19 +50,19 @@
 			{
 				<button class="menu-button-img">
 					<span class="menu-user-settings">
-						<NavLink href="/usersettings" Match="NavLinkMatch.All"><img src="../images/sett.png" class="img-sett"></NavLink>
+						<NavLink href="/usersettings" Match="NavLinkMatch.All"><img src="../images/sett.png" class="img-sett" alt="ust" /></NavLink>
 					</span>
 				</button>
 
 				<button class="menu-button-img">
 					<span class="menu-user-img">
-						<NavLink href="/inbox" Match="NavLinkMatch.All"><img src="../images/noti.png" class="img-noti"></NavLink>
+						<NavLink href="/inbox" Match="NavLinkMatch.All"><img src="../images/noti.png" class="img-noti" alt="noti" /></NavLink>
 					</span>
 				</button>
 
 				<button class="menu-button-img">
 					<span class="menu-user-img">
-						<NavLink href="/login" Match="NavLinkMatch.All"><img src="../images/user.png" class="img-user"></NavLink>
+						<NavLink href="/login" Match="NavLinkMatch.All"><img src="../images/user.png" class="img-user" alt="user" /></NavLink>
 					</span>
 				</button>
 			}
@@ -70,9 +70,7 @@
 	</div>
 </nav>
 
-
 @code {
-
 	private UserStorageModel? usm;
 
 	protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -80,10 +78,7 @@
 		if (firstRender)
 		{
 			usm = await sessionStorage.GetUserAsync();
-
 			StateHasChanged();
 		}
 	}
-
-
 }

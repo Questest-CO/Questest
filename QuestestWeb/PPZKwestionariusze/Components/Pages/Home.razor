@@ -1,4 +1,5 @@
-﻿@page "/"
+﻿<!-- Home.razor -->
+@page "/"
 
 @using PPZKwestionariusze.Models;
 @using PPZKwestionariusze.StateStore;
@@ -8,36 +9,82 @@
 <PageTitle>Home</PageTitle>
 
 <div class="homepage-container">
-    @if (usm is null)
+    <div class="welcome-section fade-in">
+        <h2 class="homepage-heading">@greeting, @(usm?.Username ?? "Gościu")!</h2>
+        @if (usm is null)
+        {
+            <p class="homepage-subtext">Zaloguj się, aby przeglądać i tworzyć kwestionariusze.</p>
+        }
+        else
+        {
+            <p class="homepage-subtext">Miło Cię znowu widzieć! Oto Twoja aktywność:</p>
+        }
+    </div>
+
+    @if (usm is not null)
     {
-        <h2 class="homepage-heading">Witaj na naszej stronie!</h2>
-        <p class="homepage-subtext">Zaloguj się, aby przeglądać i tworzyć kwestionariusze.</p>
-    }
-    else
-    {
-        <h2 class="homepage-heading">Witaj, @usm.Username!</h2>
-        <p class="homepage-subtext">Miło Cię znowu widzieć! Co chcesz dzisiaj zrobić?</p>
+        <div class="recent-forms-section fade-in">
+            <h3>Ostatnio wypełnione</h3>
+
+            <div class="cards-container">
+                @if (recentForms.Count == 0)
+                {
+                    <p class="empty-info">Nie wypełniłeś jeszcze żadnych kwestionariuszy.</p>
+                }
+                else
+                {
+                    @foreach (var form in recentForms)
+                    {
+                        <div class="form-card">
+                            <h4>@form.Title</h4>
+                            <p class="date">@form.FilledDate.ToString("dd.MM.yyyy")</p>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
     }
 </div>
 
-<br />
-
-
-
-
 @code {
-
     private UserStorageModel? usm;
+    private List<RecentForm> recentForms = new();
+
+    string greeting = "Witaj";
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
             usm = await sessionStorage.GetUserAsync();
+            greeting = GetGreeting();
+
+            if (usm is not null)
+            {
+                // przykładowe mock dane – można później podpiąć prawdziwe
+                recentForms = new List<RecentForm>
+                {
+                    new() { Title = "Kwestionariusz satysfakcji", FilledDate = DateTime.Now.AddDays(-1) },
+                    new() { Title = "Ankieta zdrowotna", FilledDate = DateTime.Now.AddDays(-3) },
+                    new() { Title = "Formularz zgłoszeniowy", FilledDate = DateTime.Now.AddDays(-7) }
+                };
+            }
 
             StateHasChanged();
         }
     }
 
+    private string GetGreeting()
+    {
+        var hour = DateTime.Now.Hour;
+        if (hour < 12) return "Dzień dobry";
+        if (hour < 18) return "Miłego popołudnia";
+        return "Dobry wieczór";
+    }
 
+    public class RecentForm
+    {
+        public string Title { get; set; } = string.Empty;
+        public DateTime FilledDate { get; set; }
+    }
 }
