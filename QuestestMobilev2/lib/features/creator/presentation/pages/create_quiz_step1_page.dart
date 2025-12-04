@@ -4,6 +4,7 @@ import '../../../../core/models/oracle/category_model.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../providers/creator_providers.dart';
 import '../widgets/quiz_type_selector.dart';
+import 'create_quiz_step2_page.dart';
 
 /// Step 1 of the Quiz Creator
 /// Collects: Quiz Type, Title, Description, Category
@@ -70,6 +71,9 @@ class _CreateQuizStep1PageState extends ConsumerState<CreateQuizStep1Page> {
       selectedCategory: _selectedCategory,
     );
 
+    // Save form state to provider for Step 2
+    ref.read(creatorFormStateProvider.notifier).state = formState;
+
     debugPrint('═══════════════════════════════════════════');
     debugPrint('📝 Draft created:');
     debugPrint('   Type: ${formState.type.label}');
@@ -100,7 +104,12 @@ class _CreateQuizStep1PageState extends ConsumerState<CreateQuizStep1Page> {
       ),
     );
 
-    // TODO: Navigate to Step 2
+    // Navigate to Step 2
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => const CreateQuizStep2Page(),
+      ),
+    );
   }
 
   void _handleCancel() {

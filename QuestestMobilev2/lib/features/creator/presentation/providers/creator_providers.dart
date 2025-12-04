@@ -56,3 +56,52 @@ class CreatorFormState {
   }
 }
 
+/// Provider for storing the creator form state across steps
+final creatorFormStateProvider = StateProvider<CreatorFormState?>((ref) => null);
+
+/// Model for a question draft being created
+class QuestionDraft {
+  final String id;
+  final String content;
+  final List<String> answers; // A, B, C, D
+  final int correctAnswerIndex; // 0-3
+
+  const QuestionDraft({
+    required this.id,
+    required this.content,
+    required this.answers,
+    required this.correctAnswerIndex,
+  });
+
+  /// Check if question is valid
+  bool get isValid {
+    return content.trim().isNotEmpty &&
+        answers.where((a) => a.trim().isNotEmpty).length >= 2 &&
+        correctAnswerIndex >= 0 &&
+        correctAnswerIndex < answers.length &&
+        answers[correctAnswerIndex].trim().isNotEmpty;
+  }
+
+  QuestionDraft copyWith({
+    String? id,
+    String? content,
+    List<String>? answers,
+    int? correctAnswerIndex,
+  }) {
+    return QuestionDraft(
+      id: id ?? this.id,
+      content: content ?? this.content,
+      answers: answers ?? this.answers,
+      correctAnswerIndex: correctAnswerIndex ?? this.correctAnswerIndex,
+    );
+  }
+
+  @override
+  String toString() {
+    return 'QuestionDraft(content: $content, correctAnswer: ${answers[correctAnswerIndex]})';
+  }
+}
+
+/// Provider for managing the list of question drafts
+final questionsDraftProvider = StateProvider<List<QuestionDraft>>((ref) => []);
+

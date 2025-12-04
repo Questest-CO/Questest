@@ -1,8 +1,5 @@
 import 'package:dio/dio.dart';
 import 'package:retrofit/retrofit.dart';
-import '../../models/oracle/category_model.dart';
-import '../../models/oracle/questionnaire_model.dart';
-import '../../models/oracle/oracle_user_dto.dart';
 
 part 'oracle_api_client.g.dart';
 
@@ -15,33 +12,44 @@ abstract class OracleApiClient {
   // ============ CATEGORIES ============
 
   /// Get all categories
+  /// Returns Oracle ORDS response wrapper (Map) - items will be extracted in repository
   @GET('/categories')
-  Future<List<CategoryModel>> getCategories();
+  Future<dynamic> getCategories();
 
   // ============ QUESTIONNAIRES ============
 
   /// Get all questionnaires
+  /// Returns Oracle ORDS response wrapper (Map) - items will be extracted in repository
   @GET('/questionnaires/')
-  Future<List<QuestionnaireModel>> getQuestionnaires();
+  Future<dynamic> getQuestionnaires();
 
   /// Get questionnaire by ID
+  /// Returns Oracle ORDS response wrapper (Map) - items[0] will be extracted in repository
   @GET('/questionnaires/{id}')
-  Future<QuestionnaireModel> getQuestionnaireById(@Path('id') int id);
+  Future<dynamic> getQuestionnaireById(@Path('id') int id);
 
   /// Get questionnaires by user ID
+  /// Returns Oracle ORDS response wrapper (Map) - items will be extracted in repository
   @GET('/questionnaires/user/{userId}')
-  Future<List<QuestionnaireModel>> getQuestionnairesByUserId(
+  Future<dynamic> getQuestionnairesByUserId(
     @Path('userId') int userId,
   );
+
+  /// Create a new questionnaire
+  /// Returns Oracle ORDS response wrapper (Map) - items[0] will be extracted in repository
+  @POST('/questionnaires/')
+  Future<dynamic> createQuestionnaire(@Body() Map<String, dynamic> body);
 
   // ============ USERS ============
 
   /// Get all users
+  /// Returns Oracle ORDS response wrapper (Map) - items will be extracted in repository
   @GET('/users/')
-  Future<List<OracleUserDto>> getUsers();
+  Future<dynamic> getUsers();
 
   /// Get user by ID
+  /// Returns Oracle ORDS response wrapper (Map) - items[0] will be extracted in repository
   @GET('/users/{id}')
-  Future<OracleUserDto> getUserById(@Path('id') int id);
+  Future<dynamic> getUserById(@Path('id') int id);
 }
 

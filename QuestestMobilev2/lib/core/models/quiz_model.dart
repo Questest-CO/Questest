@@ -5,7 +5,7 @@ part 'quiz_model.g.dart';
 /// Quiz model representing a quiz entity
 @JsonSerializable()
 class QuizModel {
-  final String id;
+  final String id; // Can be int converted to String or String
   final String title;
   final String subtitle;
   final String thumbnailUrl;
@@ -14,7 +14,7 @@ class QuizModel {
   final String? description;
   final int? timeLimit; // in seconds
   final String? difficulty; // easy, medium, hard
-  final String? category; // quiz, exam
+  final String? category; // quiz, exam - can be mapped from int category_id
 
   const QuizModel({
     required this.id,
