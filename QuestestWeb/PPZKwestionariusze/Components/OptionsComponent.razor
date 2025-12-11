@@ -10,6 +10,17 @@
                        @onclick="changeCorrect"
                        checked="@(Option.IsCorrect == "T")" />
             }
+            @if(CategoryId == 2)
+            {
+                <select class="searchbox" @bind="Option.ResultId" style="width:200px;margin-top:20px">
+                 @foreach(var res in Results)
+                            {
+                              <option value="@res.Id">@res.Title</option>
+                            }
+                  </select>
+
+                  <input type="number" @bind="Option.PointsToResults"/>
+            }
 
 
             <input class="form-control mb-1"
@@ -19,6 +30,7 @@
         </div>
 
     </div>
+
 
     <div style="flex:3">
         <button style="margin-right:30px;margin-left:30px"
@@ -33,6 +45,7 @@
     [Parameter] public Option Option { get; set; } = new Option { Id = -1 };
     [Parameter] public int CategoryId { get; set; }
     [Parameter] public EventCallback OnRemove { get; set; }
+    [Parameter] public List<QuizResult> Results { get; set; } = new();
 
     private void changeCorrect()
     {

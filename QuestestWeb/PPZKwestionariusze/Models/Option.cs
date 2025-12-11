@@ -8,6 +8,8 @@
         public int OrderNum { get; set; }
         public int QuestionId { get; set; }
         public DateTime DateCreated { get; set; }
+        public int? PointsToResults {get;set;}
+        public int? ResultId { get; set; }        
     }
 
 }

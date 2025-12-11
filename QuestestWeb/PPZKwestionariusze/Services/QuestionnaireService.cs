@@ -71,8 +71,7 @@ namespace PPZKwestionariusze.Services
                     command.Parameters.Add(new OracleParameter(":Title", questionnaire.Title));
                     command.Parameters.Add(new OracleParameter(":CreatedBy", questionnaire.CreatedBy));
                     command.Parameters.Add(new OracleParameter(":Private", questionnaire.IsPrivate));
-                    command.Parameters.Add(new OracleParameter(":CategoryId",
-                        (object?)questionnaire.CategoryId ?? DBNull.Value));
+                    command.Parameters.Add(new OracleParameter(":CategoryId", questionnaire.CategoryId));
 
                     await command.ExecuteNonQueryAsync();
                     return questionnaire.Id;
@@ -88,8 +87,7 @@ namespace PPZKwestionariusze.Services
                     command.Parameters.Add(new OracleParameter(":Title", questionnaire.Title));
                     command.Parameters.Add(new OracleParameter(":CreatedBy", questionnaire.CreatedBy));
                     command.Parameters.Add(new OracleParameter(":Private", questionnaire.IsPrivate));
-                    command.Parameters.Add(new OracleParameter(":CategoryId",
-                        (object?)questionnaire.Id ?? DBNull.Value));
+                    command.Parameters.Add(new OracleParameter(":CategoryId", questionnaire.CategoryId));
 
                     var idParam = new OracleParameter(":NewId", OracleDbType.Int32)
                     {
@@ -288,5 +286,94 @@ namespace PPZKwestionariusze.Services
 
             return 0;
         }
+
+        public async Task<List<QuizResult>> GetResultsForQuestionnaire(int ID)
+        {
+            List<QuizResult> ret = new();
+            using (var connection = new OracleConnection(_connectionString))
+            {
+                await connection.OpenAsync();
+                var command = new OracleCommand(
+                    "select id, title, description from quiz_results where questionnaireid = :ID",
+                    connection);
+
+                command.Parameters.Add(new OracleParameter(":ID", ID));
+
+                var reader = await command.ExecuteReaderAsync();
+                while (await reader.ReadAsync())
+                {
+                    ret.Add(new QuizResult { Id = (int)reader.GetInt32(0), Title = reader.GetString(1), Description = reader.GetString(2) });
+                }
+            }
+
+            return ret;
+        }
+
+        public async Task<QuizResult> GetResult(int ID)
+        {
+            using (var connection = new OracleConnection(_connectionString))
+            {
+                await connection.OpenAsync();
+                var command = new OracleCommand(
+                    "select id, title, description from quiz_results where id = :ID",
+                    connection);
+
+                command.Parameters.Add(new OracleParameter(":ID", ID));
+
+                var reader = await command.ExecuteReaderAsync();
+                while (await reader.ReadAsync())
+                {
+                    return new QuizResult { Id = (int)reader.GetInt32(0), Title = reader.GetString(1), Description = reader.GetString(2) };
+                }
+            }
+
+            return null;
+        }
+
+        public async Task<int> AddResultAsync(QuizResult result)
+        {
+            using (var connection = new OracleConnection(_connectionString))
+            {
+                await connection.OpenAsync();
+
+                if (result.Id != -1)
+                {
+                    var command = new OracleCommand("INSERT INTO quiz_results (ID, title,description, QUESTIONNAIREID) " +
+                                                "VALUES (:Id, :Title,  :Description, :QuestionnaireId) ", connection);
+
+                    command.Parameters.Add(new OracleParameter(":Id", result.Id));
+                    command.Parameters.Add(new OracleParameter(":Title", result.Title));
+                    command.Parameters.Add(new OracleParameter(":Description", result.Description));
+                    command.Parameters.Add(new OracleParameter(":QuestionnaireId", result.QuestionnaireId));
+
+                    await command.ExecuteNonQueryAsync();
+                    return result.Id;
+                }
+                else
+                {
+                    var command = new OracleCommand("INSERT INTO quiz_results (title, description, questionnaireid) " +
+                                                "VALUES (:Title, :Description, :QuestionnaireId) " +
+                                                "RETURNING ID INTO :NewId", connection);
+
+                    command.Parameters.Add(new OracleParameter(":Title", result.Title));
+                    command.Parameters.Add(new OracleParameter(":Description", result.Description));
+                    command.Parameters.Add(new OracleParameter(":QuestionnaireId", result.QuestionnaireId));
+
+
+                    var idParam = new OracleParameter(":NewId", OracleDbType.Int32);
+                    idParam.Direction = ParameterDirection.Output;
+                    command.Parameters.Add(idParam);
+
+                    await command.ExecuteNonQueryAsync();
+
+                    int newId = Convert.ToInt32(idParam.Value.ToString());
+                    return newId;
+                }
+                
+            }
+        }
+ 
     }
+
 }
+

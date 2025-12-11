@@ -39,7 +39,16 @@
             <div class="preloader"></div>
         }
         else
+
+
         {
+            
+            <div class="filled-details">
+                <p><strong>Kwestionariusz:</strong> @questionnaire.Title</p>
+                <p><strong>Maksymalna liczba punktów:</strong> @questionnaireAnalysis.MaxScore</p>
+                <p><strong>Liczba wypełnień:</strong> @questionnaireAnalysis.NumsFilled</p>
+            </div>
+            <br/>
             @if(questionnaire.CategoryId == 1)
             {
                 <table class="score-table" >
@@ -66,13 +75,21 @@
                
             }
 
+            else if (questionnaire.CategoryId == 2){
+                //@foreach (var s in userResults)
+                 //       {
+                  //          var percent = questionnaireAnalysis.NumsFilled > 0
+                  //          ? (int)((double)s.Count / questionnaireAnalysis.NumsFilled * 100)
+                  //          : 0;
+                  //          <tr>
+                  //              <td>@s.Score</td>
+                  //              <td>@s.Count</td>
+                  //          </tr>
+                   //     }
+            }
+
             <br/>
            
-            <div class="filled-details">
-                <p><strong>Kwestionariusz:</strong> @questionnaire.Title</p>
-                <p><strong>Kategoria:</strong> @questionnaire.CategoryId (chwilowo tylko Id :p)</p>
-                <p><strong>Liczba wypełnień:</strong> @questionnaireAnalysis.NumsFilled</p>
-            </div>
 
             @if (questionnaire.Questions.Count > 0)
             {
@@ -92,7 +109,13 @@
                                     @foreach (var opt in @q.Options)
                                     {
                                         <li class="option-item">
-                                            @opt.OptionContent @(opt.OptionIsCorrect == "T" ? "(Poprawna)" : ""): @opt.Count
+                                            <span class="option-text">
+                                                @opt.OptionContent @(opt.OptionIsCorrect == "T" ? "(Poprawna)" : "")
+                                            </span>
+
+                                            <span class="option-count">
+                                                @opt.Count
+                                            </span>
                                         </li>
                                     }
                                 </ul>
@@ -259,4 +282,22 @@
         background-color: #4bc0c0;
         height: 100%;
     }
+
+    .option-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 6px 0;
+    }
+
+    .option-text {
+        flex: 1; /* duża część */
+    }
+
+    .option-count {
+        min-width: 40px; /* mały kafelek */
+        text-align: right;
+        font-weight: bold;
+    }
+
 </style>

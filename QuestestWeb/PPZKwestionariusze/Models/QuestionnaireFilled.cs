@@ -9,5 +9,6 @@
         public string FilledByUsername { get; set; } = "";
         public List<QuestionAnswer> Answers { get; set; } = new List<QuestionAnswer>();
         public List<QuestionAnswerOpen> AnswersOpen { get; set; } = new List<QuestionAnswerOpen>();
+        public  int ResultId { get; set; }
     }
 }

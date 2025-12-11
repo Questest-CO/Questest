@@ -79,18 +79,30 @@ else
         </div>
     }
 
-    @if (message != null)
-    {
-        <div class="info-box info">
-            <i class="fa-solid fa-circle-info"></i> @message
-        </div>
-    }
+ 
 
-    @if (showResult)
+    @if (showResult && currentQuestionnaire.CategoryId == 1)
     {
         <div class="info-box info">
             <i class="fa-solid fa-chart-simple"></i>
             Twój wynik: <strong>@userScore / @maxScore</strong>
+        </div>
+    }
+
+    else if ((showResult) && (currentQuestionnaire.CategoryId == 2) && (result is not null))
+    {
+        <div class="info-box info" style="display: block">
+            <i class="fa-solid fa-chart-simple"></i>
+            <h4>@result.Title</h4>
+            <br/>
+            <p><strong>@result.Description</strong></p>
+        </div>
+    }
+
+    else if (message != null)
+    {
+        <div class="info-box info">
+            <i class="fa-solid fa-circle-info"></i> @message
         </div>
     }
 
@@ -110,6 +122,7 @@ else
     private bool showResult = false;
     private int userScore = 0;
     private int maxScore = 0;
+    private QuizResult? result;
 
     // wypełniany kwestionariusz
     private Questionnaire currentQuestionnaire = new Questionnaire();
@@ -119,9 +132,12 @@ else
 
     private async Task Save()
     {
+
+
         // zapisanie nagłówka
         int questfilledid = -1;
         questfilledid = await QuestionnaireFilledService.AddQuestionnaireFilledAsync(questionnaireFilled);
+
 
         if (questfilledid == -1)
         {
@@ -147,6 +163,24 @@ else
             quest.QuestionnaireFilledId = questfilledid;
             await QuestionAnswerService.AddAnswerOpenAsync(quest);
         }
+
+        if (currentQuestionnaire.CategoryId == 2)
+        {
+            // zapisanie wyniku quizu osobowości
+            List<UserResults> res = await QuestionnaireFilledService.GetResults(questfilledid);
+            if (res.Count > 0)
+            {
+                UserResults ures = res.OrderBy(x => x.Points).LastOrDefault();
+                int score = ures.ResultId;
+
+                await QuestionnaireFilledService.UpdateResult(questfilledid, score);
+                questionnaireFilled.ResultId = score;
+                result = await QuestionnaireService.GetResult(ures.ResultId);
+
+                showResult = true;
+            }
+        }
+
 
         // wysłanie powiadomienia do autora
         Notification test = new Notification();

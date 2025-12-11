@@ -1,0 +1,18 @@
+﻿﻿@using PPZKwestionariusze.Models;
+
+<div class="question-box p-2 border rounded mb-3">
+    <label class="search-label">Tytuł:</label>
+    <input class="searchbox" @bind="Result.Title" />
+
+    <label class="search-label">Opis:</label>
+    <textarea class="searchbox" @bind="Result.Description" rows="5" cols="50"></textarea>
+
+    <div class="space-between-buttons">
+        <button class="btn2" @onclick="OnRemove">Usuń wynik</button>
+    </div>
+</div>
+
+@code {
+    [Parameter] public QuizResult Result { get; set; } = new QuizResult { Id = -1 };
+    [Parameter] public EventCallback OnRemove { get; set; }
+}

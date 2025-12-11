@@ -73,12 +73,12 @@ else{
                         <input type="checkbox" style="margin-top:10px;" class="searchcheckbox" @bind=isQuestionnairePrivate />
 
                         <br />
-
+                   
                         @if(categories is not null)
                         {
-                        
-                       
-                        <select class="searchbox" @bind="newQuestionnaire.CategoryId" style="width:200px;margin-top:20px">
+
+                           
+                            <select class="searchbox" @bind="newQuestionnaire.CategoryId" style="width:200px;margin-top:20px">
                             @foreach(var cat in categories)
                             {
                               <option value="@cat.Id">@cat.Name</option>
@@ -94,13 +94,31 @@ else{
 
         </EditForm>
 
-        <h4>Pytania:</h4>
 
         @if (newQuestionnaire is not null)
         {
+            @if(newQuestionnaire.CategoryId == 2){
+
+                <h4>Wyniki:</h4>
+
+                @foreach(var result in newQuestionnaire.QuizResults)
+                {
+                   <ResultComponent Result="result" OnRemove="() => RemoveResult(result)" />
+  
+                }
+
+                <div class="space-between-buttons">
+
+                    <button type="submit" class="btn1" @onclick="AddResult">Dodaj wynik</button>
+
+                </div>
+                <br/>
+            }
+
+            <h4>Pytania:</h4>
             @foreach (var question in newQuestionnaire.Questions)
             {
-                <QuestionComponent CategoryId="@(newQuestionnaire?.CategoryId ?? -2)" Question="question" OnRemove="() => RemoveQuestion(question)" />
+                <QuestionComponent Results="@(newQuestionnaire?.QuizResults ?? new List<QuizResult>())" CategoryId="@(newQuestionnaire?.CategoryId ?? -2)" Question="question" OnRemove="() => RemoveQuestion(question)" />
             }
         }
       
@@ -124,7 +142,7 @@ else{
 
     String error_mess = "";
     UserStorageModel? usm;
-    private Questionnaire newQuestionnaire = new Questionnaire();
+    private Questionnaire newQuestionnaire = new Questionnaire { CategoryId = 1 };
     private Questionnaire existingQuestionnaire = new Questionnaire();
     String message;
     bool isQuestionnairePrivate = false;
@@ -133,7 +151,12 @@ else{
 
     private void AddQuestion() => newQuestionnaire.Questions.Add(new Question{Id=-1});
 
+    private void AddResult() => newQuestionnaire.QuizResults.Add(new QuizResult { Id = -1});
+
+
     private void RemoveQuestion(Question q) => newQuestionnaire.Questions.Remove(q);
+    private void RemoveResult(QuizResult q) => newQuestionnaire.QuizResults.Remove(q);
+
 
     private async Task DeleteQuestionnaire()
     {
@@ -153,6 +176,8 @@ else{
         newQuestionnaire.CreatedBy = usm.Id;
         newQuestionnaire.IsPrivate = isQuestionnairePrivate ? "T" : "N";
 
+
+
         int questID = -1; // id, które później będzie użyte do przypisania pytaniom
 
         // dodanie lub update - w zależności od ID (obsługa tych opcji już w serwisie)
@@ -163,6 +188,13 @@ else{
             error_mess = "Coś poszło nie tak podczas dodawania kwestionariusza :(";
             return;
         }
+
+        // 1.5 Dodanie qyników
+        foreach(QuizResult result in newQuestionnaire.QuizResults)
+        {
+            result.QuestionnaireId = questID;
+            int tmp = await QuestionnaireService.AddResultAsync(result);
+        } 
 
 
         // 2. dodanie pytań
@@ -232,6 +264,13 @@ else{
                     newQuestionnaire = existing;
 
                     isQuestionnairePrivate = existing.IsPrivate == "T";
+
+                    // 1.5. Pobranie wyników jeśli category 2
+                    if (newQuestionnaire.CategoryId == 2)
+                    {
+                        newQuestionnaire.QuizResults = await QuestionnaireService.GetResultsForQuestionnaire(QuestionnaireId.Value);
+                        
+                    }
 
                     // 2. Pobranie pytań
                     var questions = await QuestionService.GetQuestionsForQuestionnaire(QuestionnaireId.Value);

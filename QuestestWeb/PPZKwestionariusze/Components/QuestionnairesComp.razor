@@ -94,6 +94,7 @@ else
                 <th>Edycja</th>
                 <th>Wypełnij</th>
                 <th>Historia wypełnień</th>
+                <th>Analiza odpowiedzi</th>
                 <th>Udostępnianie</th>
             </tr>
         </thead>
@@ -121,6 +122,12 @@ else
                         @if (questionnaire.CreatedBy == usm?.Id)
                         {
                             <a href="/questionnaire-fill-history/@questionnaire.Id">Historia wypełnień</a>
+                        }
+                    </td>
+                    <td>
+                        @if (questionnaire.CreatedBy == usm?.Id)
+                        {
+                            <a href='/questionnaire-analysis/@questionnaire.Id'>Analiza odpowiedzi</a>
                         }
                     </td>
                     <td>
