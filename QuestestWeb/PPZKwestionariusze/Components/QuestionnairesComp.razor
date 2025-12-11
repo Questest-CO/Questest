@@ -65,14 +65,16 @@ else
 
 
             </div>
-  
+
             <div class="search2">
-                <div class="search-sumbit" style="margin-left:0px;display:block">
-                    <label class="search-checkbox-label" style="margin-left:0px">
-                        <input type="checkbox" class="searchcheckbox"  @bind="showMyPrivateQuestionnaires" /> Pokaż moje prywatne kwestionariusze
-                    </label>
+                <div class="custom-checkbox" style="margin-top:10px;">
+                    <input type="checkbox"
+                           id="private-check"
+                           @bind="showMyPrivateQuestionnaires" />
+                    <label for="private-check">Pokaż moje prywatne kwestionariusze</label>
                 </div>
             </div>
+
 
             <div class="space-between-buttons">
                 <button class="btn1" @onclick="ApplyFilters">Zastosuj filtry</button>
@@ -81,58 +83,51 @@ else
         </div>
     </div>
 
-    <table class="table">
+    <table class="questionnaire-table">
         <thead>
             <tr>
-                <th style="cursor:pointer" @onclick="() => SortBy(IdStr)">ID @(kolumna == "Id" ? (sortAscending ? "↑" : "↓") : "")</th>
-                <th style="cursor:pointer" @onclick="() => SortBy(TitleStr)">Tytuł @(kolumna == "Title" ? (sortAscending ? "↑" : "↓") : "")</th>
-                <th style="cursor:pointer" @onclick="() => SortBy(CategoryStr)">Kategoria @(kolumna == "Category" ? (sortAscending ? "↑" : "↓") : "")</th>
-                <th style="cursor:pointer" @onclick="() => SortBy(CreatedByStr)">Autor @(kolumna == "CreatedBy" ? (sortAscending ? "↑" : "↓") : "")</th>
-                <th style="cursor:pointer" @onclick="() => SortBy(QuestionCountStr)">Liczba pytań @(kolumna == "QuestionCount" ? (sortAscending ? "↑" : "↓") : "")</th>
-                <th style="cursor:pointer" @onclick="() => SortBy(FillCountStr)">Liczba wypełnień @(kolumna == "FillCount" ? (sortAscending ? "↑" : "↓") : "")</th>
-                <th style="cursor:pointer" @onclick="() => SortBy(DateCreatedStr)">Utworzono @(kolumna == "DateCreated" ? (sortAscending ? "↑" : "↓") : "")</th>
-                <th>Edycja</th>
-                <th>Wypełnij</th>
-                <th>Historia wypełnień</th>
-                <th>Udostępnianie</th>
+                <th @onclick="() => SortBy(IdStr)">ID @(kolumna == "Id" ? (sortAscending ? "↑" : "↓") : "")</th>
+                <th @onclick="() => SortBy(TitleStr)">Tytuł @(kolumna == "Title" ? (sortAscending ? "↑" : "↓") : "")</th>
+                <th @onclick="() => SortBy(CategoryStr)">Kategoria @(kolumna == "Category" ? (sortAscending ? "↑" : "↓") : "")</th>
+                <th @onclick="() => SortBy(CreatedByStr)">Autor @(kolumna == "CreatedBy" ? (sortAscending ? "↑" : "↓") : "")</th>
+                <th @onclick="() => SortBy(QuestionCountStr)">Pytania @(kolumna == "QuestionCount" ? (sortAscending ? "↑" : "↓") : "")</th>
+                <th @onclick="() => SortBy(FillCountStr)">Wypełnienia @(kolumna == "FillCount" ? (sortAscending ? "↑" : "↓") : "")</th>
+                <th @onclick="() => SortBy(DateCreatedStr)">Data @(kolumna == "DateCreated" ? (sortAscending ? "↑" : "↓") : "")</th>
+                <th>Akcje</th>
             </tr>
         </thead>
+
         <tbody>
-            @foreach (var questionnaire in PagedQuestionnaires)
+            @foreach (var q in PagedQuestionnaires)
             {
-                <tr style="@((questionnaire.CreatedBy == usm?.Id) ? "background-color:aliceblue" :  (questionnaire.PermittedUsers.Contains((usm == null ? -1: usm.Id))) ? "background-color:peachpuff" : "")">
-                    <td>@questionnaire.Id</td>
-                    <td>@questionnaire.Title</td>
-                    <td>@questionnaire.Category</td>
-                    <td>@questionnaire.CreatedByUsername</td>
-                    <td>@questionnaire.QuestionCount</td>
-                    <td>@questionnaire.FillCount</td>
-                    <td>@questionnaire.DateCreated.ToString("yyyy-MM-dd")</td>
-                    <td>
-                        @if (questionnaire.CreatedBy == usm?.Id)
+                <tr class="
+                @(q.CreatedBy == usm?.Id ? "row-owned" :
+                  q.PermittedUsers.Contains(usm == null ? -1 : usm.Id) ? "row-shared" : "")">
+
+                    <td>@q.Id</td>
+                    <td>@q.Title</td>
+                    <td>@q.Category</td>
+                    <td>@q.CreatedByUsername</td>
+                    <td>@q.QuestionCount</td>
+                    <td>@q.FillCount</td>
+                    <td>@q.DateCreated.ToString("yyyy-MM-dd")</td>
+
+                    <td class="actions-cell">
+                        @if (q.CreatedBy == usm?.Id)
                         {
-                            <a href='/add-questionnaire/@questionnaire.Id'>Edytuj</a>
+                            <a class="action-btn" href="/add-questionnaire/@q.Id">Edytuj</a>
+                            <a class="action-btn" href="/questionnaire-fill-history/@q.Id">Historia</a>
+                            <a class="action-btn" href="/questionnaire-analysis/@q.Id">Analiza</a>
+                            <a class="action-btn" href="/share/@q.Id">Udostępnij</a>
                         }
+                        <a class="action-btn primary" href="/fill-questionnaire/@q.Id">Wypełnij</a>
                     </td>
-                    <td>
-                        <a href='/fill-questionnaire/@questionnaire.Id'>Wypełnij</a>
-                    </td>
-                    <td>
-                        @if (questionnaire.CreatedBy == usm?.Id)
-                        {
-                            <a href="/questionnaire-fill-history/@questionnaire.Id">Historia wypełnień</a>
-                        }
-                    </td>
-                    <td>
-                        @if (questionnaire.CreatedBy == usm?.Id)
-                        {
-                            <a href="/share/@questionnaire.Id">Udostępnij</a>
-                        }
-                    </td>
+
                 </tr>
             }
         </tbody>
     </table>
+
     <div class="pagination">
         <button class="btn btn-secondary" @onclick="PrevPage" disabled="@(currentPage == 1)">←</button>
         <span style="margin-left:20px;margin-right:20px;margin-top:10px;">@currentPage/@totalPages</span>
@@ -141,7 +136,7 @@ else
 }
 
 @code {
-    private List<QuestionnaireViewModel> questionnaires; // filtrowane
+    private List<QuestionnaireViewModel> questionnaires;
     private List<QuestionnaireViewModel> allQuestionnaires;
     private List<QuestionnaireViewModel> PagedQuestionnaires =>
         questionnaires.Skip((currentPage - 1) * pageSize).Take(pageSize).ToList();

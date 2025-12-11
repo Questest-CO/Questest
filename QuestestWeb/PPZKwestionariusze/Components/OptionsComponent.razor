@@ -5,11 +5,16 @@
         <div style="display:flex; align-items:center; gap:10px;">
             @if (CategoryId == 1)
             {
-                <input type="checkbox"
-                       style="width:40px; height:20px;"
-                       @onclick="changeCorrect"
-                       checked="@(Option.IsCorrect == "T")" />
+                <div class="custom-checkbox">
+                    <input type="checkbox"
+                           id="correct-@Option.Id"
+                           checked="@(Option.IsCorrect == "T")"
+                           @onclick="changeCorrect" />
+
+                    <label for="correct-@Option.Id">Poprawna</label>
+                </div>
             }
+
 
 
             <input class="form-control mb-1"

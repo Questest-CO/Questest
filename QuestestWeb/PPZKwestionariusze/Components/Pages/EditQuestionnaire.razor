@@ -69,8 +69,13 @@ else{
                         <label class="search-label">Nazwa kwestionariusza:</label>
                         <InputText id="Title" class="searchbox" @bind-Value="newQuestionnaire.Title" />
 
-                        <label class="search-label" style="margin-top:10px;">Prywatny</label>
-                        <input type="checkbox" style="margin-top:10px;" class="searchcheckbox" @bind=isQuestionnairePrivate />
+                        <div class="custom-checkbox" style="margin-top: 15px;">
+                            <input type="checkbox"
+                                   id="private-checkbox"
+                                   @bind="isQuestionnairePrivate" />
+                            <label for="private-checkbox">Prywatny</label>
+                        </div>
+
 
                         <br />
 

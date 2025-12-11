@@ -3,7 +3,7 @@
 @inject SessionStorage sessionStorage
 @inject NavigationManager nav;
 
-<nav>
+<nav class="top-nav">
 	<div class="menu-logo">
 		<img src="../images/logo.png" />
 	</div>
@@ -19,15 +19,15 @@
 			<span class="menu-text">
 				<NavLink Match="NavLinkMatch.All">Kwestionariusze</NavLink>
 				<div class="menu-dropdown">
-					<NavLink href="/add-questionnaire" Match="NavLinkMatch.All">Twórz</NavLink>
-					<NavLink href="/questionnaires" Match="NavLinkMatch.All">Przeglądaj</NavLink>
+					<NavLink href="/add-questionnaire">Twórz</NavLink>
+					<NavLink href="/questionnaires">Przeglądaj</NavLink>
 				</div>
 			</span>
 		</button>
 
 		<button class="menu-button">
 			<span class="menu-text">
-				<NavLink href="/users" Match="NavLinkMatch.All">Użytkownicy</NavLink>
+				<NavLink href="/users">Użytkownicy</NavLink>
 			</span>
 		</button>
 
@@ -36,34 +36,28 @@
 			{
 				<button class="menu-button">
 					<span class="menu-text">
-						<NavLink href="/login" Match="NavLinkMatch.All">Zaloguj się</NavLink>
+						<NavLink href="/login">Zaloguj się</NavLink>
 					</span>
 				</button>
 
 				<button class="menu-button">
 					<span class="menu-text">
-						<NavLink href="/register" Match="NavLinkMatch.All">Zarejestruj się</NavLink>
+						<NavLink href="/register">Zarejestruj się</NavLink>
 					</span>
 				</button>
 			}
 			else
 			{
 				<button class="menu-button-img">
-					<span class="menu-user-settings">
-						<NavLink href="/usersettings" Match="NavLinkMatch.All"><img src="../images/sett.png" class="img-sett"></NavLink>
-					</span>
+					<NavLink href="/usersettings"><img src="../images/sett.png" class="img-sett"></NavLink>
 				</button>
 
 				<button class="menu-button-img">
-					<span class="menu-user-img">
-						<NavLink href="/inbox" Match="NavLinkMatch.All"><img src="../images/noti.png" class="img-noti"></NavLink>
-					</span>
+					<NavLink href="/inbox"><img src="../images/noti.png" class="img-noti"></NavLink>
 				</button>
 
 				<button class="menu-button-img">
-					<span class="menu-user-img">
-						<NavLink href="/login" Match="NavLinkMatch.All"><img src="../images/user.png" class="img-user"></NavLink>
-					</span>
+					<NavLink href="/login"><img src="../images/user.png" class="img-user"></NavLink>
 				</button>
 			}
 		</div>

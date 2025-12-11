@@ -1,19 +1,19 @@
 ﻿@page "/questionnaire-analysis/{QuestId:int}"
 
-
 @inject QuestionnaireService QuestionnaireService
 @inject QuestionService QuestionService
 @inject OptionsService OptionsService
 @inject QuestionnaireAnalysisService QuestionnaireAnalysisService
-
-
 @inject SessionStorage sessionStorage
+
 @using PPZKwestionariusze.Services
 @using PPZKwestionariusze.Models
 @using PPZKwestionariusze.StateStore
-@using PPZKwestionariusze.Components
+@using System.Linq
 
-<div class="homepage-container">
+<link href="css/analysis.css" rel="stylesheet" />
+
+<div class="analysis-container">
     @if (isLoading)
     {
         <div class="preloader"></div>
@@ -26,88 +26,105 @@
     }
     else if (block)
     {
-        <div class="info-box">
-            <i class="fa-solid fa-ban"></i> Tylko właściciel kwestionariusza może przeglądać statystyki.
+        <div class="info-box error">
+            <i class="fa-solid fa-lock"></i> Tylko właściciel kwestionariusza może przeglądać statystyki.
         </div>
     }
     else
     {
-        <h3 class="homepage-heading">Analiza odpowiedzi</h3>
-
         @if (questionnaire == null)
         {
             <div class="preloader"></div>
         }
         else
         {
-            @if(questionnaire.CategoryId == 1)
-            {
-                <table class="score-table" >
-                    <thead>
-                        <tr>
-                            <th>Wynik</th>
-                            <th>Liczba wypełnień</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var s in userScores)
-                        {
-                            var percent = questionnaireAnalysis.NumsFilled > 0
-                            ? (int)((double)s.Count / questionnaireAnalysis.NumsFilled * 100)
-                            : 0;
-                            <tr>
-                                <td>@s.Score</td>
-                                <td>@s.Count</td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
+            <header class="analysis-header">
+                <div class="title-block">
+                    <h1>@questionnaire.Title</h1>
+                    <p class="muted">Kategoria: <strong>@questionnaire.CategoryId</strong></p>
+                </div>
 
-               
-            }
+                <div class="stats-cards">
+                    <div class="stat-card">
+                        <div class="stat-value">@questionnaireAnalysis.NumsFilled</div>
+                        <div class="stat-label">Liczba wypełnień</div>
+                    </div>
 
-            <br/>
-           
-            <div class="filled-details">
-                <p><strong>Kwestionariusz:</strong> @questionnaire.Title</p>
-                <p><strong>Kategoria:</strong> @questionnaire.CategoryId (chwilowo tylko Id :p)</p>
-                <p><strong>Liczba wypełnień:</strong> @questionnaireAnalysis.NumsFilled</p>
-            </div>
+                    <div class="stat-card">
+                        <div class="stat-value">@questionnaire.Questions.Count</div>
+                        <div class="stat-label">Pytania</div>
+                    </div>
+                </div>
+            </header>
 
-            @if (questionnaire.Questions.Count > 0)
-            {
-                <div class="questions-container">
+            <main class="questions-container">
+                @if (questionnaire.Questions.Count == 0)
+                {
+                    <div class="info-box">
+                        Brak pytań w kwestionariuszu.
+                    </div>
+                }
+                else
+                {
                     @foreach (var q in questionnaireAnalysis.Questions)
                     {
-                        <div class="question-block">
-                            <p class="question-content"><strong>@q.QuestionContent</strong></p>
+                        <section class="question-card">
+                            <div class="question-head">
+                                <div class="question-index">Pytanie @q.QuestionId</div>
+                                <div class="question-title">@q.QuestionContent</div>
+                            </div>
 
                             @if (q.QuestionIsOpen)
                             {
-                                <p class="open-answer"><em>Pytanie otwarte</em></p>
+                                <div class="open-answer-card">
+                                    <em>Pytanie otwarte — odpowiedzi tekstowe.</em>
+                                </div>
                             }
                             else
                             {
+                                var total = q.Options.Sum(o => o.Count);   // ⭐ RAZOR WIDZI TĄ ZMIENNĄ TYLKO TUTAJ ⭐
+
                                 <ul class="options-list">
-                                    @foreach (var opt in @q.Options)
+                                    @foreach (var opt in q.Options)
                                     {
-                                        <li class="option-item">
-                                            @opt.OptionContent @(opt.OptionIsCorrect == "T" ? "(Poprawna)" : ""): @opt.Count
+                                        var percent = total > 0
+                                        ? Math.Round((double)opt.Count / total * 100, 1)
+                                        : 0.0;
+
+                                        var isCorrect = opt.OptionIsCorrect == "T";
+                                        var barWidth = $"{percent}%";
+
+                                        <li class="option-item @(isCorrect ? "correct" : "")">
+                                            <div class="option-left">
+                                                <div class="option-text">
+                                                    @opt.OptionContent
+                                                    @if (isCorrect)
+                                                    {
+                                                        <span class="correct-badge">(Poprawna)</span>
+                                                    }
+                                                </div>
+
+                                                <div class="option-sub">@opt.Count odp. • @percent %</div>
+                                            </div>
+
+                                            <div class="option-bar">
+                                                <div class="bar-track">
+                                                    <div class="bar-fill" style="width:@barWidth"></div>
+                                                </div>
+                                            </div>
                                         </li>
                                     }
                                 </ul>
                             }
-                        </div>
+                        </section>
                     }
-                </div>
-            }
-            else
-            {
-                <p>Brak pytań.</p>
-            }
+
+                }
+            </main>
         }
     }
 </div>
+
 
 @code {
     [Parameter]
@@ -119,9 +136,6 @@
     private List<Question> questions = new();
     private List<QuestionAnswer> answersClosed = new();
 
-    private List<ScoreData> userScores = new();
-
-
     String error_mess = "";
     UserStorageModel? usm;
     String message;
@@ -129,7 +143,6 @@
     bool block = false;
     bool isLoading = true;
 
-   
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
 
@@ -155,23 +168,12 @@
                         StateHasChanged();
                         return;
                     }
-
-                    if (questionnaire.CategoryId == 1)
-                    {
-                        var completeScores =
-                            Enumerable.Range(0, questionnaireAnalysis.MaxScore + 1)
-                            .Select(score => userScores.FirstOrDefault(s => s.Score == score)
-                                             ?? new ScoreData { Score = score, Count = 0 })
-                            .ToList();
-
-                    }
                 }
                 block = false;
             }
             isLoading = false;
             StateHasChanged();
         }
-
     }
 
     protected override async Task OnInitializedAsync()
@@ -203,16 +205,15 @@
             questionnaireAnalysis = new QuestionnaireAnalysis();
             questionnaireAnalysis.QuestionnaireId = QuestId.Value;
             questionnaireAnalysis.NumsFilled = await QuestionnaireAnalysisService.GetNumFills(QuestId.Value);
-            questionnaireAnalysis.MaxScore = await QuestionnaireService.GetMaxScore(QuestId.Value);
 
-            foreach(var question in questionnaire.Questions)
+            foreach (var question in questionnaire.Questions)
             {
                 QuestionAnalysis questionAnalysis = new QuestionAnalysis();
                 questionAnalysis.QuestionId = question.Id;
                 questionAnalysis.QuestionContent = question.Content;
                 questionAnalysis.QuestionIsOpen = question.Options.Count == 0;
 
-                foreach(var option in question.Options)
+                foreach (var option in question.Options)
                 {
                     OptionAnalysis optionAnalysis = await QuestionnaireAnalysisService.GetOptionAnalysis(option.Id);
                     optionAnalysis.OptionContent = option.Content;
@@ -223,40 +224,7 @@
                 questionnaireAnalysis.Questions.Add(questionAnalysis);
             }
 
-            userScores = await QuestionnaireAnalysisService.GetUserScores(QuestId.Value);
-            var completeScores =
-                Enumerable.Range(0, questionnaireAnalysis.MaxScore + 1)
-                .Select(score => userScores.FirstOrDefault(s => s.Score == score)
-                                 ?? new ScoreData { Score = score, Count = 0 })
-                .ToList();
-
         }
     }
-
-
 
 }
-<style>
-    .score-table {
-        border-collapse: collapse;
-        width: 100%;
-    }
-
-        .score-table th, .score-table td {
-            border: 1px solid #ccc;
-            padding: 5px 10px;
-            text-align: left;
-        }
-
-    .bar-container {
-        background-color: #f0f0f0;
-        width: 100%;
-        height: 20px;
-        position: relative;
-    }
-
-    .bar {
-        background-color: #4bc0c0;
-        height: 100%;
-    }
-</style>
