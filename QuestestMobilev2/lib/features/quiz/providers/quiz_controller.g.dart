@@ -6,7 +6,7 @@ part of 'quiz_controller.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$quizControllerHash() => r'291f703877bd8ab712132d5369f574bdea0c2b8b';
+String _$quizControllerHash() => r'1ec2abdfb447efa1414a907dc355ffe5341d7292';
 
 /// Controller for managing quiz session state and logic
 /// Handles timer, answer selection, and navigation between questions

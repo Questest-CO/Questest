@@ -20,14 +20,15 @@ QuestionnaireModel _$QuestionnaireModelFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$QuestionnaireModel {
+  @JsonKey(fromJson: _parseId)
   int get id => throw _privateConstructorUsedError;
   String? get title => throw _privateConstructorUsedError;
   String? get description => throw _privateConstructorUsedError;
-  @JsonKey(name: 'category_id')
+  @JsonKey(name: 'category_id', fromJson: _parseNullableInt)
   int? get categoryId => throw _privateConstructorUsedError;
-  @JsonKey(name: 'user_id')
+  @JsonKey(name: 'user_id', fromJson: _parseNullableInt)
   int? get userId => throw _privateConstructorUsedError;
-  @JsonKey(name: 'question_count')
+  @JsonKey(name: 'question_count', fromJson: _parseNullableInt)
   int? get questionCount => throw _privateConstructorUsedError;
   @JsonKey(name: 'is_active')
   bool? get isActive => throw _privateConstructorUsedError;
@@ -49,12 +50,14 @@ abstract class $QuestionnaireModelCopyWith<$Res> {
       _$QuestionnaireModelCopyWithImpl<$Res, QuestionnaireModel>;
   @useResult
   $Res call(
-      {int id,
+      {@JsonKey(fromJson: _parseId) int id,
       String? title,
       String? description,
-      @JsonKey(name: 'category_id') int? categoryId,
-      @JsonKey(name: 'user_id') int? userId,
-      @JsonKey(name: 'question_count') int? questionCount,
+      @JsonKey(name: 'category_id', fromJson: _parseNullableInt)
+      int? categoryId,
+      @JsonKey(name: 'user_id', fromJson: _parseNullableInt) int? userId,
+      @JsonKey(name: 'question_count', fromJson: _parseNullableInt)
+      int? questionCount,
       @JsonKey(name: 'is_active') bool? isActive,
       @JsonKey(name: 'created_at') DateTime? createdAt,
       @JsonKey(name: 'updated_at') DateTime? updatedAt});
@@ -133,12 +136,14 @@ abstract class _$$QuestionnaireModelImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {int id,
+      {@JsonKey(fromJson: _parseId) int id,
       String? title,
       String? description,
-      @JsonKey(name: 'category_id') int? categoryId,
-      @JsonKey(name: 'user_id') int? userId,
-      @JsonKey(name: 'question_count') int? questionCount,
+      @JsonKey(name: 'category_id', fromJson: _parseNullableInt)
+      int? categoryId,
+      @JsonKey(name: 'user_id', fromJson: _parseNullableInt) int? userId,
+      @JsonKey(name: 'question_count', fromJson: _parseNullableInt)
+      int? questionCount,
       @JsonKey(name: 'is_active') bool? isActive,
       @JsonKey(name: 'created_at') DateTime? createdAt,
       @JsonKey(name: 'updated_at') DateTime? updatedAt});
@@ -210,12 +215,14 @@ class __$$QuestionnaireModelImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$QuestionnaireModelImpl implements _QuestionnaireModel {
   const _$QuestionnaireModelImpl(
-      {required this.id,
+      {@JsonKey(fromJson: _parseId) required this.id,
       this.title,
       this.description,
-      @JsonKey(name: 'category_id') this.categoryId,
-      @JsonKey(name: 'user_id') this.userId,
-      @JsonKey(name: 'question_count') this.questionCount,
+      @JsonKey(name: 'category_id', fromJson: _parseNullableInt)
+      this.categoryId,
+      @JsonKey(name: 'user_id', fromJson: _parseNullableInt) this.userId,
+      @JsonKey(name: 'question_count', fromJson: _parseNullableInt)
+      this.questionCount,
       @JsonKey(name: 'is_active') this.isActive,
       @JsonKey(name: 'created_at') this.createdAt,
       @JsonKey(name: 'updated_at') this.updatedAt});
@@ -224,19 +231,20 @@ class _$QuestionnaireModelImpl implements _QuestionnaireModel {
       _$$QuestionnaireModelImplFromJson(json);
 
   @override
+  @JsonKey(fromJson: _parseId)
   final int id;
   @override
   final String? title;
   @override
   final String? description;
   @override
-  @JsonKey(name: 'category_id')
+  @JsonKey(name: 'category_id', fromJson: _parseNullableInt)
   final int? categoryId;
   @override
-  @JsonKey(name: 'user_id')
+  @JsonKey(name: 'user_id', fromJson: _parseNullableInt)
   final int? userId;
   @override
-  @JsonKey(name: 'question_count')
+  @JsonKey(name: 'question_count', fromJson: _parseNullableInt)
   final int? questionCount;
   @override
   @JsonKey(name: 'is_active')
@@ -297,34 +305,37 @@ class _$QuestionnaireModelImpl implements _QuestionnaireModel {
 
 abstract class _QuestionnaireModel implements QuestionnaireModel {
   const factory _QuestionnaireModel(
-          {required final int id,
-          final String? title,
-          final String? description,
-          @JsonKey(name: 'category_id') final int? categoryId,
-          @JsonKey(name: 'user_id') final int? userId,
-          @JsonKey(name: 'question_count') final int? questionCount,
-          @JsonKey(name: 'is_active') final bool? isActive,
-          @JsonKey(name: 'created_at') final DateTime? createdAt,
-          @JsonKey(name: 'updated_at') final DateTime? updatedAt}) =
-      _$QuestionnaireModelImpl;
+      {@JsonKey(fromJson: _parseId) required final int id,
+      final String? title,
+      final String? description,
+      @JsonKey(name: 'category_id', fromJson: _parseNullableInt)
+      final int? categoryId,
+      @JsonKey(name: 'user_id', fromJson: _parseNullableInt) final int? userId,
+      @JsonKey(name: 'question_count', fromJson: _parseNullableInt)
+      final int? questionCount,
+      @JsonKey(name: 'is_active') final bool? isActive,
+      @JsonKey(name: 'created_at') final DateTime? createdAt,
+      @JsonKey(name: 'updated_at')
+      final DateTime? updatedAt}) = _$QuestionnaireModelImpl;
 
   factory _QuestionnaireModel.fromJson(Map<String, dynamic> json) =
       _$QuestionnaireModelImpl.fromJson;
 
   @override
+  @JsonKey(fromJson: _parseId)
   int get id;
   @override
   String? get title;
   @override
   String? get description;
   @override
-  @JsonKey(name: 'category_id')
+  @JsonKey(name: 'category_id', fromJson: _parseNullableInt)
   int? get categoryId;
   @override
-  @JsonKey(name: 'user_id')
+  @JsonKey(name: 'user_id', fromJson: _parseNullableInt)
   int? get userId;
   @override
-  @JsonKey(name: 'question_count')
+  @JsonKey(name: 'question_count', fromJson: _parseNullableInt)
   int? get questionCount;
   @override
   @JsonKey(name: 'is_active')

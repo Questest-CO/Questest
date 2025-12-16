@@ -51,5 +51,26 @@ abstract class OracleApiClient {
   /// Returns Oracle ORDS response wrapper (Map) - items[0] will be extracted in repository
   @GET('/users/{id}')
   Future<dynamic> getUserById(@Path('id') int id);
+
+  // ============ FILLED QUESTIONNAIRES ============
+
+  /// Get all filled questionnaires (history)
+  /// Returns Oracle ORDS response wrapper (Map) - items will be extracted in repository
+  @GET('/questionnaires_filled/')
+  Future<dynamic> getFilledQuestionnaires();
+
+  /// Get filled questionnaires by quiz ID
+  /// Returns Oracle ORDS response wrapper (Map) - items will be extracted in repository
+  @GET('/questionnaires_filled/{quest_id}')
+  Future<dynamic> getFilledQuestionnairesByQuizId(
+    @Path('quest_id') int questId,
+  );
+
+  /// Submit a new filled questionnaire result
+  /// Returns Oracle ORDS response wrapper (Map) - items[0] will be extracted in repository
+  @POST('/questionnaires_filled/')
+  Future<dynamic> submitFilledQuestionnaire(
+    @Body() Map<String, dynamic> body,
+  );
 }
 

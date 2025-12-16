@@ -3,17 +3,34 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 part 'questionnaire_model.freezed.dart';
 part 'questionnaire_model.g.dart';
 
+/// Helper function to parse id that can be either int or String from API
+int _parseId(dynamic value) {
+  if (value is int) return value;
+  if (value is String) return int.parse(value);
+  if (value is num) return value.toInt();
+  throw FormatException('Cannot parse id from: $value');
+}
+
+/// Helper function to parse nullable int that can be either int or String from API
+int? _parseNullableInt(dynamic value) {
+  if (value == null) return null;
+  if (value is int) return value;
+  if (value is String) return int.tryParse(value);
+  if (value is num) return value.toInt();
+  return null;
+}
+
 /// Questionnaire DTO from Oracle DB API
 /// Represents a questionnaire/survey entity
 @freezed
 class QuestionnaireModel with _$QuestionnaireModel {
   const factory QuestionnaireModel({
-    required int id,
+    @JsonKey(fromJson: _parseId) required int id,
     String? title,
     String? description,
-    @JsonKey(name: 'category_id') int? categoryId,
-    @JsonKey(name: 'user_id') int? userId,
-    @JsonKey(name: 'question_count') int? questionCount,
+    @JsonKey(name: 'category_id', fromJson: _parseNullableInt) int? categoryId,
+    @JsonKey(name: 'user_id', fromJson: _parseNullableInt) int? userId,
+    @JsonKey(name: 'question_count', fromJson: _parseNullableInt) int? questionCount,
     @JsonKey(name: 'is_active') bool? isActive,
     @JsonKey(name: 'created_at') DateTime? createdAt,
     @JsonKey(name: 'updated_at') DateTime? updatedAt,
