@@ -288,23 +288,23 @@
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
       <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\images\user.png'))</OriginalItemSpec>
     </StaticWebAsset>
-    <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\PPZKwestionariusze.xxa4xy2nw8.bundle.scp.css'))">
+    <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\PPZKwestionariusze.42teq6k3al.bundle.scp.css'))">
       <SourceType>Package</SourceType>
       <SourceId>PPZKwestionariusze</SourceId>
       <ContentRoot>$(MSBuildThisFileDirectory)..\staticwebassets\</ContentRoot>
       <BasePath>_content/PPZKwestionariusze</BasePath>
-      <RelativePath>PPZKwestionariusze.xxa4xy2nw8.bundle.scp.css</RelativePath>
+      <RelativePath>PPZKwestionariusze.42teq6k3al.bundle.scp.css</RelativePath>
       <AssetKind>All</AssetKind>
       <AssetMode>Reference</AssetMode>
       <AssetRole>Primary</AssetRole>
       <RelatedAsset></RelatedAsset>
       <AssetTraitName>ScopedCss</AssetTraitName>
       <AssetTraitValue>ProjectBundle</AssetTraitValue>
-      <Fingerprint>xxa4xy2nw8</Fingerprint>
-      <Integrity>ZXnAmpCb43Aq6j7dx5xoU7UBHamhSwVEXkK8X7utsUY=</Integrity>
+      <Fingerprint>42teq6k3al</Fingerprint>
+      <Integrity>nLxqhDtNb+Bq14J8NUacDbelcAy7WLuWZcqa7Kqf7AU=</Integrity>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\PPZKwestionariusze.xxa4xy2nw8.bundle.scp.css'))</OriginalItemSpec>
+      <OriginalItemSpec>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\PPZKwestionariusze.42teq6k3al.bundle.scp.css'))</OriginalItemSpec>
     </StaticWebAsset>
     <StaticWebAsset Include="$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\staticwebassets\tailwind.css'))">
       <SourceType>Package</SourceType>

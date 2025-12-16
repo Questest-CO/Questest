@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "ltUe4p9NATKBb4uXRjD0wuI+uPUEqTO0K4w5Z8y3p00=",
+  "Hash": "3/TZbtZiYTxaAvD+RVD02naYZ+xcGDmpULBUq9fUvm0=",
   "Source": "PPZKwestionariusze",
   "BasePath": "_content/PPZKwestionariusze",
   "Mode": "Default",
@@ -1543,8 +1543,8 @@
       "RelatedAsset": "",
       "AssetTraitName": "ScopedCss",
       "AssetTraitValue": "ApplicationBundle",
-      "Fingerprint": "xxa4xy2nw8",
-      "Integrity": "ZXnAmpCb43Aq6j7dx5xoU7UBHamhSwVEXkK8X7utsUY=",
+      "Fingerprint": "42teq6k3al",
+      "Integrity": "nLxqhDtNb+Bq14J8NUacDbelcAy7WLuWZcqa7Kqf7AU=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "C:\\Users\\Gabcia\\Desktop\\ppz\\Questest\\QuestestWeb\\PPZKwestionariusze\\obj\\Debug\\net8.0\\scopedcss\\bundle\\PPZKwestionariusze.styles.css"
@@ -1564,8 +1564,8 @@
       "RelatedAsset": "",
       "AssetTraitName": "ScopedCss",
       "AssetTraitValue": "ProjectBundle",
-      "Fingerprint": "xxa4xy2nw8",
-      "Integrity": "ZXnAmpCb43Aq6j7dx5xoU7UBHamhSwVEXkK8X7utsUY=",
+      "Fingerprint": "42teq6k3al",
+      "Integrity": "nLxqhDtNb+Bq14J8NUacDbelcAy7WLuWZcqa7Kqf7AU=",
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "C:\\Users\\Gabcia\\Desktop\\ppz\\Questest\\QuestestWeb\\PPZKwestionariusze\\obj\\Debug\\net8.0\\scopedcss\\projectbundle\\PPZKwestionariusze.bundle.scp.css"
@@ -8570,6 +8570,96 @@
       ]
     },
     {
+      "Route": "PPZKwestionariusze.42teq6k3al.bundle.scp.css",
+      "AssetFile": "C:\\Users\\Gabcia\\Desktop\\ppz\\Questest\\QuestestWeb\\PPZKwestionariusze\\obj\\Debug\\net8.0\\scopedcss\\projectbundle\\PPZKwestionariusze.bundle.scp.css",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "9702"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/css"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"nLxqhDtNb+Bq14J8NUacDbelcAy7WLuWZcqa7Kqf7AU=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Thu, 11 Dec 2025 03:51:15 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "42teq6k3al"
+        },
+        {
+          "Name": "label",
+          "Value": "PPZKwestionariusze.bundle.scp.css"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-nLxqhDtNb+Bq14J8NUacDbelcAy7WLuWZcqa7Kqf7AU="
+        }
+      ]
+    },
+    {
+      "Route": "PPZKwestionariusze.42teq6k3al.styles.css",
+      "AssetFile": "C:\\Users\\Gabcia\\Desktop\\ppz\\Questest\\QuestestWeb\\PPZKwestionariusze\\obj\\Debug\\net8.0\\scopedcss\\bundle\\PPZKwestionariusze.styles.css",
+      "Selectors": [],
+      "ResponseHeaders": [
+        {
+          "Name": "Accept-Ranges",
+          "Value": "bytes"
+        },
+        {
+          "Name": "Content-Length",
+          "Value": "9702"
+        },
+        {
+          "Name": "Content-Type",
+          "Value": "text/css"
+        },
+        {
+          "Name": "ETag",
+          "Value": "\"nLxqhDtNb+Bq14J8NUacDbelcAy7WLuWZcqa7Kqf7AU=\""
+        },
+        {
+          "Name": "Last-Modified",
+          "Value": "Thu, 11 Dec 2025 03:51:15 GMT"
+        },
+        {
+          "Name": "Cache-Control",
+          "Value": "max-age=31536000, immutable"
+        }
+      ],
+      "EndpointProperties": [
+        {
+          "Name": "fingerprint",
+          "Value": "42teq6k3al"
+        },
+        {
+          "Name": "label",
+          "Value": "PPZKwestionariusze.styles.css"
+        },
+        {
+          "Name": "integrity",
+          "Value": "sha256-nLxqhDtNb+Bq14J8NUacDbelcAy7WLuWZcqa7Kqf7AU="
+        }
+      ]
+    },
+    {
       "Route": "PPZKwestionariusze.bundle.scp.css",
       "AssetFile": "C:\\Users\\Gabcia\\Desktop\\ppz\\Questest\\QuestestWeb\\PPZKwestionariusze\\obj\\Debug\\net8.0\\scopedcss\\projectbundle\\PPZKwestionariusze.bundle.scp.css",
       "Selectors": [],
@@ -8580,7 +8670,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "11112"
+          "Value": "9702"
         },
         {
           "Name": "Content-Type",
@@ -8588,11 +8678,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"ZXnAmpCb43Aq6j7dx5xoU7UBHamhSwVEXkK8X7utsUY=\""
+          "Value": "\"nLxqhDtNb+Bq14J8NUacDbelcAy7WLuWZcqa7Kqf7AU=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Thu, 11 Dec 2025 03:35:15 GMT"
+          "Value": "Thu, 11 Dec 2025 03:51:15 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -8602,7 +8692,7 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-ZXnAmpCb43Aq6j7dx5xoU7UBHamhSwVEXkK8X7utsUY="
+          "Value": "sha256-nLxqhDtNb+Bq14J8NUacDbelcAy7WLuWZcqa7Kqf7AU="
         }
       ]
     },
@@ -8617,7 +8707,7 @@
         },
         {
           "Name": "Content-Length",
-          "Value": "11112"
+          "Value": "9702"
         },
         {
           "Name": "Content-Type",
@@ -8625,11 +8715,11 @@
         },
         {
           "Name": "ETag",
-          "Value": "\"ZXnAmpCb43Aq6j7dx5xoU7UBHamhSwVEXkK8X7utsUY=\""
+          "Value": "\"nLxqhDtNb+Bq14J8NUacDbelcAy7WLuWZcqa7Kqf7AU=\""
         },
         {
           "Name": "Last-Modified",
-          "Value": "Thu, 11 Dec 2025 03:35:15 GMT"
+          "Value": "Thu, 11 Dec 2025 03:51:15 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -8639,97 +8729,7 @@
       "EndpointProperties": [
         {
           "Name": "integrity",
-          "Value": "sha256-ZXnAmpCb43Aq6j7dx5xoU7UBHamhSwVEXkK8X7utsUY="
-        }
-      ]
-    },
-    {
-      "Route": "PPZKwestionariusze.xxa4xy2nw8.bundle.scp.css",
-      "AssetFile": "C:\\Users\\Gabcia\\Desktop\\ppz\\Questest\\QuestestWeb\\PPZKwestionariusze\\obj\\Debug\\net8.0\\scopedcss\\projectbundle\\PPZKwestionariusze.bundle.scp.css",
-      "Selectors": [],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "11112"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "text/css"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"ZXnAmpCb43Aq6j7dx5xoU7UBHamhSwVEXkK8X7utsUY=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Thu, 11 Dec 2025 03:35:15 GMT"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "max-age=31536000, immutable"
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "fingerprint",
-          "Value": "xxa4xy2nw8"
-        },
-        {
-          "Name": "label",
-          "Value": "PPZKwestionariusze.bundle.scp.css"
-        },
-        {
-          "Name": "integrity",
-          "Value": "sha256-ZXnAmpCb43Aq6j7dx5xoU7UBHamhSwVEXkK8X7utsUY="
-        }
-      ]
-    },
-    {
-      "Route": "PPZKwestionariusze.xxa4xy2nw8.styles.css",
-      "AssetFile": "C:\\Users\\Gabcia\\Desktop\\ppz\\Questest\\QuestestWeb\\PPZKwestionariusze\\obj\\Debug\\net8.0\\scopedcss\\bundle\\PPZKwestionariusze.styles.css",
-      "Selectors": [],
-      "ResponseHeaders": [
-        {
-          "Name": "Accept-Ranges",
-          "Value": "bytes"
-        },
-        {
-          "Name": "Content-Length",
-          "Value": "11112"
-        },
-        {
-          "Name": "Content-Type",
-          "Value": "text/css"
-        },
-        {
-          "Name": "ETag",
-          "Value": "\"ZXnAmpCb43Aq6j7dx5xoU7UBHamhSwVEXkK8X7utsUY=\""
-        },
-        {
-          "Name": "Last-Modified",
-          "Value": "Thu, 11 Dec 2025 03:35:15 GMT"
-        },
-        {
-          "Name": "Cache-Control",
-          "Value": "max-age=31536000, immutable"
-        }
-      ],
-      "EndpointProperties": [
-        {
-          "Name": "fingerprint",
-          "Value": "xxa4xy2nw8"
-        },
-        {
-          "Name": "label",
-          "Value": "PPZKwestionariusze.styles.css"
-        },
-        {
-          "Name": "integrity",
-          "Value": "sha256-ZXnAmpCb43Aq6j7dx5xoU7UBHamhSwVEXkK8X7utsUY="
+          "Value": "sha256-nLxqhDtNb+Bq14J8NUacDbelcAy7WLuWZcqa7Kqf7AU="
         }
       ]
     },
@@ -8756,7 +8756,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Thu, 11 Dec 2025 03:27:51 GMT"
+          "Value": "Thu, 11 Dec 2025 03:54:44 GMT"
         },
         {
           "Name": "Cache-Control",
@@ -8793,7 +8793,7 @@
         },
         {
           "Name": "Last-Modified",
-          "Value": "Thu, 11 Dec 2025 03:27:51 GMT"
+          "Value": "Thu, 11 Dec 2025 03:54:44 GMT"
         },
         {
           "Name": "Cache-Control",
