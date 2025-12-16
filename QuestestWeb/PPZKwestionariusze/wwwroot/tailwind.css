@@ -25,8 +25,58 @@ body {
     padding-top: var(--nav-height);
 }
 
+.info-box {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 18px;
+    border-radius: 16px;
+    background: linear-gradient(180deg, #eef2ff, #f5f7ff);
+    border: 1px solid #c7d2fe;
+    color: #3730a3;
+    font-size: 15px;
+    font-weight: 600;
+    box-shadow: 0 10px 28px rgba(67,56,202,0.15);
+    margin-bottom: 18px;
+    animation: infoFadeIn 260ms ease-out both;
+}
+
+    .info-box i {
+        font-size: 20px;
+        color: #4f46e5;
+        flex-shrink: 0;
+    }
+
+    .info-box.error {
+        background: linear-gradient(180deg, #fef2f2, #fff5f5);
+        border-color: #fecaca;
+        color: #991b1b;
+        box-shadow: 0 10px 28px rgba(185,28,28,0.18);
+    }
+
+        .info-box.error i {
+            color: #dc2626;
+        }
+
+@keyframes infoFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 .homepage-container {
     padding-top: 90px !important;
+}
+
+.homepage-subtext {
+    justify-content: center;
+    text-align: center;
 }
 
 .cards-container {
