@@ -1403,7 +1403,7 @@ p[style*="color:blue"],
         background: linear-gradient(180deg, #fef2f2, #fff5f5);
         border-color: #fecaca;
         color: #991b1b;
-        box-shadow: 0 10px 28px rgba(185,28,28,0.18);
+        box-shadow: 0 10px 28px rgba(185,28,28,0.18); 
     }
 
         .info-box.error i {
