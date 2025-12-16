@@ -5,6 +5,7 @@ import '../../../../core/providers/oracle_providers.dart';
 import '../../../../core/repositories/oracle_repository.dart';
 import '../../../../core/errors/app_exception.dart';
 import '../providers/creator_providers.dart';
+import '../../../home/providers/quiz_provider.dart';
 
 /// Step 3 of the Quiz Creator
 /// Summary and publish
@@ -90,6 +91,10 @@ class _CreateQuizStep3PageState extends ConsumerState<CreateQuizStep3Page> {
         // Clear form state
         ref.read(creatorFormStateProvider.notifier).state = null;
         ref.read(questionsDraftProvider.notifier).state = [];
+
+        // Refresh quiz lists so the new quiz appears immediately
+        ref.invalidate(quizzesProvider);
+        ref.invalidate(myQuizzesProvider);
 
         // Navigate back to home screen
         // Pop all creator pages and return to main screen
