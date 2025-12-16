@@ -4,7 +4,7 @@
 }
 
 :root {
-    --nav-height: 90px;
+    --nav-height: 74px;
 }
 
 .main-page-content {
@@ -22,6 +22,7 @@ img {
 
 body {
     background: #f5f5f5;
+    padding-top: var(--nav-height);
 }
 
 .homepage-container {
@@ -341,6 +342,7 @@ body {
     padding: 0 16px;
     box-shadow: 0 2px 10px rgba(0,0,0,0.08);
     z-index: 1000;
+    margin-bottom: 20px;
 }
 
 .menu-logo {
@@ -1366,10 +1368,6 @@ filters {
         background: #b91c1c !important;
     }
 
-/* ------------------------------ */
-/*  WIADOMOŒCI / ALERTY          */
-/* ------------------------------ */
-
 p[style*="color:blue"],
 .success-message {
     background: #eef2ff;
@@ -1379,6 +1377,52 @@ p[style*="color:blue"],
     border: 1px solid #c7d2fe;
 }
 
+.info-box {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 18px;
+    border-radius: 16px;
+    background: linear-gradient(180deg, #eef2ff, #f5f7ff);
+    border: 1px solid #c7d2fe;
+    color: #3730a3;
+    font-size: 15px;
+    font-weight: 600;
+    box-shadow: 0 10px 28px rgba(67,56,202,0.15);
+    margin-bottom: 18px;
+    animation: infoFadeIn 260ms ease-out both;
+}
+
+    .info-box i {
+        font-size: 20px;
+        color: #4f46e5;
+        flex-shrink: 0;
+    }
+
+    .info-box.error {
+        background: linear-gradient(180deg, #fef2f2, #fff5f5);
+        border-color: #fecaca;
+        color: #991b1b;
+        box-shadow: 0 10px 28px rgba(185,28,28,0.18);
+    }
+
+        .info-box.error i {
+            color: #dc2626;
+        }
+
+@keyframes infoFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+
 p[style*="color:red"],
 .error-message {
     background: #fef2f2;
@@ -1387,10 +1431,6 @@ p[style*="color:red"],
     border-radius: 10px;
     border: 1px solid #fecaca;
 }
-
-/* ------------------------------ */
-/*  TABELA PRZYDZIELONYCH USERÓW */
-/* ------------------------------ */
 
 .table {
     width: 100%;

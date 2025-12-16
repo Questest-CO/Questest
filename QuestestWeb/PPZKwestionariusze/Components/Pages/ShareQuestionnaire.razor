@@ -24,17 +24,27 @@
 }
 else
 {
-    if(nonexistent)
-{
-    <i>Taki kwestionariusz nie istnieje.</i>
-}
-else if (block)
-{
-    <i>Tylko właściciel kwestionariusza może udostępniać go innym użytkownikom.</i>
-}
-else if(error_message != "")
-{
-    <p style="color:red">@error_message</p>
+    if (nonexistent)
+    {
+        <div class="info-box warning">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+            <span>Taki kwestionariusz nie istnieje.</span>
+        </div>
+    }
+    else if (block)
+    {
+        <div class="info-box error">
+            <i class="fa-solid fa-ban"></i>
+            <span>Tylko właściciel kwestionariusza może udostępniać go innym użytkownikom.</span>
+        </div>
+    }
+    else if (!string.IsNullOrEmpty(error_message))
+    {
+        <div class="info-box error">
+            <i class="fa-solid fa-circle-xmark"></i>
+            <span>@error_message</span>
+        </div>
+    }
 }
 else if (users?.Count > 0)
 {
