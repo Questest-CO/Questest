@@ -1,43 +1,100 @@
-﻿@page "/"
+﻿﻿<!-- Home.razor -->
+@page "/"
 
 @using PPZKwestionariusze.Models;
 @using PPZKwestionariusze.StateStore;
 @inject SessionStorage sessionStorage
 @inject NavigationManager nav;
+@inject PPZKwestionariusze.Services.QuestionnaireService QuestionnaireService
 
 <PageTitle>Home</PageTitle>
 
 <div class="homepage-container">
-    @if (usm is null)
+    <div class="welcome-section fade-in">
+        <h2 class="homepage-heading">@greeting, @(usm?.Username ?? "Gościu")!</h2>
+        @if (usm is null)
+        {
+            <p class="homepage-subtext">Zaloguj się, aby przeglądać i tworzyć kwestionariusze.</p>
+        }
+        else
+        {
+            <p class="homepage-subtext">Miło Cię znowu widzieć! Oto Twoja aktywność:</p>
+        }
+    </div>
+
+    @if (usm is not null)
     {
-        <h2 class="homepage-heading">Witaj na naszej stronie!</h2>
-        <p class="homepage-subtext">Zaloguj się, aby przeglądać i tworzyć kwestionariusze.</p>
-    }
-    else
-    {
-        <h2 class="homepage-heading">Witaj, @usm.Username!</h2>
-        <p class="homepage-subtext">Miło Cię znowu widzieć! Co chcesz dzisiaj zrobić?</p>
+        <div class="recent-forms-section fade-in">
+            <h3>Twoje najnowsze kwestionariusze</h3>
+
+            <div class="cards-container">
+                @if (myForms.Count == 0)
+                {
+                    <p class="empty-info">Nie stworzyłeś jeszcze żadnych kwestionariuszy.</p>
+                }
+                else
+                {
+                    @foreach (var q in myForms)
+                    {
+                        <div class="form-card form-my-card">
+
+                            <div class="card-header-mini">
+                                <h4>@q.Title</h4>
+                                <p class="date">@q.DateCreated.ToString("dd.MM.yyyy")</p>
+                            </div>
+
+                            <div class="mini-buttons">
+                                <a class="card-btn" href="/add-questionnaire/@q.Id">Edytuj</a>
+                                <a class="card-btn" href="/questionnaire-fill-history/@q.Id">Historia</a>
+                                <a class="card-btn" href="/questionnaire-analysis/@q.Id">Analiza</a>
+                                <a class="card-btn" href="/share/@q.Id">Udostępnij</a>
+                            </div>
+
+                        </div>
+                    }
+                }
+            </div>
+        </div>
     }
 </div>
 
-<br />
-
-
-
-
 @code {
-
     private UserStorageModel? usm;
+    private List<QuestionnaireViewModel> myForms = new();
+
+    string greeting = "Witaj";
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
+            // tutaj można bezpiecznie wywoływać JS interop
             usm = await sessionStorage.GetUserAsync();
+            greeting = GetGreeting();
+
+            if (usm is not null)
+            {
+                var all = await QuestionnaireService.GetQuestionnairesBrowserAsync();
+
+                foreach (var quest in all)
+                    quest.PermittedUsers = await QuestionnaireService.GetPermittedUsers(quest.Id);
+
+                myForms = all
+                    .Where(q => q.CreatedBy == usm.Id)
+                    .OrderByDescending(q => q.DateCreated)
+                    .Take(5)
+                    .ToList();
+            }
 
             StateHasChanged();
         }
     }
 
-
+    private string GetGreeting()
+    {
+        var hour = DateTime.Now.Hour;
+        if (hour < 12) return "Dzień dobry";
+        if (hour < 18) return "Miłego popołudnia";
+        return "Dobry wieczór";
+    }
 }

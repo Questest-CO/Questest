@@ -12,8 +12,11 @@
 @using PPZKwestionariusze.Models
 @using PPZKwestionariusze.StateStore
 @using PPZKwestionariusze.Components
+@using System.Linq
 
-<div class="homepage-container">
+<link href="css/analysis.css" rel="stylesheet" />
+
+<div class="analysis-container">
     @if (isLoading)
     {
         <div class="preloader"></div>
@@ -26,8 +29,8 @@
     }
     else if (block)
     {
-        <div class="info-box">
-            <i class="fa-solid fa-ban"></i> Tylko właściciel kwestionariusza może przeglądać statystyki.
+        <div class="info-box error">
+            <i class="fa-solid fa-lock"></i> Tylko właściciel kwestionariusza może przeglądać statystyki.
         </div>
     }
     else
@@ -42,12 +45,27 @@
 
 
         {
+           <header class="analysis-header">
+                <div class="title-block">
+                    <h1>@questionnaire.Title</h1>
+                </div>
+                <div class="stats-cards">
+                    <div class="stat-card">
+                        <div class="stat-value">@questionnaireAnalysis.MaxScore</div>
+                        <div class="stat-label">Maksymalna liczba punktów</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">@questionnaireAnalysis.NumsFilled</div>
+                        <div class="stat-label">Liczba wypełnień</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">@questionnaire.Questions.Count</div>
+                        <div class="stat-label">Pytania</div>
+                    </div>
+                </div>
+            </header>
             
-            <div class="filled-details">
-                <p><strong>Kwestionariusz:</strong> @questionnaire.Title</p>
-                <p><strong>Maksymalna liczba punktów:</strong> @questionnaireAnalysis.MaxScore</p>
-                <p><strong>Liczba wypełnień:</strong> @questionnaireAnalysis.NumsFilled</p>
-            </div>
+     
             <br/>
             @if(questionnaire.CategoryId == 1)
             {
@@ -90,44 +108,59 @@
 
             <br/>
            
-
+             <main class="questions-container">
             @if (questionnaire.Questions.Count > 0)
             {
                 <div class="questions-container">
                     @foreach (var q in questionnaireAnalysis.Questions)
                     {
-                        <div class="question-block">
-                            <p class="question-content"><strong>@q.QuestionContent</strong></p>
+                          <section class="question-card">
+                            <div class="question-head">
+                                <div class="question-title">@q.QuestionContent</div>
+                            </div>
+                                @if (q.QuestionIsOpen)
+                                {
+                                    <div class="open-answer-card">
+                                        <em>Pytanie otwarte — odpowiedzi tekstowe.</em>
+                                    </div>
+                                }
 
-                            @if (q.QuestionIsOpen)
-                            {
-                                <p class="open-answer"><em>Pytanie otwarte</em></p>
-                            }
                             else
                             {
                                 <ul class="options-list">
                                     @foreach (var opt in @q.Options)
                                     {
-                                        <li class="option-item">
-                                            <span class="option-text">
-                                                @opt.OptionContent @(opt.OptionIsCorrect == "T" ? "(Poprawna)" : "")
-                                            </span>
+                                            var isCorrect = opt.OptionIsCorrect == "T";
+                                            <li class="option-item @(isCorrect ? "correct" : "")">
+                                                <div class="option-left">
+                                                    <span class="option-text">
+                                                        @opt.OptionContent  @if (isCorrect)
+                                                        {
+                                                            <span class="correct-badge">(Poprawna)</span>
+                                                        }
+                                                    </span>
 
-                                            <span class="option-count">
-                                                @opt.Count
-                                            </span>
-                                        </li>
+                                                    <span class="option-count">
+                                                        @opt.Count
+                                                    </span>
+                                         
+                                                </div>
+                                            </li>
                                     }
+                                      
                                 </ul>
                             }
-                        </div>
+                            </section>
                     }
                 </div>
             }
             else
             {
-                <p>Brak pytań.</p>
+                    <div class="info-box">
+                        Brak pytań w kwestionariuszu.
+                    </div>
             }
+            </main>
         }
     }
 </div>
@@ -179,13 +212,13 @@
                         return;
                     }
 
-                    if (questionnaire.CategoryId == 1)
+                    if (questionnaire.CategoryId == 1 && questionnaireAnalysis.NumsFilled > 0 )
                     {
-                        var completeScores =
-                            Enumerable.Range(0, questionnaireAnalysis.MaxScore + 1)
-                            .Select(score => userScores.FirstOrDefault(s => s.Score == score)
-                                             ?? new ScoreData { Score = score, Count = 0 })
-                            .ToList();
+                       // var completeScores =
+                        //    Enumerable.Range(0, questionnaireAnalysis.MaxScore + 1)
+                         //   .Select(score => userScores.FirstOrDefault(s => s.Score == score)
+                          //                   ?? new ScoreData { Score = score, Count = 0 })
+                           // .ToList();
 
                     }
                 }
@@ -247,11 +280,11 @@
             }
 
             userScores = await QuestionnaireAnalysisService.GetUserScores(QuestId.Value);
-            var completeScores =
-                Enumerable.Range(0, questionnaireAnalysis.MaxScore + 1)
-                .Select(score => userScores.FirstOrDefault(s => s.Score == score)
-                                 ?? new ScoreData { Score = score, Count = 0 })
-                .ToList();
+            //var completeScores =
+             //   Enumerable.Range(0, questionnaireAnalysis.MaxScore + 1)
+             //   .Select(score => userScores.FirstOrDefault(s => s.Score == score)
+             //                    ?? new ScoreData { Score = score, Count = 0 })
+             //   .ToList();
 
         }
     }

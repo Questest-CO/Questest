@@ -18,6 +18,7 @@
 
   <ItemGroup>
     <Folder Include="Identity\" />
+    <Folder Include="NewFolder\" />
   </ItemGroup>
 
 </Project>

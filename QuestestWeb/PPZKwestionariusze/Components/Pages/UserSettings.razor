@@ -40,12 +40,12 @@ else
 
             </div>
 
-            <div class="search1">
-                <div class="search-checkbox-row">
-                    <input type="checkbox" class="searchcheckbox" @bind="NewIsVisible" />
-                    <label style="font-size: 14px; margin-top: 10px;"> Widoczny dla innych </label>
+                <div class="search1">
+                    <div class="custom-checkbox">
+                        <input type="checkbox" @bind="NewIsVisible" />
+                        <label style="font-size: 14px; margin-top: 10px;"> Widoczny dla innych </label>
+                    </div>
                 </div>
-            </div>
 
             <div class="space-between-buttons">
                 <button type="submit" class="btn1">Zapisz zmiany</button>

@@ -1,4 +1,4 @@
-﻿﻿@using PPZKwestionariusze.Models
+﻿﻿﻿@using PPZKwestionariusze.Models
 @using PPZKwestionariusze.StateStore
 
 @page "/users"
@@ -14,7 +14,7 @@
 }
 else
 {
- <div class="filters @(showFilters ? "" : "collapsed")">
+    <div class="filters @(showFilters ? "" : "collapsed")">
 
         <h3 @onclick="ToggleFilters" style="cursor: pointer;">
             Flitry
@@ -38,7 +38,7 @@ else
         </div>
 
     </div>
-    <table class="table">
+    <table class="questionnaire-table">
         <thead>
             <tr>
                 <th style="cursor:pointer" @onclick="() => SortBy(IdStr)">ID @(kolumna == "Id" ? (sortAscending ? "↑" : "↓") : "")</th>
