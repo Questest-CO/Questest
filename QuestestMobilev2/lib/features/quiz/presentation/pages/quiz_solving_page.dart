@@ -4,6 +4,7 @@ import '../../../../core/theme/app_theme.dart';
 import '../../domain/quiz_session_state.dart';
 import '../../models/quiz_question.dart';
 import '../../providers/quiz_controller.dart';
+import '../../providers/quiz_questions_provider.dart';
 import '../widgets/question_card.dart';
 import '../widgets/quiz_progress_header.dart';
 import '../widgets/single_choice_answer.dart';
@@ -14,26 +15,116 @@ import '../widgets/open_text_answer.dart';
 /// Displays questions and handles user answers
 /// Uses Riverpod for state management
 class QuizSolvingPage extends ConsumerStatefulWidget {
-  const QuizSolvingPage({super.key});
+  const QuizSolvingPage({
+    super.key,
+    required this.quizId,
+    this.quizTitle,
+    this.timeLimitSeconds,
+  });
+
+  /// Quiz ID from backend (string from QuizModel)
+  final String quizId;
+
+  /// Optional quiz title to show in AppBar
+  final String? quizTitle;
+
+  /// Optional custom time limit; falls back to AppConstants.defaultQuizTimeLimit
+  final int? timeLimitSeconds;
 
   @override
   ConsumerState<QuizSolvingPage> createState() => _QuizSolvingPageState();
 }
 
 class _QuizSolvingPageState extends ConsumerState<QuizSolvingPage> {
-  @override
-  void initState() {
-    super.initState();
-    // Start quiz after first frame to ensure provider is ready
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(quizControllerProvider.notifier).startQuiz();
-    });
-  }
+  bool _initialized = false;
+  bool _loadingQuestions = true;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final quizState = ref.watch(quizControllerProvider);
+    final questionsAsync = ref.watch(quizQuestionsProvider(widget.quizId));
+
+    ref.listen<AsyncValue<List<QuizQuestion>>>(
+      quizQuestionsProvider(widget.quizId),
+      (previous, next) {
+        next.when(
+          data: (questions) {
+            if (!mounted) return;
+            if (questions.isNotEmpty && !_initialized) {
+              debugPrint(
+                  '📥 quizQuestionsProvider delivered ${questions.length} questions for quizId=${widget.quizId}');
+              ref
+                  .read(quizControllerProvider.notifier)
+                  .loadQuestions(questions, widget.timeLimitSeconds);
+              ref.read(quizControllerProvider.notifier).startQuiz();
+              setState(() {
+                _initialized = true;
+                _loadingQuestions = false;
+              });
+            } else if (questions.isEmpty) {
+              setState(() {
+                _loadingQuestions = false;
+              });
+            }
+          },
+          error: (_, __) {
+            if (!mounted) return;
+            setState(() {
+              _loadingQuestions = false;
+            });
+          },
+          loading: () {},
+        );
+      },
+    );
+
+    // Loading / error states for questions fetch
+    if (_loadingQuestions) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (questionsAsync.hasError) {
+      return Scaffold(
+        appBar: AppBar(title: Text(widget.quizTitle ?? 'Quiz')),
+        body: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.error_outline, size: 48, color: Colors.red),
+              const SizedBox(height: 12),
+              Text(
+                'Nie udało się pobrać pytań.',
+                style: theme.textTheme.titleMedium,
+              ),
+              const SizedBox(height: 8),
+              Text('${questionsAsync.error}'),
+            ],
+          ),
+        ),
+      );
+    }
+
+    if (quizState.questions.isEmpty) {
+      return Scaffold(
+        appBar: AppBar(title: Text(widget.quizTitle ?? 'Quiz')),
+        body: Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.help_outline, size: 48),
+              const SizedBox(height: 12),
+              Text(
+                'Brak pytań w tym quizie.',
+                style: theme.textTheme.titleMedium,
+              ),
+            ],
+          ),
+        ),
+      );
+    }
 
     // Handle completed state
     if (quizState.status == QuizStatus.completed) {
@@ -44,7 +135,7 @@ class _QuizSolvingPageState extends ConsumerState<QuizSolvingPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(MockQuizData.quizTitle),
+        title: Text(widget.quizTitle ?? MockQuizData.quizTitle),
         leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () => _showExitConfirmation(context),
@@ -108,6 +199,9 @@ class _QuizSolvingPageState extends ConsumerState<QuizSolvingPage> {
   }
 
   Widget _buildAnswerWidget(QuizSessionState quizState) {
+    if (quizState.questions.isEmpty) {
+      return const SizedBox.shrink();
+    }
     final question = quizState.currentQuestion;
     final controller = ref.read(quizControllerProvider.notifier);
 

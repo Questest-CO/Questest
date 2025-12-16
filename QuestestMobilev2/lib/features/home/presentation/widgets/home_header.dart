@@ -131,7 +131,9 @@ class _TestGameplayButton extends StatelessWidget {
             onPressed: () {
               Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (context) => const QuizSolvingPage(),
+                  builder: (context) => const QuizSolvingPage(
+                    quizId: '0',
+                  ),
                 ),
               );
             },

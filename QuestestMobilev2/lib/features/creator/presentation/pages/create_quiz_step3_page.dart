@@ -52,7 +52,7 @@ class _CreateQuizStep3PageState extends ConsumerState<CreateQuizStep3Page> {
       
       // TODO: Get actual user ID from auth provider
       // For now, using hardcoded value for testing
-      const userId = 61;
+      const userId = 1;
 
       final createdQuestionnaire = await repository.createQuestionnaire(
         title: formState.title,

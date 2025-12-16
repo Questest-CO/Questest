@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../auth/presentation/providers/auth_providers.dart';
+import '../../../stats/presentation/pages/survey_stats_page.dart';
 
 /// Profile page displaying user information
 class ProfilePage extends ConsumerWidget {
@@ -84,7 +85,11 @@ class ProfilePage extends ConsumerWidget {
                   icon: Icons.bar_chart,
                   title: 'Statistics',
                   onTap: () {
-                    // TODO: Navigate to statistics
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => const SurveyStatsPage(),
+                      ),
+                    );
                   },
                 ),
                 _ProfileMenuItem(

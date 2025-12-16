@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../domain/quiz_session_state.dart';
 import '../models/quiz_question.dart';
+import '../../../core/utils/app_constants.dart';
 
 part 'quiz_controller.g.dart';
 
@@ -20,10 +21,10 @@ class QuizController extends _$QuizController {
       debugPrint('🧹 QuizController disposed - timer cancelled');
     });
 
-    // Return initial state with mock questions
+    // Start empty; real questions loaded via loadQuestions()
     return QuizSessionState.initial(
-      questions: MockQuizData.questions,
-      timeLimitSeconds: MockQuizData.timeLimit,
+      questions: const [],
+      timeLimitSeconds: AppConstants.defaultQuizTimeLimit,
     );
   }
 
@@ -32,6 +33,7 @@ class QuizController extends _$QuizController {
   /// Starts the quiz session and begins the timer
   void startQuiz() {
     if (state.status == QuizStatus.inProgress) return;
+    if (state.questions.isEmpty) return;
 
     state = state.copyWith(status: QuizStatus.inProgress);
     _startTimer();
@@ -67,6 +69,17 @@ class QuizController extends _$QuizController {
     debugPrint('🏁 Quiz completed!');
     debugPrint('   Answered: ${state.answeredCount}/${state.totalQuestions}');
     debugPrint('   Time remaining: ${state.formattedTime}');
+  }
+
+  /// Replace current questions/time with data from backend.
+  void loadQuestions(List<QuizQuestion> questions, int? timeLimitSeconds) {
+    final limit = timeLimitSeconds ?? AppConstants.defaultQuizTimeLimit;
+    debugPrint('🎯 Loading questions from backend: ${questions.length} items, limit=$limit');
+    state = QuizSessionState.initial(
+      questions: questions,
+      timeLimitSeconds: limit,
+    );
+    debugPrint('🎯 State after load: ${state.questions.length} items');
   }
 
   // ============ TIMER ============

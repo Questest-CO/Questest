@@ -219,47 +219,55 @@ class OracleRepository {
   Future<QuestionnaireModel> createQuestionnaire({
     required String title,
     required String description,
-    required int categoryId,
+    required int categoryId, // kept for method signature
     required int userId,
     required List<QuestionDraft> questions,
     String isPrivate = 'N',
   }) async {
     try {
-      // Build questionnaire_json structure
-      final questionnaireJson = {
-        'id': 0, // Will be assigned by backend
-        'title': title,
-        'questions': questions.asMap().entries.map((entry) {
-          final questionIndex = entry.key;
-          final question = entry.value;
+      // Build payload per provided spec
+      final payloadQuestions = questions.map((q) {
+        final opts = q.answers.asMap().entries
+            .where((e) => e.value.toString().trim().isNotEmpty)
+            .map((e) {
+          final idx = e.key;
+          final content = e.value;
+          final isCorrect = idx == q.correctAnswerIndex ? 'T' : 'N';
           return {
-            'id': 0, // Will be assigned by backend
-            'content': question.content,
-            'options': question.answers.asMap().entries.map((optEntry) {
-              final optIndex = optEntry.key;
-              final optContent = optEntry.value;
-              return {
-                'id': 0, // Will be assigned by backend
-                'content': optContent,
-                'is_correct': optIndex == question.correctAnswerIndex,
-              };
-            }).where((opt) => opt['content'].toString().trim().isNotEmpty).toList(),
+            'id': '',
+            'content': content,
+            'is_correct': isCorrect,
+            'order_num': (idx + 1).toString(),
           };
-        }).toList(),
+        }).toList();
+
+        final correctText = q.correctAnswerIndex != null &&
+                q.correctAnswerIndex! >= 0 &&
+                q.correctAnswerIndex! < q.answers.length
+            ? q.answers[q.correctAnswerIndex!]
+            : '';
+
+        return {
+          'id': '',
+          'content': q.content,
+          'correct': correctText,
+          'options': opts,
+        };
+      }).toList();
+
+      // Build request body (no category in spec; keeping description as sent)
+      final body = {
+        'id': '',
+        'title': title,
+        'created_by': userId.toString(),
+        'private': isPrivate,
+        'questions': payloadQuestions,
       };
 
-      // Build request body
-      // Note: Keys must match Oracle PL/SQL procedure parameter names
-      // The procedure does NOT accept 'description' parameter
-      // The procedure expects 'id' parameter (null for new records)
-      final body = {
-        'id': null, // Required by Oracle procedure, null for new records
-        'title': title,
-        'category': categoryId, // Changed from 'category_id' to match DB schema
-        'created_by': userId,
-        'private': isPrivate, // Changed from 'is_private' to match DB schema
-        'questionnaire_json': jsonEncode(questionnaireJson),
-      };
+      // Debug payload snapshot (visible in logs only)
+      // ignore: avoid_print
+      print('🛰️ createQuestionnaire payload body: ${jsonEncode(body)}');
+      print('🛰️ createQuestionnaire questionnaire_json: inline');
 
       final response = await _apiClient.createQuestionnaire(body);
       

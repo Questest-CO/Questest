@@ -3,8 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../shared_ui/widgets/q_quiz_card.dart';
 import '../../providers/home_providers.dart';
 import '../../providers/quiz_provider.dart';
-import '../widgets/home_header.dart';
 import '../widgets/category_filters.dart';
+import '../widgets/home_header.dart';
+import '../../../ranking/presentation/widgets/ranking_preview_card.dart';
+import '../../../quiz/presentation/pages/quiz_solving_page.dart';
 
 /// Home page displaying list of available quizzes with search and filters
 class HomePage extends ConsumerWidget {
@@ -51,6 +53,16 @@ class HomePage extends ConsumerWidget {
                 child: const HomeHeader(),
               ),
             ),
+
+            // Ranking preview with CTA to full leaderboard
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: const RankingPreviewCard(),
+              ),
+            ),
+
+            const SliverToBoxAdapter(child: SizedBox(height: 12)),
 
             // Category filters
             const SliverToBoxAdapter(
@@ -107,11 +119,13 @@ class HomePage extends ConsumerWidget {
                             participantsCount: quiz.participantsCount,
                             difficulty: quiz.difficulty,
                             onTap: () {
-                              // TODO: Navigate to quiz details
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text('Opening ${quiz.title}...'),
-                                  duration: const Duration(seconds: 1),
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) => QuizSolvingPage(
+                                    quizId: quiz.id,
+                                    quizTitle: quiz.title,
+                                    timeLimitSeconds: quiz.timeLimit,
+                                  ),
                                 ),
                               );
                             },
