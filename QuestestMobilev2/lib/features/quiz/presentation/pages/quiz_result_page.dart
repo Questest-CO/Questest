@@ -2,17 +2,30 @@ import 'dart:math';
 
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_theme.dart';
+import '../../../../core/errors/app_exception.dart';
 import '../../../../shared_ui/widgets/q_primary_button.dart';
+import '../../providers/quiz_result_provider.dart';
+import '../../providers/quiz_controller.dart';
 
 /// "Twój wynik" screen with donut chart and dynamic messages.
-class QuizResultPage extends StatelessWidget {
+class QuizResultPage extends ConsumerStatefulWidget {
   const QuizResultPage({
     super.key,
+    required this.quizId,
+    required this.quizTitle,
     required this.scorePercent,
     required this.correctAnswers,
     required this.totalQuestions,
   });
+
+  /// Quiz ID (needed to save the result)
+  final int quizId;
+
+  /// Quiz title (for sharing)
+  final String quizTitle;
 
   /// Score in percentage (0-100)
   final double scorePercent;
@@ -24,82 +37,232 @@ class QuizResultPage extends StatelessWidget {
   final int totalQuestions;
 
   @override
+  ConsumerState<QuizResultPage> createState() => _QuizResultPageState();
+}
+
+class _QuizResultPageState extends ConsumerState<QuizResultPage> {
+  
+  // ============ BUTTON HANDLERS ============
+  
+  /// "Spróbuj ponownie" - Reset quiz and go back to restart
+  void _handleTryAgain(BuildContext context) {
+    // Invalidate the quiz controller to reset state
+    ref.invalidate(quizControllerProvider);
+    
+    // Pop back to the quiz start page (which will reload questions)
+    Navigator.of(context).pop();
+  }
+  
+  /// "Udostępnij" - Share result (using clipboard for now, share_plus not installed)
+  void _handleShare(BuildContext context) {
+    final scoreText = widget.scorePercent.toStringAsFixed(0);
+    final shareMessage = 'Zdobyłem $scoreText% w quizie "${widget.quizTitle}"! '
+        'Sprawdź się w aplikacji Questest. 🎯';
+    
+    // Copy to clipboard and show confirmation
+    // (share_plus not installed, so using Clipboard)
+    Clipboard.setData(ClipboardData(text: shareMessage)).then((_) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              const Icon(Icons.check_circle, color: Colors.white, size: 20),
+              const SizedBox(width: 12),
+              const Expanded(
+                child: Text('Skopiowano do schowka!'),
+              ),
+            ],
+          ),
+          backgroundColor: AppTheme.successColor,
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    });
+  }
+  
+  /// "Ranking" - Show ranking (coming soon)
+  void _handleRanking(BuildContext context) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const Icon(Icons.emoji_events, color: Colors.white, size: 20),
+            const SizedBox(width: 12),
+            const Expanded(
+              child: Text('Ranking dostępny wkrótce!'),
+            ),
+          ],
+        ),
+        backgroundColor: AppTheme.accentColor,
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final double safePercent = scorePercent.clamp(0, 100).toDouble();
-    final incorrect = max(totalQuestions - correctAnswers, 0);
+    final double safePercent = widget.scorePercent.clamp(0, 100).toDouble();
+    final incorrect = max(widget.totalQuestions - widget.correctAnswers, 0);
     final message = _buildMessage(safePercent);
+
+    // Watch the submit result provider
+    final submitParams = SubmitQuizResultParams(
+      quizId: widget.quizId,
+      scorePercentage: widget.scorePercent,
+    );
+    final submitResultAsync = ref.watch(submitQuizResultProvider(submitParams));
+
+    // Listen to submit result changes and show feedback
+    ref.listen(submitQuizResultProvider(submitParams), (previous, next) {
+      next.when(
+        data: (_) {
+          // Success - show snackbar
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Wynik zapisany pomyślnie'),
+              backgroundColor: AppTheme.successColor,
+              duration: Duration(seconds: 2),
+            ),
+          );
+        },
+        error: (error, stackTrace) {
+          // Error - show snackbar with retry button
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(error is AppException 
+                  ? error.message 
+                  : 'Nie udało się zapisać wyniku'),
+              backgroundColor: AppTheme.errorColor,
+              duration: const Duration(seconds: 4),
+              action: SnackBarAction(
+                label: 'Ponów',
+                textColor: Colors.white,
+                onPressed: () {
+                  ref.invalidate(submitQuizResultProvider(submitParams));
+                },
+              ),
+            ),
+          );
+        },
+        loading: () {
+          // Loading state - could show a subtle indicator if needed
+        },
+      );
+    });
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Twój wynik'),
       ),
       body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Twój wynik',
-                style: theme.textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w700,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(20, 32, 20, 32),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight: constraints.maxHeight - 64, // Account for padding
                 ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                '${safePercent.toStringAsFixed(0)}%',
-                style: theme.textTheme.displaySmall?.copyWith(
-                  fontWeight: FontWeight.w800,
-                  color: AppTheme.primaryColor,
-                ),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                'Poprawne: $correctAnswers / $totalQuestions',
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: AppTheme.textSecondaryColor,
-                ),
-              ),
-              const SizedBox(height: 16),
-              _MessageCard(message: message),
-              const SizedBox(height: 24),
-              _DonutChart(
-                scorePercent: safePercent,
-                correct: correctAnswers,
-                incorrect: incorrect,
-              ),
-              const SizedBox(height: 24),
-              Row(
-                children: [
-                  Expanded(
-                    child: QPrimaryButton(
-                      text: 'Spróbuj ponownie',
-                      onPressed: () => Navigator.of(context).pop(),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: QSecondaryButton(
-                      text: 'Udostępnij',
-                      onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Udostępnianie w przygotowaniu'),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    // ===== TOP SECTION: Score & Message =====
+                    Column(
+                      children: [
+                        // Percentage - Bigger and bolder
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              '${safePercent.toStringAsFixed(0)}%',
+                              style: theme.textTheme.displayLarge?.copyWith(
+                                fontSize: 56,
+                                fontWeight: FontWeight.bold,
+                                color: AppTheme.primaryColor,
+                              ),
+                            ),
+                            // Subtle loading indicator when saving
+                            if (submitResultAsync.isLoading) ...[
+                              const SizedBox(width: 12),
+                              SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    AppTheme.primaryColor,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        // Correct/Total count
+                        Text(
+                          'Poprawne: ${widget.correctAnswers} / ${widget.totalQuestions}',
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: AppTheme.textSecondaryColor,
                           ),
-                        );
-                      },
+                        ),
+                        const SizedBox(height: 20),
+                        _MessageCard(message: message),
+                      ],
                     ),
-                  ),
-                ],
+                    
+                    // ===== MIDDLE SECTION: Donut Chart =====
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 32),
+                      child: _DonutChart(
+                        scorePercent: safePercent,
+                        correct: widget.correctAnswers,
+                        incorrect: incorrect,
+                      ),
+                    ),
+                    
+                    // ===== BOTTOM SECTION: Buttons =====
+                    Column(
+                      children: [
+                        // Main action button - full width
+                        SizedBox(
+                          width: double.infinity,
+                          child: QPrimaryButton(
+                            text: 'Spróbuj ponownie',
+                            icon: Icons.refresh,
+                            onPressed: () => _handleTryAgain(context),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        // Secondary actions - side by side
+                        Row(
+                          children: [
+                            Expanded(
+                              child: QSecondaryButton(
+                                text: 'Udostępnij',
+                                icon: Icons.share,
+                                onPressed: () => _handleShare(context),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: QSecondaryButton(
+                                text: 'Ranking',
+                                icon: Icons.emoji_events,
+                                onPressed: () => _handleRanking(context),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-              const SizedBox(height: 12),
-              QSecondaryButton(
-                text: 'Zobacz ranking',
-                onPressed: () => Navigator.of(context).pop(),
-              ),
-            ],
-          ),
+            );
+          },
         ),
       ),
     );
@@ -116,7 +279,8 @@ class _MessageCard extends StatelessWidget {
     final theme = Theme.of(context);
     return Card(
       color: AppTheme.surfaceColor,
-      elevation: 0,
+      elevation: 2,
+      shadowColor: Colors.black.withValues(alpha: 0.1),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
         side: BorderSide(
@@ -180,7 +344,7 @@ class _DonutChart extends StatelessWidget {
           children: [
             PieChart(
               PieChartData(
-                sectionsSpace: 6,
+                sectionsSpace: 2,
                 centerSpaceRadius: 70,
                 startDegreeOffset: -90,
                 borderData: FlBorderData(show: false),
@@ -188,7 +352,7 @@ class _DonutChart extends StatelessWidget {
                   PieChartSectionData(
                     value: scorePercent,
                     color: AppTheme.primaryColor,
-                    title: '${scorePercent.toStringAsFixed(0)}%',
+                    title: scorePercent > 5 ? '${scorePercent.toStringAsFixed(0)}%' : '',
                     radius: 90,
                     titleStyle: theme.textTheme.titleMedium?.copyWith(
                       color: Colors.white,
@@ -198,8 +362,8 @@ class _DonutChart extends StatelessWidget {
                   PieChartSectionData(
                     value: remainingPercent,
                     color: AppTheme.dividerColor,
-                    title: '${remainingPercent.toStringAsFixed(0)}%',
-                    radius: 78,
+                    title: remainingPercent > 5 ? '${remainingPercent.toStringAsFixed(0)}%' : '',
+                    radius: 90,
                     titleStyle: theme.textTheme.bodySmall?.copyWith(
                       color: AppTheme.textSecondaryColor,
                       fontWeight: FontWeight.w600,

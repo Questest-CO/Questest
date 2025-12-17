@@ -54,6 +54,7 @@ List<QuizQuestion> _mapDetailToQuestions(QuestionnaireDetailModel detail) {
           .map((o) => AnswerOption(
                 id: o.id,
                 content: o.content,
+                isCorrect: o.isCorrect ?? false,
               ))
           .toList(),
     );

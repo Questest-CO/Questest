@@ -5,11 +5,13 @@ import '../../domain/quiz_session_state.dart';
 import '../../models/quiz_question.dart';
 import '../../providers/quiz_controller.dart';
 import '../../providers/quiz_questions_provider.dart';
+import '../../utils/quiz_scorer.dart';
 import '../widgets/question_card.dart';
 import '../widgets/quiz_progress_header.dart';
 import '../widgets/single_choice_answer.dart';
 import '../widgets/multiple_choice_answer.dart';
 import '../widgets/open_text_answer.dart';
+import 'quiz_result_page.dart';
 
 /// Main quiz solving screen
 /// Displays questions and handles user answers
@@ -126,10 +128,10 @@ class _QuizSolvingPageState extends ConsumerState<QuizSolvingPage> {
       );
     }
 
-    // Handle completed state
+    // Handle completed state - navigate to result screen
     if (quizState.status == QuizStatus.completed) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        _showCompletionDialog(quizState);
+        _navigateToResult(quizState);
       });
     }
 
@@ -288,82 +290,41 @@ class _QuizSolvingPageState extends ConsumerState<QuizSolvingPage> {
     );
   }
 
-  bool _dialogShown = false;
+  bool _navigationHandled = false;
 
-  void _showCompletionDialog(QuizSessionState quizState) {
-    if (_dialogShown) return;
-    _dialogShown = true;
+  void _navigateToResult(QuizSessionState quizState) {
+    // Prevent multiple navigations
+    if (_navigationHandled) return;
+    _navigationHandled = true;
 
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => AlertDialog(
-        icon: Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: AppTheme.successColor.withValues(alpha: 0.1),
-            shape: BoxShape.circle,
-          ),
-          child: Icon(
-            Icons.celebration,
-            size: 48,
-            color: AppTheme.successColor,
-          ),
+    // Calculate score using QuizScorer
+    final score = QuizScorer.calculateScore(quizState);
+
+    // Parse quiz ID to int
+    final quizIdInt = int.tryParse(widget.quizId);
+    if (quizIdInt == null) {
+      // If quizId is invalid, show error and return
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Błąd: Nieprawidłowe ID quizu'),
+          backgroundColor: AppTheme.errorColor,
         ),
-        title: const Text('Quiz ukończony!'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text(
-              'Gratulacje! Odpowiedziałeś na wszystkie pytania.',
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 16),
-            // Show summary
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Column(
-                children: [
-                  _buildSummaryRow(
-                      'Pytania', '${quizState.totalQuestions}'),
-                  const SizedBox(height: 8),
-                  _buildSummaryRow(
-                      'Odpowiedzi', '${quizState.answeredCount}'),
-                  const SizedBox(height: 8),
-                  _buildSummaryRow(
-                      'Pozostały czas', quizState.formattedTime),
-                ],
-              ),
-            ),
-          ],
+      );
+      Navigator.of(context).pop();
+      return;
+    }
+
+    // Navigate to result screen
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (context) => QuizResultPage(
+          quizId: quizIdInt,
+          quizTitle: widget.quizTitle ?? 'Quiz',
+          scorePercent: score.percentage,
+          correctAnswers: score.correctCount,
+          totalQuestions: score.totalQuestions,
         ),
-        actions: [
-          FilledButton(
-            onPressed: () {
-              Navigator.of(context).pop(); // Close dialog
-              Navigator.of(context).pop(); // Go back to home
-            },
-            child: const Text('Zakończ'),
-          ),
-        ],
       ),
-    );
-  }
-
-  Widget _buildSummaryRow(String label, String value) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(label),
-        Text(
-          value,
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
-      ],
     );
   }
 

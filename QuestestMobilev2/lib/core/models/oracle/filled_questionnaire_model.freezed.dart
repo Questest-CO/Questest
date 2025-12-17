@@ -21,14 +21,15 @@ FilledQuestionnaireModel _$FilledQuestionnaireModelFromJson(
 
 /// @nodoc
 mixin _$FilledQuestionnaireModel {
+  @JsonKey(fromJson: _parseId)
   int get id => throw _privateConstructorUsedError;
-  @JsonKey(name: 'questionnaireid')
+  @JsonKey(name: 'questionnaireid', fromJson: _parseId)
   int get questionnaireId => throw _privateConstructorUsedError;
   @JsonKey(name: 'date_filled')
   DateTime get dateFilled => throw _privateConstructorUsedError;
-  @JsonKey(name: 'filled_by')
+  @JsonKey(name: 'filled_by', fromJson: _parseId)
   int get filledBy => throw _privateConstructorUsedError;
-  @JsonKey(name: 'result_id')
+  @JsonKey(name: 'result_id', fromJson: _parseNullableInt)
   int? get resultId => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -44,11 +45,11 @@ abstract class $FilledQuestionnaireModelCopyWith<$Res> {
       _$FilledQuestionnaireModelCopyWithImpl<$Res, FilledQuestionnaireModel>;
   @useResult
   $Res call(
-      {int id,
-      @JsonKey(name: 'questionnaireid') int questionnaireId,
+      {@JsonKey(fromJson: _parseId) int id,
+      @JsonKey(name: 'questionnaireid', fromJson: _parseId) int questionnaireId,
       @JsonKey(name: 'date_filled') DateTime dateFilled,
-      @JsonKey(name: 'filled_by') int filledBy,
-      @JsonKey(name: 'result_id') int? resultId});
+      @JsonKey(name: 'filled_by', fromJson: _parseId) int filledBy,
+      @JsonKey(name: 'result_id', fromJson: _parseNullableInt) int? resultId});
 }
 
 /// @nodoc
@@ -106,11 +107,11 @@ abstract class _$$FilledQuestionnaireModelImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {int id,
-      @JsonKey(name: 'questionnaireid') int questionnaireId,
+      {@JsonKey(fromJson: _parseId) int id,
+      @JsonKey(name: 'questionnaireid', fromJson: _parseId) int questionnaireId,
       @JsonKey(name: 'date_filled') DateTime dateFilled,
-      @JsonKey(name: 'filled_by') int filledBy,
-      @JsonKey(name: 'result_id') int? resultId});
+      @JsonKey(name: 'filled_by', fromJson: _parseId) int filledBy,
+      @JsonKey(name: 'result_id', fromJson: _parseNullableInt) int? resultId});
 }
 
 /// @nodoc
@@ -161,28 +162,30 @@ class __$$FilledQuestionnaireModelImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$FilledQuestionnaireModelImpl implements _FilledQuestionnaireModel {
   const _$FilledQuestionnaireModelImpl(
-      {required this.id,
-      @JsonKey(name: 'questionnaireid') required this.questionnaireId,
+      {@JsonKey(fromJson: _parseId) required this.id,
+      @JsonKey(name: 'questionnaireid', fromJson: _parseId)
+      required this.questionnaireId,
       @JsonKey(name: 'date_filled') required this.dateFilled,
-      @JsonKey(name: 'filled_by') required this.filledBy,
-      @JsonKey(name: 'result_id') this.resultId});
+      @JsonKey(name: 'filled_by', fromJson: _parseId) required this.filledBy,
+      @JsonKey(name: 'result_id', fromJson: _parseNullableInt) this.resultId});
 
   factory _$FilledQuestionnaireModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$FilledQuestionnaireModelImplFromJson(json);
 
   @override
+  @JsonKey(fromJson: _parseId)
   final int id;
   @override
-  @JsonKey(name: 'questionnaireid')
+  @JsonKey(name: 'questionnaireid', fromJson: _parseId)
   final int questionnaireId;
   @override
   @JsonKey(name: 'date_filled')
   final DateTime dateFilled;
   @override
-  @JsonKey(name: 'filled_by')
+  @JsonKey(name: 'filled_by', fromJson: _parseId)
   final int filledBy;
   @override
-  @JsonKey(name: 'result_id')
+  @JsonKey(name: 'result_id', fromJson: _parseNullableInt)
   final int? resultId;
 
   @override
@@ -228,29 +231,32 @@ class _$FilledQuestionnaireModelImpl implements _FilledQuestionnaireModel {
 
 abstract class _FilledQuestionnaireModel implements FilledQuestionnaireModel {
   const factory _FilledQuestionnaireModel(
-          {required final int id,
-          @JsonKey(name: 'questionnaireid') required final int questionnaireId,
-          @JsonKey(name: 'date_filled') required final DateTime dateFilled,
-          @JsonKey(name: 'filled_by') required final int filledBy,
-          @JsonKey(name: 'result_id') final int? resultId}) =
-      _$FilledQuestionnaireModelImpl;
+      {@JsonKey(fromJson: _parseId) required final int id,
+      @JsonKey(name: 'questionnaireid', fromJson: _parseId)
+      required final int questionnaireId,
+      @JsonKey(name: 'date_filled') required final DateTime dateFilled,
+      @JsonKey(name: 'filled_by', fromJson: _parseId)
+      required final int filledBy,
+      @JsonKey(name: 'result_id', fromJson: _parseNullableInt)
+      final int? resultId}) = _$FilledQuestionnaireModelImpl;
 
   factory _FilledQuestionnaireModel.fromJson(Map<String, dynamic> json) =
       _$FilledQuestionnaireModelImpl.fromJson;
 
   @override
+  @JsonKey(fromJson: _parseId)
   int get id;
   @override
-  @JsonKey(name: 'questionnaireid')
+  @JsonKey(name: 'questionnaireid', fromJson: _parseId)
   int get questionnaireId;
   @override
   @JsonKey(name: 'date_filled')
   DateTime get dateFilled;
   @override
-  @JsonKey(name: 'filled_by')
+  @JsonKey(name: 'filled_by', fromJson: _parseId)
   int get filledBy;
   @override
-  @JsonKey(name: 'result_id')
+  @JsonKey(name: 'result_id', fromJson: _parseNullableInt)
   int? get resultId;
   @override
   @JsonKey(ignore: true)

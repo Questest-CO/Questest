@@ -9,10 +9,12 @@ enum QuestionType {
 class AnswerOption {
   final int id;
   final String content;
+  final bool isCorrect;
 
   const AnswerOption({
     required this.id,
     required this.content,
+    this.isCorrect = false,
   });
 }
 

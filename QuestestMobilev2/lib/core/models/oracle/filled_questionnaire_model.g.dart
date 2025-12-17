@@ -9,11 +9,11 @@ part of 'filled_questionnaire_model.dart';
 _$FilledQuestionnaireModelImpl _$$FilledQuestionnaireModelImplFromJson(
         Map<String, dynamic> json) =>
     _$FilledQuestionnaireModelImpl(
-      id: (json['id'] as num).toInt(),
-      questionnaireId: (json['questionnaireid'] as num).toInt(),
+      id: _parseId(json['id']),
+      questionnaireId: _parseId(json['questionnaireid']),
       dateFilled: DateTime.parse(json['date_filled'] as String),
-      filledBy: (json['filled_by'] as num).toInt(),
-      resultId: (json['result_id'] as num?)?.toInt(),
+      filledBy: _parseId(json['filled_by']),
+      resultId: _parseNullableInt(json['result_id']),
     );
 
 Map<String, dynamic> _$$FilledQuestionnaireModelImplToJson(
