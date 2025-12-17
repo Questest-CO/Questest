@@ -7,6 +7,7 @@ import '../widgets/category_filters.dart';
 import '../widgets/home_header.dart';
 import '../../../ranking/presentation/widgets/ranking_preview_card.dart';
 import '../../../quiz/presentation/pages/quiz_solving_page.dart';
+import '../../../favorites/providers/favorites_providers.dart';
 
 /// Home page displaying list of available quizzes with search and filters
 class HomePage extends ConsumerWidget {
@@ -109,15 +110,41 @@ class HomePage extends ConsumerWidget {
                     delegate: SliverChildBuilderDelegate(
                       (context, index) {
                         final quiz = quizzes[index];
+                        final quizIdStr = quiz.id.toString();
+                        final isFavorite = ref.watch(isFavoriteProvider(quizIdStr));
+                        
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 16),
                           child: QQuizCard(
+                            quizId: quizIdStr,
                             title: quiz.title,
                             subtitle: quiz.subtitle,
                             thumbnailUrl: quiz.thumbnailUrl,
                             questionCount: quiz.questionCount,
                             participantsCount: quiz.participantsCount,
                             difficulty: quiz.difficulty,
+                            isFavorite: isFavorite,
+                            onFavoriteToggle: () {
+                              ref.read(favoritesProvider.notifier).toggleFavorite(quizIdStr);
+                              ScaffoldMessenger.of(context).clearSnackBars();
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    isFavorite
+                                        ? 'Usunięto z ulubionych'
+                                        : 'Dodano do ulubionych ❤️',
+                                  ),
+                                  duration: const Duration(seconds: 2),
+                                  behavior: SnackBarBehavior.floating,
+                                  action: SnackBarAction(
+                                    label: 'Cofnij',
+                                    onPressed: () {
+                                      ref.read(favoritesProvider.notifier).toggleFavorite(quizIdStr);
+                                    },
+                                  ),
+                                ),
+                              );
+                            },
                             onTap: () {
                               Navigator.of(context).push(
                                 MaterialPageRoute(

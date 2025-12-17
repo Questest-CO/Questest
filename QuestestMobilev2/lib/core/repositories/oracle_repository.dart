@@ -72,12 +72,28 @@ class OracleRepository {
           categoryString = _mapCategoryIdToString(categoryId);
         }
         
+        // Try to get question count from different sources
+        int questionCount = data['question_count'] as int? ?? 0;
+        
+        // If no direct question_count, try to parse from questionnaire_json
+        if (questionCount == 0 && data['questionnaire_json'] != null) {
+          try {
+            final jsonStr = data['questionnaire_json'] as String;
+            final parsed = jsonDecode(jsonStr);
+            if (parsed is Map && parsed['questions'] is List) {
+              questionCount = (parsed['questions'] as List).length;
+            }
+          } catch (_) {
+            // Ignore parsing errors
+          }
+        }
+        
         return QuizModel(
           id: id.toString(),
           title: title,
           subtitle: createdBy != null ? 'Autor ID: $createdBy' : 'Brak autora',
           thumbnailUrl: thumbnailUrl,
-          questionCount: data['question_count'] as int? ?? 0,
+          questionCount: questionCount,
           participantsCount: 0, // Not available in API response
           description: data['description'] as String?,
           category: categoryString,

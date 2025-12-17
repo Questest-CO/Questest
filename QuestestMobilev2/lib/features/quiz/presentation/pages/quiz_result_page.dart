@@ -1,11 +1,14 @@
 import 'dart:math';
+import 'dart:typed_data';
 
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:share_plus/share_plus.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/errors/app_exception.dart';
+import '../../../../core/services/pdf_service.dart';
 import '../../../../shared_ui/widgets/q_primary_button.dart';
 import '../../../ranking/presentation/pages/ranking_page.dart';
 import '../../providers/quiz_result_provider.dart';
@@ -54,32 +57,39 @@ class _QuizResultPageState extends ConsumerState<QuizResultPage> {
     Navigator.of(context).pop();
   }
   
-  /// "Udostępnij" - Share result (using clipboard for now, share_plus not installed)
-  void _handleShare(BuildContext context) {
+  /// "Udostępnij" - Share result text using share_plus
+  Future<void> _handleShare(BuildContext context) async {
     final scoreText = widget.scorePercent.toStringAsFixed(0);
     final shareMessage = 'Zdobyłem $scoreText% w quizie "${widget.quizTitle}"! '
         'Sprawdź się w aplikacji Questest. 🎯';
     
-    // Copy to clipboard and show confirmation
-    // (share_plus not installed, so using Clipboard)
-    Clipboard.setData(ClipboardData(text: shareMessage)).then((_) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              const Icon(Icons.check_circle, color: Colors.white, size: 20),
-              const SizedBox(width: 12),
-              const Expanded(
-                child: Text('Skopiowano do schowka!'),
-              ),
-            ],
-          ),
-          backgroundColor: AppTheme.successColor,
-          behavior: SnackBarBehavior.floating,
-          duration: const Duration(seconds: 2),
-        ),
+    try {
+      await Share.share(
+        shareMessage,
+        subject: 'Mój wynik w Questest',
       );
-    });
+    } catch (e) {
+      // Fallback to clipboard if sharing fails
+      await Clipboard.setData(ClipboardData(text: shareMessage));
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.check_circle, color: Colors.white, size: 20),
+                const SizedBox(width: 12),
+                const Expanded(
+                  child: Text('Skopiowano do schowka!'),
+                ),
+              ],
+            ),
+            backgroundColor: AppTheme.successColor,
+            behavior: SnackBarBehavior.floating,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    }
   }
   
   /// "Ranking" - Navigate to ranking page
@@ -89,6 +99,70 @@ class _QuizResultPageState extends ConsumerState<QuizResultPage> {
         builder: (context) => const RankingPage(),
       ),
     );
+  }
+
+  /// "Pobierz PDF" - Generate and share PDF with results
+  Future<void> _handleDownloadPdf(BuildContext context) async {
+    try {
+      // Show loading indicator
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Row(
+            children: [
+              SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                ),
+              ),
+              SizedBox(width: 16),
+              Text('Generowanie PDF...'),
+            ],
+          ),
+          duration: Duration(seconds: 10),
+          backgroundColor: AppTheme.primaryColor,
+        ),
+      );
+
+      final pdfBytes = await PdfService.generateQuizResultPdf(
+        quizTitle: widget.quizTitle,
+        scorePercent: widget.scorePercent,
+        correctAnswers: widget.correctAnswers,
+        totalQuestions: widget.totalQuestions,
+        completedAt: DateTime.now(),
+      );
+
+      // Hide the loading snackbar
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      }
+
+      // Show bottom sheet with options
+      if (context.mounted) {
+        await showModalBottomSheet(
+          context: context,
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          ),
+          builder: (context) => _PdfOptionsSheet(
+            pdfBytes: pdfBytes,
+            quizTitle: widget.quizTitle,
+          ),
+        );
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Błąd generowania PDF: $e'),
+            backgroundColor: AppTheme.errorColor,
+          ),
+        );
+      }
+    }
   }
 
   @override
@@ -223,6 +297,16 @@ class _QuizResultPageState extends ConsumerState<QuizResultPage> {
                             text: 'Spróbuj ponownie',
                             icon: Icons.refresh,
                             onPressed: () => _handleTryAgain(context),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        // PDF Download button
+                        SizedBox(
+                          width: double.infinity,
+                          child: QSecondaryButton(
+                            text: 'Pobierz PDF z wynikami',
+                            icon: Icons.picture_as_pdf,
+                            onPressed: () => _handleDownloadPdf(context),
                           ),
                         ),
                         const SizedBox(height: 12),
@@ -413,5 +497,167 @@ String _buildMessage(double score) {
     return 'Jesteś na dobrej drodze. Jeszcze kilka wypieków i będzie idealnie. 🍞';
   }
   return 'Początki są najważniejsze. Zbudujmy razem solidny zakwas. 🍞';
+}
+
+/// Bottom sheet with PDF options (share/print)
+class _PdfOptionsSheet extends StatelessWidget {
+  const _PdfOptionsSheet({
+    required this.pdfBytes,
+    required this.quizTitle,
+  });
+
+  final Uint8List pdfBytes;
+  final String quizTitle;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final fileName = 'questest_wynik_${DateTime.now().millisecondsSinceEpoch}.pdf';
+
+    return Container(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Handle bar
+          Center(
+            child: Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+          
+          Text(
+            'PDF wygenerowany!',
+            style: theme.textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Co chcesz zrobić z plikiem?',
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: AppTheme.textSecondaryColor,
+            ),
+          ),
+          const SizedBox(height: 24),
+
+          // Share option
+          _OptionTile(
+            icon: Icons.share,
+            title: 'Udostępnij',
+            subtitle: 'Wyślij PDF do znajomych lub zapisz',
+            color: AppTheme.primaryColor,
+            onTap: () async {
+              Navigator.pop(context);
+              await PdfService.sharePdf(pdfBytes, fileName);
+            },
+          ),
+          const SizedBox(height: 12),
+
+          // Print option
+          _OptionTile(
+            icon: Icons.print,
+            title: 'Drukuj / Podgląd',
+            subtitle: 'Zobacz podgląd lub wydrukuj dokument',
+            color: AppTheme.accentColor,
+            onTap: () async {
+              Navigator.pop(context);
+              try {
+                await PdfService.printPdf(pdfBytes, fileName);
+              } catch (e) {
+                // If printing fails (e.g., hot reload), fall back to share
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: const Text('Drukowanie niedostępne. Użyj opcji Udostępnij.'),
+                      backgroundColor: AppTheme.warningColor,
+                      action: SnackBarAction(
+                        label: 'Udostępnij',
+                        textColor: Colors.white,
+                        onPressed: () async {
+                          await PdfService.sharePdf(pdfBytes, fileName);
+                        },
+                      ),
+                    ),
+                  );
+                }
+              }
+            },
+          ),
+          
+          const SizedBox(height: 16),
+        ],
+      ),
+    );
+  }
+}
+
+class _OptionTile extends StatelessWidget {
+  const _OptionTile({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.color,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final Color color;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: color.withOpacity(0.1),
+      borderRadius: BorderRadius.circular(12),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.2),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, color: color, size: 24),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    Text(
+                      subtitle,
+                      style: Theme.of(context).textTheme.bodySmall,
+                    ),
+                  ],
+                ),
+              ),
+              Icon(Icons.chevron_right, color: color),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }
 
