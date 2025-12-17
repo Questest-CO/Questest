@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/errors/app_exception.dart';
 import '../../../../shared_ui/widgets/q_primary_button.dart';
+import '../../../ranking/presentation/pages/ranking_page.dart';
 import '../../providers/quiz_result_provider.dart';
 import '../../providers/quiz_controller.dart';
 
@@ -81,22 +82,11 @@ class _QuizResultPageState extends ConsumerState<QuizResultPage> {
     });
   }
   
-  /// "Ranking" - Show ranking (coming soon)
+  /// "Ranking" - Navigate to ranking page
   void _handleRanking(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Row(
-          children: [
-            const Icon(Icons.emoji_events, color: Colors.white, size: 20),
-            const SizedBox(width: 12),
-            const Expanded(
-              child: Text('Ranking dostępny wkrótce!'),
-            ),
-          ],
-        ),
-        backgroundColor: AppTheme.accentColor,
-        behavior: SnackBarBehavior.floating,
-        duration: const Duration(seconds: 2),
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => const RankingPage(),
       ),
     );
   }

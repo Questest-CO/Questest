@@ -25,8 +25,8 @@ mixin _$FilledQuestionnaireModel {
   int get id => throw _privateConstructorUsedError;
   @JsonKey(name: 'questionnaireid', fromJson: _parseId)
   int get questionnaireId => throw _privateConstructorUsedError;
-  @JsonKey(name: 'date_filled')
-  DateTime get dateFilled => throw _privateConstructorUsedError;
+  @JsonKey(name: 'date_filled', fromJson: _parseNullableDateTime)
+  DateTime? get dateFilled => throw _privateConstructorUsedError;
   @JsonKey(name: 'filled_by', fromJson: _parseId)
   int get filledBy => throw _privateConstructorUsedError;
   @JsonKey(name: 'result_id', fromJson: _parseNullableInt)
@@ -47,7 +47,8 @@ abstract class $FilledQuestionnaireModelCopyWith<$Res> {
   $Res call(
       {@JsonKey(fromJson: _parseId) int id,
       @JsonKey(name: 'questionnaireid', fromJson: _parseId) int questionnaireId,
-      @JsonKey(name: 'date_filled') DateTime dateFilled,
+      @JsonKey(name: 'date_filled', fromJson: _parseNullableDateTime)
+      DateTime? dateFilled,
       @JsonKey(name: 'filled_by', fromJson: _parseId) int filledBy,
       @JsonKey(name: 'result_id', fromJson: _parseNullableInt) int? resultId});
 }
@@ -68,7 +69,7 @@ class _$FilledQuestionnaireModelCopyWithImpl<$Res,
   $Res call({
     Object? id = null,
     Object? questionnaireId = null,
-    Object? dateFilled = null,
+    Object? dateFilled = freezed,
     Object? filledBy = null,
     Object? resultId = freezed,
   }) {
@@ -81,10 +82,10 @@ class _$FilledQuestionnaireModelCopyWithImpl<$Res,
           ? _value.questionnaireId
           : questionnaireId // ignore: cast_nullable_to_non_nullable
               as int,
-      dateFilled: null == dateFilled
+      dateFilled: freezed == dateFilled
           ? _value.dateFilled
           : dateFilled // ignore: cast_nullable_to_non_nullable
-              as DateTime,
+              as DateTime?,
       filledBy: null == filledBy
           ? _value.filledBy
           : filledBy // ignore: cast_nullable_to_non_nullable
@@ -109,7 +110,8 @@ abstract class _$$FilledQuestionnaireModelImplCopyWith<$Res>
   $Res call(
       {@JsonKey(fromJson: _parseId) int id,
       @JsonKey(name: 'questionnaireid', fromJson: _parseId) int questionnaireId,
-      @JsonKey(name: 'date_filled') DateTime dateFilled,
+      @JsonKey(name: 'date_filled', fromJson: _parseNullableDateTime)
+      DateTime? dateFilled,
       @JsonKey(name: 'filled_by', fromJson: _parseId) int filledBy,
       @JsonKey(name: 'result_id', fromJson: _parseNullableInt) int? resultId});
 }
@@ -129,7 +131,7 @@ class __$$FilledQuestionnaireModelImplCopyWithImpl<$Res>
   $Res call({
     Object? id = null,
     Object? questionnaireId = null,
-    Object? dateFilled = null,
+    Object? dateFilled = freezed,
     Object? filledBy = null,
     Object? resultId = freezed,
   }) {
@@ -142,10 +144,10 @@ class __$$FilledQuestionnaireModelImplCopyWithImpl<$Res>
           ? _value.questionnaireId
           : questionnaireId // ignore: cast_nullable_to_non_nullable
               as int,
-      dateFilled: null == dateFilled
+      dateFilled: freezed == dateFilled
           ? _value.dateFilled
           : dateFilled // ignore: cast_nullable_to_non_nullable
-              as DateTime,
+              as DateTime?,
       filledBy: null == filledBy
           ? _value.filledBy
           : filledBy // ignore: cast_nullable_to_non_nullable
@@ -165,7 +167,8 @@ class _$FilledQuestionnaireModelImpl implements _FilledQuestionnaireModel {
       {@JsonKey(fromJson: _parseId) required this.id,
       @JsonKey(name: 'questionnaireid', fromJson: _parseId)
       required this.questionnaireId,
-      @JsonKey(name: 'date_filled') required this.dateFilled,
+      @JsonKey(name: 'date_filled', fromJson: _parseNullableDateTime)
+      this.dateFilled,
       @JsonKey(name: 'filled_by', fromJson: _parseId) required this.filledBy,
       @JsonKey(name: 'result_id', fromJson: _parseNullableInt) this.resultId});
 
@@ -179,8 +182,8 @@ class _$FilledQuestionnaireModelImpl implements _FilledQuestionnaireModel {
   @JsonKey(name: 'questionnaireid', fromJson: _parseId)
   final int questionnaireId;
   @override
-  @JsonKey(name: 'date_filled')
-  final DateTime dateFilled;
+  @JsonKey(name: 'date_filled', fromJson: _parseNullableDateTime)
+  final DateTime? dateFilled;
   @override
   @JsonKey(name: 'filled_by', fromJson: _parseId)
   final int filledBy;
@@ -234,7 +237,8 @@ abstract class _FilledQuestionnaireModel implements FilledQuestionnaireModel {
       {@JsonKey(fromJson: _parseId) required final int id,
       @JsonKey(name: 'questionnaireid', fromJson: _parseId)
       required final int questionnaireId,
-      @JsonKey(name: 'date_filled') required final DateTime dateFilled,
+      @JsonKey(name: 'date_filled', fromJson: _parseNullableDateTime)
+      final DateTime? dateFilled,
       @JsonKey(name: 'filled_by', fromJson: _parseId)
       required final int filledBy,
       @JsonKey(name: 'result_id', fromJson: _parseNullableInt)
@@ -250,8 +254,8 @@ abstract class _FilledQuestionnaireModel implements FilledQuestionnaireModel {
   @JsonKey(name: 'questionnaireid', fromJson: _parseId)
   int get questionnaireId;
   @override
-  @JsonKey(name: 'date_filled')
-  DateTime get dateFilled;
+  @JsonKey(name: 'date_filled', fromJson: _parseNullableDateTime)
+  DateTime? get dateFilled;
   @override
   @JsonKey(name: 'filled_by', fromJson: _parseId)
   int get filledBy;

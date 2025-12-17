@@ -11,7 +11,7 @@ _$FilledQuestionnaireModelImpl _$$FilledQuestionnaireModelImplFromJson(
     _$FilledQuestionnaireModelImpl(
       id: _parseId(json['id']),
       questionnaireId: _parseId(json['questionnaireid']),
-      dateFilled: DateTime.parse(json['date_filled'] as String),
+      dateFilled: _parseNullableDateTime(json['date_filled']),
       filledBy: _parseId(json['filled_by']),
       resultId: _parseNullableInt(json['result_id']),
     );
@@ -21,7 +21,7 @@ Map<String, dynamic> _$$FilledQuestionnaireModelImplToJson(
     <String, dynamic>{
       'id': instance.id,
       'questionnaireid': instance.questionnaireId,
-      'date_filled': instance.dateFilled.toIso8601String(),
+      'date_filled': instance.dateFilled?.toIso8601String(),
       'filled_by': instance.filledBy,
       'result_id': instance.resultId,
     };

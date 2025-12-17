@@ -20,7 +20,15 @@ OracleUserDto _$OracleUserDtoFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$OracleUserDto {
+  @JsonKey(fromJson: _parseId)
   int get id => throw _privateConstructorUsedError;
+  String? get username => throw _privateConstructorUsedError;
+  @JsonKey(name: 'hashed_password')
+  String? get hashedPassword => throw _privateConstructorUsedError;
+  @JsonKey(name: 'date_created')
+  DateTime? get dateCreated => throw _privateConstructorUsedError;
+  String? get visible =>
+      throw _privateConstructorUsedError; // Legacy fields for compatibility (not returned by current API)
   String? get email => throw _privateConstructorUsedError;
   String? get name => throw _privateConstructorUsedError;
   @JsonKey(name: 'first_name')
@@ -29,13 +37,6 @@ mixin _$OracleUserDto {
   String? get lastName => throw _privateConstructorUsedError;
   @JsonKey(name: 'avatar_url')
   String? get avatarUrl => throw _privateConstructorUsedError;
-  String? get bio => throw _privateConstructorUsedError;
-  @JsonKey(name: 'is_active')
-  bool? get isActive => throw _privateConstructorUsedError;
-  @JsonKey(name: 'created_at')
-  DateTime? get createdAt => throw _privateConstructorUsedError;
-  @JsonKey(name: 'updated_at')
-  DateTime? get updatedAt => throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -50,16 +51,16 @@ abstract class $OracleUserDtoCopyWith<$Res> {
       _$OracleUserDtoCopyWithImpl<$Res, OracleUserDto>;
   @useResult
   $Res call(
-      {int id,
+      {@JsonKey(fromJson: _parseId) int id,
+      String? username,
+      @JsonKey(name: 'hashed_password') String? hashedPassword,
+      @JsonKey(name: 'date_created') DateTime? dateCreated,
+      String? visible,
       String? email,
       String? name,
       @JsonKey(name: 'first_name') String? firstName,
       @JsonKey(name: 'last_name') String? lastName,
-      @JsonKey(name: 'avatar_url') String? avatarUrl,
-      String? bio,
-      @JsonKey(name: 'is_active') bool? isActive,
-      @JsonKey(name: 'created_at') DateTime? createdAt,
-      @JsonKey(name: 'updated_at') DateTime? updatedAt});
+      @JsonKey(name: 'avatar_url') String? avatarUrl});
 }
 
 /// @nodoc
@@ -76,21 +77,37 @@ class _$OracleUserDtoCopyWithImpl<$Res, $Val extends OracleUserDto>
   @override
   $Res call({
     Object? id = null,
+    Object? username = freezed,
+    Object? hashedPassword = freezed,
+    Object? dateCreated = freezed,
+    Object? visible = freezed,
     Object? email = freezed,
     Object? name = freezed,
     Object? firstName = freezed,
     Object? lastName = freezed,
     Object? avatarUrl = freezed,
-    Object? bio = freezed,
-    Object? isActive = freezed,
-    Object? createdAt = freezed,
-    Object? updatedAt = freezed,
   }) {
     return _then(_value.copyWith(
       id: null == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
               as int,
+      username: freezed == username
+          ? _value.username
+          : username // ignore: cast_nullable_to_non_nullable
+              as String?,
+      hashedPassword: freezed == hashedPassword
+          ? _value.hashedPassword
+          : hashedPassword // ignore: cast_nullable_to_non_nullable
+              as String?,
+      dateCreated: freezed == dateCreated
+          ? _value.dateCreated
+          : dateCreated // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      visible: freezed == visible
+          ? _value.visible
+          : visible // ignore: cast_nullable_to_non_nullable
+              as String?,
       email: freezed == email
           ? _value.email
           : email // ignore: cast_nullable_to_non_nullable
@@ -111,22 +128,6 @@ class _$OracleUserDtoCopyWithImpl<$Res, $Val extends OracleUserDto>
           ? _value.avatarUrl
           : avatarUrl // ignore: cast_nullable_to_non_nullable
               as String?,
-      bio: freezed == bio
-          ? _value.bio
-          : bio // ignore: cast_nullable_to_non_nullable
-              as String?,
-      isActive: freezed == isActive
-          ? _value.isActive
-          : isActive // ignore: cast_nullable_to_non_nullable
-              as bool?,
-      createdAt: freezed == createdAt
-          ? _value.createdAt
-          : createdAt // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
-      updatedAt: freezed == updatedAt
-          ? _value.updatedAt
-          : updatedAt // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
     ) as $Val);
   }
 }
@@ -140,16 +141,16 @@ abstract class _$$OracleUserDtoImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {int id,
+      {@JsonKey(fromJson: _parseId) int id,
+      String? username,
+      @JsonKey(name: 'hashed_password') String? hashedPassword,
+      @JsonKey(name: 'date_created') DateTime? dateCreated,
+      String? visible,
       String? email,
       String? name,
       @JsonKey(name: 'first_name') String? firstName,
       @JsonKey(name: 'last_name') String? lastName,
-      @JsonKey(name: 'avatar_url') String? avatarUrl,
-      String? bio,
-      @JsonKey(name: 'is_active') bool? isActive,
-      @JsonKey(name: 'created_at') DateTime? createdAt,
-      @JsonKey(name: 'updated_at') DateTime? updatedAt});
+      @JsonKey(name: 'avatar_url') String? avatarUrl});
 }
 
 /// @nodoc
@@ -164,21 +165,37 @@ class __$$OracleUserDtoImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? id = null,
+    Object? username = freezed,
+    Object? hashedPassword = freezed,
+    Object? dateCreated = freezed,
+    Object? visible = freezed,
     Object? email = freezed,
     Object? name = freezed,
     Object? firstName = freezed,
     Object? lastName = freezed,
     Object? avatarUrl = freezed,
-    Object? bio = freezed,
-    Object? isActive = freezed,
-    Object? createdAt = freezed,
-    Object? updatedAt = freezed,
   }) {
     return _then(_$OracleUserDtoImpl(
       id: null == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
               as int,
+      username: freezed == username
+          ? _value.username
+          : username // ignore: cast_nullable_to_non_nullable
+              as String?,
+      hashedPassword: freezed == hashedPassword
+          ? _value.hashedPassword
+          : hashedPassword // ignore: cast_nullable_to_non_nullable
+              as String?,
+      dateCreated: freezed == dateCreated
+          ? _value.dateCreated
+          : dateCreated // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      visible: freezed == visible
+          ? _value.visible
+          : visible // ignore: cast_nullable_to_non_nullable
+              as String?,
       email: freezed == email
           ? _value.email
           : email // ignore: cast_nullable_to_non_nullable
@@ -199,22 +216,6 @@ class __$$OracleUserDtoImplCopyWithImpl<$Res>
           ? _value.avatarUrl
           : avatarUrl // ignore: cast_nullable_to_non_nullable
               as String?,
-      bio: freezed == bio
-          ? _value.bio
-          : bio // ignore: cast_nullable_to_non_nullable
-              as String?,
-      isActive: freezed == isActive
-          ? _value.isActive
-          : isActive // ignore: cast_nullable_to_non_nullable
-              as bool?,
-      createdAt: freezed == createdAt
-          ? _value.createdAt
-          : createdAt // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
-      updatedAt: freezed == updatedAt
-          ? _value.updatedAt
-          : updatedAt // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
     ));
   }
 }
@@ -223,22 +224,34 @@ class __$$OracleUserDtoImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$OracleUserDtoImpl implements _OracleUserDto {
   const _$OracleUserDtoImpl(
-      {required this.id,
+      {@JsonKey(fromJson: _parseId) required this.id,
+      this.username,
+      @JsonKey(name: 'hashed_password') this.hashedPassword,
+      @JsonKey(name: 'date_created') this.dateCreated,
+      this.visible,
       this.email,
       this.name,
       @JsonKey(name: 'first_name') this.firstName,
       @JsonKey(name: 'last_name') this.lastName,
-      @JsonKey(name: 'avatar_url') this.avatarUrl,
-      this.bio,
-      @JsonKey(name: 'is_active') this.isActive,
-      @JsonKey(name: 'created_at') this.createdAt,
-      @JsonKey(name: 'updated_at') this.updatedAt});
+      @JsonKey(name: 'avatar_url') this.avatarUrl});
 
   factory _$OracleUserDtoImpl.fromJson(Map<String, dynamic> json) =>
       _$$OracleUserDtoImplFromJson(json);
 
   @override
+  @JsonKey(fromJson: _parseId)
   final int id;
+  @override
+  final String? username;
+  @override
+  @JsonKey(name: 'hashed_password')
+  final String? hashedPassword;
+  @override
+  @JsonKey(name: 'date_created')
+  final DateTime? dateCreated;
+  @override
+  final String? visible;
+// Legacy fields for compatibility (not returned by current API)
   @override
   final String? email;
   @override
@@ -252,21 +265,10 @@ class _$OracleUserDtoImpl implements _OracleUserDto {
   @override
   @JsonKey(name: 'avatar_url')
   final String? avatarUrl;
-  @override
-  final String? bio;
-  @override
-  @JsonKey(name: 'is_active')
-  final bool? isActive;
-  @override
-  @JsonKey(name: 'created_at')
-  final DateTime? createdAt;
-  @override
-  @JsonKey(name: 'updated_at')
-  final DateTime? updatedAt;
 
   @override
   String toString() {
-    return 'OracleUserDto(id: $id, email: $email, name: $name, firstName: $firstName, lastName: $lastName, avatarUrl: $avatarUrl, bio: $bio, isActive: $isActive, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'OracleUserDto(id: $id, username: $username, hashedPassword: $hashedPassword, dateCreated: $dateCreated, visible: $visible, email: $email, name: $name, firstName: $firstName, lastName: $lastName, avatarUrl: $avatarUrl)';
   }
 
   @override
@@ -275,6 +277,13 @@ class _$OracleUserDtoImpl implements _OracleUserDto {
         (other.runtimeType == runtimeType &&
             other is _$OracleUserDtoImpl &&
             (identical(other.id, id) || other.id == id) &&
+            (identical(other.username, username) ||
+                other.username == username) &&
+            (identical(other.hashedPassword, hashedPassword) ||
+                other.hashedPassword == hashedPassword) &&
+            (identical(other.dateCreated, dateCreated) ||
+                other.dateCreated == dateCreated) &&
+            (identical(other.visible, visible) || other.visible == visible) &&
             (identical(other.email, email) || other.email == email) &&
             (identical(other.name, name) || other.name == name) &&
             (identical(other.firstName, firstName) ||
@@ -282,20 +291,13 @@ class _$OracleUserDtoImpl implements _OracleUserDto {
             (identical(other.lastName, lastName) ||
                 other.lastName == lastName) &&
             (identical(other.avatarUrl, avatarUrl) ||
-                other.avatarUrl == avatarUrl) &&
-            (identical(other.bio, bio) || other.bio == bio) &&
-            (identical(other.isActive, isActive) ||
-                other.isActive == isActive) &&
-            (identical(other.createdAt, createdAt) ||
-                other.createdAt == createdAt) &&
-            (identical(other.updatedAt, updatedAt) ||
-                other.updatedAt == updatedAt));
+                other.avatarUrl == avatarUrl));
   }
 
   @JsonKey(ignore: true)
   @override
-  int get hashCode => Object.hash(runtimeType, id, email, name, firstName,
-      lastName, avatarUrl, bio, isActive, createdAt, updatedAt);
+  int get hashCode => Object.hash(runtimeType, id, username, hashedPassword,
+      dateCreated, visible, email, name, firstName, lastName, avatarUrl);
 
   @JsonKey(ignore: true)
   @override
@@ -313,24 +315,35 @@ class _$OracleUserDtoImpl implements _OracleUserDto {
 
 abstract class _OracleUserDto implements OracleUserDto {
   const factory _OracleUserDto(
-          {required final int id,
+          {@JsonKey(fromJson: _parseId) required final int id,
+          final String? username,
+          @JsonKey(name: 'hashed_password') final String? hashedPassword,
+          @JsonKey(name: 'date_created') final DateTime? dateCreated,
+          final String? visible,
           final String? email,
           final String? name,
           @JsonKey(name: 'first_name') final String? firstName,
           @JsonKey(name: 'last_name') final String? lastName,
-          @JsonKey(name: 'avatar_url') final String? avatarUrl,
-          final String? bio,
-          @JsonKey(name: 'is_active') final bool? isActive,
-          @JsonKey(name: 'created_at') final DateTime? createdAt,
-          @JsonKey(name: 'updated_at') final DateTime? updatedAt}) =
+          @JsonKey(name: 'avatar_url') final String? avatarUrl}) =
       _$OracleUserDtoImpl;
 
   factory _OracleUserDto.fromJson(Map<String, dynamic> json) =
       _$OracleUserDtoImpl.fromJson;
 
   @override
+  @JsonKey(fromJson: _parseId)
   int get id;
   @override
+  String? get username;
+  @override
+  @JsonKey(name: 'hashed_password')
+  String? get hashedPassword;
+  @override
+  @JsonKey(name: 'date_created')
+  DateTime? get dateCreated;
+  @override
+  String? get visible;
+  @override // Legacy fields for compatibility (not returned by current API)
   String? get email;
   @override
   String? get name;
@@ -343,17 +356,6 @@ abstract class _OracleUserDto implements OracleUserDto {
   @override
   @JsonKey(name: 'avatar_url')
   String? get avatarUrl;
-  @override
-  String? get bio;
-  @override
-  @JsonKey(name: 'is_active')
-  bool? get isActive;
-  @override
-  @JsonKey(name: 'created_at')
-  DateTime? get createdAt;
-  @override
-  @JsonKey(name: 'updated_at')
-  DateTime? get updatedAt;
   @override
   @JsonKey(ignore: true)
   _$$OracleUserDtoImplCopyWith<_$OracleUserDtoImpl> get copyWith =>
